@@ -1,0 +1,88 @@
+<x-app-layout>
+    @section('title', 'e-Regulasi - Evaluasi Produk Hukum')
+
+    <div class="bg-white rounded-card p-6 shadow-sm border border-border mb-6">
+        <div>
+            <h2 class="text-xl font-display font-bold text-ink">Evaluasi Regulasi Desa (e-Regulasi)</h2>
+            <p class="text-muted text-sm mt-1">Daftar rancangan produk hukum desa kabupaten yang membutuhkan fasilitasi
+                dan legal drafting note.</p>
+        </div>
+    </div>
+
+    <!-- List -->
+    <div class="bg-white rounded-card shadow-sm border border-border overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="min-w-full divide-y divide-border">
+                <thead class="bg-gray-50">
+                    <tr>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Desa
+                        </th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">No.
+                            Regulasi</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Judul /
+                            Tipe</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Tanggal
+                            Masuk</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-muted tracking-wider uppercase">Status
+                        </th>
+                        <th scope="col"
+                            class="px-6 py-3 text-right text-xs font-medium text-muted tracking-wider uppercase">Aksi
+                        </th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-border">
+                    @forelse ($regulasis as $reg)
+                        <tr class="hover:bg-gray-50/50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-ink font-semibold">
+                                {{ $reg->desa->nama_desa }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-ink font-medium">
+                                {{ $reg->no_regulasi }}</td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm font-medium text-ink font-display">{{ $reg->judul }}</div>
+                                <span
+                                    class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-primary-soft text-primary mt-1 capitalize">{{ $reg->tipe }}</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-muted">
+                                {{ $reg->tgl_diajukan ? $reg->tgl_diajukan->format('d M Y') : '-' }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if($reg->status === 'disahkan')
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Disahkan</span>
+                                @elseif($reg->status === 'direvisi')
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Perlu
+                                        Revisi</span>
+                                @else
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Menunggu
+                                        Verifikasi</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <a href="{{ route('admin.regulasi.show', $reg) }}"
+                                    class="text-primary hover:text-primary-light bg-primary-soft px-3 py-1.5 rounded-md transition-colors">Tinjau</a>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="px-6 py-10 text-center text-sm text-muted">Belum ada usulan produk hukum
+                                masuk.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+        @if($regulasis->hasPages())
+            <div class="px-6 py-4 border-t border-border">
+                {{ $regulasis->links() }}
+            </div>
+        @endif
+    </div>
+</x-app-layout>
