@@ -10,10 +10,12 @@ class Bimtek extends Model
         'judul',
         'deskripsi',
         'kuota',
-        'sisa_kuota',
         'tanggal_pelaksanaan',
+        'tempat',
+        'file_undangan',
         'file_materi',
-        'tempat'
+        'file_sertifikat',
+        'status',
     ];
 
     protected $casts = [
@@ -23,5 +25,21 @@ class Bimtek extends Model
     public function pendaftarans()
     {
         return $this->hasMany(BimtekPendaftaran::class);
+    }
+
+    /**
+     * Hitung sisa kuota secara dinamis (tidak perlu kolom terpisah).
+     */
+    public function getSisaKuotaAttribute(): int
+    {
+        return max(0, $this->kuota - $this->pendaftarans()->count());
+    }
+
+    /**
+     * Apakah kuota masih tersedia?
+     */
+    public function kuotaTersedia(): bool
+    {
+        return $this->sisa_kuota > 0;
     }
 }

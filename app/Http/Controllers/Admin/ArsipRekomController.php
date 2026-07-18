@@ -13,7 +13,7 @@ class ArsipRekomController extends Controller
 {
     public function index(Request $request)
     {
-        $arsips = ArsipRekom::with(['ajuan.desa.kecamatan', 'ajuan.jenisLayanan', 'ajuan.perangkatDesa'])
+        $arsips = ArsipRekom::with(['ajuan.desa.kecamatan', 'ajuan.jenisLayanan', 'ajuan.pesertas.perangkatDesa'])
             ->latest()
             ->paginate(15);
 
@@ -22,7 +22,7 @@ class ArsipRekomController extends Controller
 
     public function create(Ajuan $ajuan)
     {
-        $ajuan->load(['desa', 'jenisLayanan', 'perangkatDesa']);
+        $ajuan->load(['desa', 'jenisLayanan', 'pesertas.perangkatDesa']);
 
         return view('admin.arsip.create', compact('ajuan'));
     }
@@ -31,7 +31,7 @@ class ArsipRekomController extends Controller
     {
         $request->validate([
             'no_surat_rekom' => ['required', 'string', 'max:100'],
-            'file_rekom'     => ['required', 'file', 'mimes:pdf', 'max:20480'],
+            'file_rekom' => ['required', 'file', 'mimes:pdf', 'max:20480'],
         ]);
 
         // Pastikan folder ada
@@ -47,8 +47,8 @@ class ArsipRekomController extends Controller
             ['ajuan_id' => $ajuan->id],
             [
                 'no_surat_rekom' => $request->no_surat_rekom,
-                'file_path'      => $path,
-                'uploaded_by'    => Auth::id(),
+                'file_path' => $path,
+                'uploaded_by' => Auth::id(),
             ]
         );
 
@@ -60,7 +60,7 @@ class ArsipRekomController extends Controller
 
     public function download(ArsipRekom $arsipRekom)
     {
-        if (! Storage::disk('public')->exists($arsipRekom->file_path)) {
+        if (!Storage::disk('public')->exists($arsipRekom->file_path)) {
             return back()->with('error', 'File tidak ditemukan di server.');
         }
 

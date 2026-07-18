@@ -11,44 +11,40 @@ class PenataanController extends Controller
 {
     public function index()
     {
-        $desaId = Auth::user()->desa_id;
-        $penataans = PenataanDesa::where('desa_id', $desaId)->latest()->get();
-
-        // Cek profile statis desanya
-        $desa = Auth::user()->desa;
-
-        return view('desa.penataan.index', compact('penataans', 'desa'));
-    }
-
-    public function create()
-    {
-        return view('desa.penataan.create');
+        $penataan = PenataanDesa::where('desa_id', Auth::user()->desa_id)->latest()->first();
+        return view('desa.penataan.index', compact('penataan'));
     }
 
     public function store(Request $request)
     {
+        // Hanya bisa 1 pengajuan per desa pada satu waktu
+        $existing = PenataanDesa::where('desa_id', Auth::user()->desa_id)
+            ->whereIn('status', ['diajukan', 'persiapan'])
+            ->first();
+
+        if ($existing) {
+            return redirect()->back()->with('error', 'Desa Anda masih memiliki usulan penataan dalam proses.');
+        }
+
         $request->validate([
-            'tipe' => 'required|in:pemekaran,penggabungan,perubahan_status,perubahan_batas',
-            'nama_wilayah_baru' => 'required|string',
-            'jumlah_penduduk' => 'required|integer|min:0',
-            'jumlah_kk' => 'required|integer|min:0',
-            'proposal' => 'required|file|mimes:pdf|max:10240',
+            'jumlah_penduduk' => 'required|integer|min:1',
+            'jumlah_kk' => 'required|integer|min:1',
+            'luas_wilayah_km2' => 'required|numeric|min:0.1',
+            'peta_geospasial' => 'required|file|mimes:pdf,zip|max:20480', // zip u/ format shp/geojson spatial
         ]);
 
-        $desaId = Auth::user()->desa_id;
-        $propPath = $request->file('proposal')->store('penataan/proposal', 'public');
+        $petaPath = $request->file('peta_geospasial')->store('penataan/peta', 'public');
 
         PenataanDesa::create([
-            'desa_id' => $desaId,
-            'tipe' => $request->tipe,
-            'nama_wilayah_baru' => $request->nama_wilayah_baru,
+            'desa_id' => Auth::user()->desa_id,
             'jumlah_penduduk' => $request->jumlah_penduduk,
             'jumlah_kk' => $request->jumlah_kk,
-            'proposal_path' => $propPath,
-            'status' => 'evaluasi',
-            'status_evaluasi_tahun' => 1
+            'luas_wilayah_km2' => $request->luas_wilayah_km2,
+            'peta_geospasial_path' => $petaPath,
+            'status' => 'diajukan'
         ]);
 
-        return redirect()->route('desa.penataan.index')->with('success', 'Usulan penataan desa berhasil dikirim.');
+        return redirect()->route('desa.penataan.index')
+            ->with('success', 'Usulan Penataan / Pemekaran Desa berhasil diajukan. Menunggu proses hitung otomatis dari Dinpermasdes.');
     }
 }

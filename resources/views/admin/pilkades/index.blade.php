@@ -1,147 +1,154 @@
 <x-app-layout>
-    @section('title', 'e-Pilkades Admin')
+    @section('title', 'e-Pilkades - Setup Master Event')
 
-    <div class="bg-white rounded-card p-6 shadow-sm border border-border mb-6">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-                <h2 class="text-xl font-display font-bold text-ink">Fasilitasi Pilkades (Demokrasi Desa)</h2>
-                <p class="text-muted text-sm mt-1">Daftarkan fasilitasi pemilihan kepala desa serentak, pantau
-                    rekapitulasi suara TPS, serta buat SK Bupati pelantikan kades terpilih.</p>
-            </div>
-            <div>
-                <!-- Toggle Form Modal/Btn -->
-                <button onclick="document.getElementById('createModal').classList.toggle('hidden')"
-                    class="inline-flex items-center px-4 py-2 bg-primary text-white font-medium rounded-btn hover:bg-primary-light transition-colors shadow-sm text-sm">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                    Daftarkan Pilkades Baru
-                    </a>
-            </div>
+    <div
+        class="bg-white rounded-card p-6 shadow-sm border border-border mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <h2 class="text-xl font-display font-bold text-ink">e-Pilkades (Fasilitasi Pemilihan Kades)</h2>
+            <p class="text-muted text-sm mt-1">Setup master data DPT dan fasilitasi hukum untuk pemilihan Kepala Desa
+                serentak.</p>
         </div>
+        <button onclick="document.getElementById('modal-create').classList.remove('hidden')"
+            class="inline-flex items-center px-4 py-2 bg-primary text-white font-medium rounded-btn hover:bg-primary-light transition-colors text-sm shadow-sm">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+            </svg>
+            Buat Event Pilkades
+        </button>
     </div>
 
-    <!-- Modal Form -->
-    <div id="createModal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-card max-w-md w-full p-6 shadow-xl border border-border relative">
-            <button onclick="document.getElementById('createModal').classList.toggle('hidden')"
-                class="absolute top-4 right-4 text-muted hover:text-ink">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12">
-                    </path>
-                </svg>
-            </button>
-            <h3 class="text-lg font-bold text-ink font-display mb-4">Daftarkan Pilkades Baru</h3>
-            <form action="{{ route('admin.pilkades.store') }}" method="POST">
+    @if(session('success'))
+        <div class="p-4 bg-green-50 text-green-800 rounded border border-green-200 text-sm mb-6 font-medium">
+            {{ session('success') }}</div>
+    @endif
+
+    {{-- Modal Create --}}
+    <div id="modal-create"
+        class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+        <div class="bg-white rounded-card w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-floating">
+            <div class="p-6 border-b border-border flex justify-between items-center sticky top-0 bg-white">
+                <h3 class="text-lg font-bold text-ink">Setup Penetapan Pilkades Baru</h3>
+                <button onclick="document.getElementById('modal-create').classList.add('hidden')"
+                    class="text-muted hover:text-ink">&times;</button>
+            </div>
+            <form action="{{ route('admin.pilkades.store') }}" method="POST" class="p-6 space-y-4">
                 @csrf
-                <div class="mb-4">
-                    <label for="desa_id"
-                        class="block text-xs font-semibold text-ink uppercase tracking-wider mb-1">Pilih Desa
-                        Pelaksana</label>
-                    <select name="desa_id" id="desa_id" required
-                        class="w-full text-xs rounded-md border-border text-ink bg-white focus:border-primary focus:ring-primary shadow-sm">
-                        @foreach (\App\Models\Desa::all() as $d)
-                            <option value="{{ $d->id }}">{{ $d->nama_desa }}</option>
-                        @endforeach
-                    </select>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="col-span-2 md:col-span-1">
+                        <label class="block text-sm font-medium text-ink mb-1">Desa Penyelenggara</label>
+                        <select name="desa_id" required class="w-full text-sm rounded-md border-border">
+                            <option value="">— Pilih Desa —</option>
+                            @foreach($desas as $desa)
+                                <option value="{{ $desa->id }}">{{ $desa->nama_desa }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-span-2 md:col-span-1">
+                        <label class="block text-sm font-medium text-ink mb-1">Tanggal Pemungutan Suara</label>
+                        <input type="date" name="tanggal_pemungutan" required
+                            class="w-full text-sm rounded-md border-border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-ink mb-1">Jumlah Pemilih Tetap (DPT)</label>
+                        <input type="number" name="total_dpt" required placeholder="0"
+                            class="w-full text-sm rounded-md border-border">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-ink mb-1">Total TPS Tersedia</label>
+                        <input type="number" name="total_tps" required placeholder="1"
+                            class="w-full text-sm rounded-md border-border">
+                    </div>
                 </div>
-                <div class="mb-4">
-                    <label for="tanggal_pemungutan"
-                        class="block text-xs font-semibold text-ink uppercase tracking-wider mb-1">Tanggal Pemungutan
-                        Suara</label>
-                    <input type="date" name="tanggal_pemungutan" id="tanggal_pemungutan" required
-                        class="w-full text-xs rounded-md border-border text-ink bg-white focus:border-primary focus:ring-primary shadow-sm p-1.5">
+
+                <div class="p-4 bg-gray-50 border border-border rounded mt-4">
+                    <h4 class="text-xs font-bold uppercase tracking-wider mb-3">Daftar Kandidat (Kosongkan Nama Jika
+                        Kurang dari 3)</h4>
+                    <div class="space-y-3">
+                        <input type="text" name="calon_1_nama" placeholder="Nama Calon 1 (Cth: Budi Santoso)"
+                            class="w-full text-sm rounded-md border-border">
+                        <input type="text" name="calon_2_nama" placeholder="Nama Calon 2 (Cth: Siti Aminah)"
+                            class="w-full text-sm rounded-md border-border">
+                        <input type="text" name="calon_3_nama" placeholder="Nama Calon 3 (Cth: Joko Supriyanto)"
+                            class="w-full text-sm rounded-md border-border">
+                    </div>
                 </div>
-                <div class="mb-4">
-                    <label for="total_tps"
-                        class="block text-xs font-semibold text-ink uppercase tracking-wider mb-1">Jumlah TPS
-                        Ditetapkan</label>
-                    <input type="number" name="total_tps" id="total_tps" required min="1"
-                        class="w-full text-xs rounded-md border-border text-ink bg-white focus:border-primary focus:ring-primary shadow-sm"
-                        placeholder="Contoh: 5">
-                </div>
-                <div class="flex justify-end gap-3 mt-6 border-t border-border pt-4">
-                    <button type="button" onclick="document.getElementById('createModal').classList.toggle('hidden')"
-                        class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-ink text-xs font-bold rounded">Batal</button>
-                    <button type="submit"
-                        class="px-4 py-2 bg-primary text-white text-xs font-bold rounded">Simpan</button>
+
+                <div class="pt-4 flex justify-end gap-3 border-t border-border mt-6">
+                    <button type="button" onclick="document.getElementById('modal-create').classList.add('hidden')"
+                        class="px-4 py-2 text-sm bg-gray-100 rounded-btn font-medium text-ink">Batal</button>
+                    <button type="submit" class="px-4 py-2 text-sm bg-primary text-white rounded-btn font-medium">Buka
+                        Pilkades</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Table -->
+    {{-- Table --}}
     <div class="bg-white rounded-card shadow-sm border border-border overflow-hidden">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-border">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Desa
-                            Pelaksana</th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Tanggal
-                            Pemungutan</th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Total
-                            TPS</th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-muted tracking-wider uppercase">Status
-                        </th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-muted tracking-wider uppercase">Kades
-                            Terpilih</th>
-                        <th scope="col"
-                            class="px-6 py-3 text-right text-xs font-medium text-muted tracking-wider uppercase">Aksi
-                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Desa</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Hari Pencoblosan</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Kandidat</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Progress TPS</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Status</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-muted uppercase">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-border">
-                    @forelse ($pilkades as $p)
+                    @forelse ($pilkades as $event)
                         <tr class="hover:bg-gray-50/50">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-semibold text-ink">
-                                {{ $p->desa->nama_desa }}
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-ink">{{ $event->desa->nama_desa }}
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-ink font-medium">
-                                {{ $p->tanggal_pemungutan ? $p->tanggal_pemungutan->format('d M Y') : '-' }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text- ink">
-                                {{ $p->total_tps }} TPS
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-ink">
+                                {{ $event->tanggal_pemungutan->format('d M Y') }}</td>
+                            <td class="px-6 py-4 text-xs text-muted">
+                                1. {{ $event->calon_1_nama ?: '-' }}<br>
+                                2. {{ $event->calon_2_nama ?: '-' }}<br>
+                                3. {{ $event->calon_3_nama ?: '-' }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                @if($p->status === 'selesai')
+                                <div class="w-full bg-gray-200 rounded-full h-2.5 mb-1 w-32">
+                                    @php $pct = $event->total_tps > 0 ? ($event->tps_lapor / $event->total_tps) * 100 : 0; @endphp
+                                    <div class="bg-primary h-2.5 rounded-full" style="width: {{ $pct }}%"></div>
+                                </div>
+                                <span class="text-xs text-muted font-medium">{{ $event->tps_lapor }} dari
+                                    {{ $event->total_tps }} TPS melapor</span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                @if($event->status === 'selesai')
                                     <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Selesai</span>
-                                @elseif($p->status === 'pemilihan')
+                                        class="inline-flex px-2 py-0.5 rounded text-xs font-semibold bg-green-100 text-green-800">Selesai
+                                        Ber-SK</span>
+                                @elseif($event->status === 'pemungutan')
                                     <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Pemungutan</span>
+                                        class="inline-flex px-2 py-0.5 rounded text-xs font-semibold bg-blue-100 text-blue-800 animate-pulse">🔴
+                                        Live Count</span>
                                 @else
                                     <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Persiapan</span>
+                                        class="inline-flex px-2 py-0.5 rounded text-xs font-semibold bg-yellow-100 text-yellow-800">Persiapan
+                                        H-x</span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text- ink font-semibold">
-                                {{ $p->pemenang_nama ?? 'Belum Ditentukan' }}
-                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
-                                <a href="{{ route('admin.pilkades.show', $p) }}"
-                                    class="text-primary hover:text-primary-light bg-primary-soft px-3 py-1.5 rounded-md transition-colors">Tinjau
-                                    Rekap</a>
+                                <a href="{{ route('admin.pilkades.show', $event) }}"
+                                    class="text-primary hover:text-primary-light bg-primary-soft px-3 py-1.5 rounded-md font-medium transition-colors">Tinjau
+                                    & Validasi</a>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="px-6 py-10 text-center text-sm text-muted">Belum ada data fasilitasi
-                                Pilkades serentak kabupaten.</td>
+                            <td colspan="6" class="px-6 py-10 text-center text-sm text-muted">Belum ada setup event
+                                Pilkades.</td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
         @if($pilkades->hasPages())
-            <div class="px-6 py-4 border-t border-border">
-                {{ $pilkades->links() }}
-            </div>
+            <div class="px-6 py-4 border-t border-border">{{ $pilkades->links() }}</div>
         @endif
     </div>
 </x-app-layout>

@@ -73,8 +73,21 @@
                 <div class="text-sm border-t border-white/20 pt-3 flex flex-col gap-1">
                     <p><span class="text-primary-soft inline-block w-20">Layanan:</span>
                         {{ $ajuan->jenisLayanan->nama }}</p>
-                    <p><span class="text-primary-soft inline-block w-20">Perangkat:</span>
-                        {{ $ajuan->perangkatDesa->nama }} ({{ $ajuan->perangkatDesa->jabatan }})</p>
+
+                    <p class="text-primary-soft font-medium mt-2">Daftar Peserta ({{ $ajuan->pesertas->count() }}
+                        Orang):</p>
+                    <div class="max-h-24 overflow-y-auto custom-scrollbar space-y-2 pr-1">
+                        @foreach($ajuan->pesertas as $index => $peserta)
+                            <div class="bg-black/10 rounded p-2 border border-white/5 text-xs">
+                                <span class="font-bold block">{{ $index + 1 }}. {{ $peserta->perangkatDesa->nama }}</span>
+                                <span class="opacity-80 block">{{ $peserta->perangkatDesa->jabatan }}</span>
+                                @if($peserta->jabatan_baru)
+                                    <span class="bg-white/20 px-1.5 py-0.5 rounded text-[10px] mt-1 inline-block">M =>
+                                        {{ $peserta->jabatan_baru }}</span>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
 

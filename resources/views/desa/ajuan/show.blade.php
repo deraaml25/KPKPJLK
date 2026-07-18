@@ -50,7 +50,13 @@
                     <div>
                         <p class="text-xs font-mono text-primary-soft tracking-widest mb-1">{{ $ajuan->no_registrasi }}</p>
                         <h2 class="text-xl font-display font-bold">Ajuan {{ $ajuan->jenisLayanan->nama }}</h2>
-                        <p class="text-sm text-primary-soft mt-1">{{ $ajuan->perangkatDesa->nama }} — {{ $ajuan->perangkatDesa->jabatan }}</p>
+                        <div class="mt-2 text-sm text-primary-soft space-y-1 max-h-32 overflow-y-auto custom-scrollbar pr-2">
+                            @foreach($ajuan->pesertas as $index => $peserta)
+                                <p>{{ $index + 1 }}. {{ $peserta->perangkatDesa->nama }} ({{ $peserta->perangkatDesa->jabatan }}) 
+                                   @if($peserta->jabatan_baru) <br><span class="opacity-80 text-xs ml-3 font-semibold text-white">↳ Rotasi ke: {{ $peserta->jabatan_baru }}</span> @endif
+                                </p>
+                            @endforeach
+                        </div>
                     </div>
                     <span class="px-3 py-1.5 rounded-full text-xs font-bold shadow-sm {{ $statusBadge['css'] }}">
                         {{ $statusBadge['label'] }}

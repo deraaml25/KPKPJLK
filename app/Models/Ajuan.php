@@ -11,11 +11,11 @@ class Ajuan extends Model
         'desa_id',
         'jenis_layanan_id',
         'alasan_pemberhentian_id',
-        'perangkat_desa_id',
         'status',
         'folder_path',
         'tgl_diajukan',
-        'tgl_sla_batas'
+        'tgl_sla_batas',
+        'posisi_surat',
     ];
 
     protected static function booted()
@@ -43,9 +43,9 @@ class Ajuan extends Model
         return $this->belongsTo(AlasanPemberhentian::class);
     }
 
-    public function perangkatDesa()
+    public function pesertas()
     {
-        return $this->belongsTo(PerangkatDesa::class);
+        return $this->hasMany(AjuanPeserta::class);
     }
 
     public function checklistAjuans()

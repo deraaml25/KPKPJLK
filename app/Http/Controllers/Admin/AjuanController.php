@@ -15,7 +15,7 @@ class AjuanController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Ajuan::with(['desa.kecamatan', 'jenisLayanan', 'perangkatDesa'])
+        $query = Ajuan::with(['desa.kecamatan', 'jenisLayanan', 'pesertas.perangkatDesa'])
             ->whereNotIn('status', ['draft']);
 
         if ($request->filled('jenis_layanan_id')) {
@@ -40,7 +40,7 @@ class AjuanController extends Controller
             'desa.kecamatan',
             'jenisLayanan',
             'alasanPemberhentian',
-            'perangkatDesa',
+            'pesertas.perangkatDesa',
             'checklistAjuans.templateChecklist',
             'checklistAjuans.logKekurangans',
             'milestoneTrackings',
@@ -62,8 +62,8 @@ class AjuanController extends Controller
         $statusLama = $checklistAjuan->status;
 
         $checklistAjuan->update([
-            'status'     => $request->status,
-            'catatan'    => $request->catatan,
+            'status' => $request->status,
+            'catatan' => $request->catatan,
             'updated_by' => Auth::id(),
         ]);
 
@@ -71,9 +71,9 @@ class AjuanController extends Controller
         if (in_array($request->status, ['kurang', 'tidak_sesuai'])) {
             LogKekurangan::create([
                 'checklist_ajuan_id' => $checklistAjuan->id,
-                'status_lama'        => $statusLama,
-                'status_baru'        => $request->status,
-                'catatan'            => $request->catatan ?? '',
+                'status_lama' => $statusLama,
+                'status_baru' => $request->status,
+                'catatan' => $request->catatan ?? '',
             ]);
         }
 
@@ -98,18 +98,18 @@ class AjuanController extends Controller
     public function updateMilestone(Request $request, Ajuan $ajuan)
     {
         $request->validate([
-            'tahap'       => ['required', 'integer', 'min:1', 'max:9'],
+            'tahap' => ['required', 'integer', 'min:1', 'max:10'],
             'tgl_selesai' => ['nullable', 'date'],
-            'catatan'     => ['nullable', 'string', 'max:500'],
+            'catatan' => ['nullable', 'string', 'max:500'],
         ]);
 
         MilestoneTracking::updateOrCreate(
             ['ajuan_id' => $ajuan->id, 'tahap' => $request->tahap],
             [
-                'tgl_mulai'   => now()->toDateString(),
+                'tgl_mulai' => now()->toDateString(),
                 'tgl_selesai' => $request->tgl_selesai ?: now()->toDateString(),
-                'catatan'     => $request->catatan,
-                'updated_by'  => Auth::id(),
+                'catatan' => $request->catatan,
+                'updated_by' => Auth::id(),
             ]
         );
 
@@ -118,8 +118,8 @@ class AjuanController extends Controller
             $ajuan->update(['status' => 'diproses']);
         }
 
-        // Jika tahap 9 selesai, tandai ajuan sebagai selesai
-        if ($request->tahap == 9) {
+        // Jika tahap 10 selesai, tandai ajuan sebagai selesai
+        if ($request->tahap == 10) {
             $ajuan->update(['status' => 'selesai']);
         }
 
@@ -144,6 +144,6 @@ class AjuanController extends Controller
         // Semua yang ada sudah selesai, ambil tahap terbesar + 1
         $maxTahap = $milestoneTrackings->max('tahap');
 
-        return min((int) $maxTahap + 1, 9);
+        return min((int) $maxTahap + 1, 10);
     }
 }

@@ -10,15 +10,31 @@ return new class extends Migration {
         Schema::create('penataan_desas', function (Blueprint $table) {
             $table->id();
             $table->foreignId('desa_id')->constrained('desas')->cascadeOnDelete();
-            $table->enum('tipe', ['pemekaran', 'penggabungan', 'perubahan_status', 'perubahan_batas']);
-            $table->string('nama_wilayah_baru');
-            $table->integer('jumlah_penduduk')->default(0);
-            $table->integer('jumlah_kk')->default(0);
-            $table->string('proposal_path')->nullable();
-            $table->string('peta_geojson_path')->nullable();
-            $table->string('rekomendasi_dinas_path')->nullable();
-            $table->string('status')->default('pending'); // pending, approved, rejected
-            $table->integer('status_evaluasi_tahun')->default(1); // 1-3 tahun
+
+            // Parameter Demografi
+            $table->integer('jumlah_penduduk');
+            $table->integer('jumlah_kk');
+
+            // Parameter Spasial
+            $table->decimal('luas_wilayah_km2', 10, 2);
+            $table->string('peta_geospasial_path')->nullable(); // format doc/pdf/shp
+            $table->string('perbup_persiapan_path')->nullable();
+
+            // Administrasi
+            $table->string('status')->default('diajukan'); // diajukan, persiapan, definitif, ditolak
+            $table->text('alasan_penolakan')->nullable();
+
+            // Timeline Desa Persiapan
+            $table->date('tgl_mulai_persiapan')->nullable();
+            $table->date('tgl_batas_persiapan')->nullable(); // max 3 years dari tgl_mulai
+
+            // Kode Final dari Kemendagri
+            $table->string('kode_desa_kemendagri')->nullable()->unique();
+
+            // Audit Log
+            $table->foreignId('diproses_oleh')->nullable()->constrained('users')->nullOnDelete();
+            $table->timestamp('diproses_at')->nullable();
+
             $table->timestamps();
         });
     }

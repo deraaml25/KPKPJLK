@@ -1,0 +1,9 @@
+user.name=lakami2005
+user.email=putri.isnaini/l@mhs.unsoed.ac.id
+http.postbuffer=524288000
+http.sslverify=false
+filter.lfs.required=true
+filter.lfs.clean=git-lfs clean -- %f
+filter.lfs.smudge=git-lfs smudge -- %f
+filter.lfs.process=git-lfs filter-process
+windows.appendatomically=false

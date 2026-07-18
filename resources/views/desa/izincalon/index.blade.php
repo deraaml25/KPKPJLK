@@ -1,12 +1,12 @@
 <x-app-layout>
-    @section('title', 'Izin Pencalonan Aparatur')
+    @section('title', 'e-Izin Calon Kades')
 
     <div class="bg-white rounded-card p-6 shadow-sm border border-border mb-6">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-                <h2 class="text-xl font-display font-bold text-ink">e-Izin Calon (Seleksi & Pencalonan)</h2>
-                <p class="text-muted text-sm mt-1">Urus izin pencalonan kades atau perangkat desa bagi aparatur aktif,
-                    serta tinjau rekam bebas temuan kerugian daerah Dinas.</p>
+                <h2 class="text-xl font-display font-bold text-ink">e-Izin Calon Kepala Desa</h2>
+                <p class="text-muted text-sm mt-1">Permohonan izin resmi dari Bupati untuk maju sebagai calon Kepala
+                    Desa.</p>
             </div>
             <div>
                 <a href="{{ route('desa.izincalon.create') }}"
@@ -20,42 +20,26 @@
         </div>
     </div>
 
-    <!-- Rule Board -->
-    <div
-        class="p-4 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-md text-xs mb-6 flex items-start gap-2.5">
-        <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-            </path>
-        </svg>
-        <div>
-            <strong class="font-bold">Regulasi Kepatuhan Administrasi:</strong>
-            <p class="mt-0.5">Berdasarkan peraturan daerah, bakal calon kades/perangkat desa dari unsur aparatur wajib
-                memiliki Surat Keterangan Bebas Temuan Kerugian Desa dari Inspektorat. Calon terdeteksi memiliki temuan
-                kerugian daerah tidak dapat disahkan administrasinya.</p>
+    @if(session('success'))
+        <div class="p-4 bg-green-50 text-green-800 rounded border border-green-200 text-sm mb-6 font-medium">
+            {{ session('success') }}
         </div>
-    </div>
+    @endif
 
-    <!-- List -->
     <div class="bg-white rounded-card shadow-sm border border-border overflow-hidden">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-border">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Nama
-                            Calon / Jabatan</th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Kategori
-                            Pencalonan</th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Berkas
-                            Inspektorat</th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-muted tracking-wider uppercase">Status
+                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Nama
+                            Calon / Jenis</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Jabatan
+                            Sekarang</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Status
                         </th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-muted tracking-wider uppercase">Catatan
+                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Surat
+                            Izin Bupati</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Tanggal
                         </th>
                     </tr>
                 </thead>
@@ -64,37 +48,51 @@
                         <tr class="hover:bg-gray-50/50">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-semibold text-ink font-display">{{ $izin->nama_calon }}</div>
-                                <div class="text-xs text-muted mt-0.5">{{ $izin->jabatan_sekarang }}</div>
+                                <div class="text-xs text-muted mt-0.5">{{ $izin->label_jenis_calon }}</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-ink capitalize">
-                                {{ $izin->jenis_calon }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm">
-                                <a href="{{ asset('storage/' . $izin->bebas_temuan_inspektorat_path) }}" target="_blank"
-                                    class="text-primary hover:underline font-semibold text-xs">Unduh Berkas</a>
-                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-ink">{{ $izin->jabatan_sekarang }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @if($izin->status === 'approved')
                                     <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Izin
-                                        Disetujui</span>
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">✅
+                                        Izin Diterbitkan</span>
                                 @elseif($izin->status === 'rejected')
                                     <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Izin
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">❌
                                         Ditolak</span>
                                 @else
                                     <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Ditinjau</span>
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">🔵
+                                        Menunggu Validasi Dinas</span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 text-sm text-muted max-w-xs truncate">
-                                {{ $izin->catatan_inspektorat ?? '-' }}
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                @if($izin->surat_izin_bupati_path)
+                                    <a href="{{ asset('storage/' . $izin->surat_izin_bupati_path) }}" target="_blank"
+                                        class="text-primary hover:underline flex items-center gap-1 font-semibold text-xs">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
+                                            </path>
+                                        </svg>
+                                        Unduh Surat Izin Bupati
+                                    </a>
+                                @else
+                                    <span class="text-muted text-xs">Belum diterbitkan</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xs text-muted">
+                                {{ $izin->created_at->format('d M Y') }}
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-10 text-center text-sm text-muted">Belum ada usulan izin
-                                pencalonan terdaftar.</td>
+                            <td colspan="5" class="p-0">
+                                <x-empty-state
+                                    icon="<path stroke-linecap='round' stroke-linejoin='round' d='M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z' />"
+                                    title="Izin Pencalonan Kosong"
+                                    message="Belum ada permohonan izin pencalonan untuk Pilkades mendatang." />
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>

@@ -59,8 +59,13 @@
                                 </span>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <div class="text-sm text-ink">{{ $ajuan->perangkatDesa->nama }}</div>
-                                <div class="text-xs text-muted">{{ $ajuan->perangkatDesa->jabatan }}</div>
+                                <div class="text-sm text-ink">
+                                    {{ $ajuan->pesertas->first() ? $ajuan->pesertas->first()->perangkatDesa->nama : '-' }}
+                                    @if($ajuan->pesertas->count() > 1) 
+                                        <span class="text-primary font-bold ml-1">(+{{ $ajuan->pesertas->count() - 1 }})</span>
+                                    @endif
+                                </div>
+                                <div class="text-xs text-muted">{{ $ajuan->pesertas->first() ? $ajuan->pesertas->first()->perangkatDesa->jabatan : '-' }}</div>
                             </td>
                             <td class="px-6 py-4">
                                 <div class="flex items-center gap-2 mb-1">
@@ -87,13 +92,19 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-16 text-center">
-                                <div class="flex flex-col items-center text-muted">
-                                    <svg class="w-12 h-12 mb-3 text-border" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
-                                    <p class="font-medium">Belum ada ajuan yang dibuat</p>
-                                    <p class="text-sm mt-1 mb-4">Mulai dengan membuat ajuan baru untuk memproses rekomendasi perangkat desa.</p>
-                                    <a href="{{ route('desa.ajuan.create') }}" class="px-4 py-2 border border-primary text-primary rounded-btn text-sm font-medium hover:bg-primary-soft transition-colors">Buat Ajuan Sekarang</a>
-                                </div>
+                            <td colspan="5" class="p-0">
+                                <x-empty-state 
+                                    icon="<path stroke-linecap='round' stroke-linejoin='round' d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' />"
+                                    title="Belum ada ajuan yang dibuat"
+                                    message="Mulai dengan membuat ajuan baru untuk memproses rekomendasi perangkat desa."
+                                >
+                                    <x-slot name="action">
+                                        <a href="{{ route('desa.ajuan.create') }}" class="px-6 py-2.5 bg-primary text-white rounded-full text-sm font-bold shadow-md hover:bg-primary-light hover:shadow-lg hover:-translate-y-0.5 transition-all inline-flex items-center gap-2">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                                            Buat Ajuan Sekarang
+                                        </a>
+                                    </x-slot>
+                                </x-empty-state>
                             </td>
                         </tr>
                     @endforelse

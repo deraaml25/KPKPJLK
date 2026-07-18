@@ -12,7 +12,7 @@ class PjKadesController extends Controller
     public function index()
     {
         $desaId = Auth::user()->desa_id;
-        $pjkades = PjKades::where('desa_id', $desaId)->latest()->get();
+        $pjkades = PjKades::withoutGlobalScopes()->where('desa_id', $desaId)->latest()->get();
         return view('desa.pjkades.index', compact('pjkades'));
     }
 
@@ -24,14 +24,16 @@ class PjKadesController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nama_pns' => 'required',
-            'nip' => 'required',
-            'pangkat' => 'required',
+            'nama_pns' => 'required|string|max:255',
+            'nip' => 'required|string|max:30',
+            'pangkat' => 'required|string|max:100',
+            'surat_camat' => 'required|file|mimes:pdf|max:10240',
             'riwayat_hidup' => 'required|file|mimes:pdf|max:10240',
             'sk_pangkat' => 'required|file|mimes:pdf|max:10240',
         ]);
 
         $desaId = Auth::user()->desa_id;
+        $camatPath = $request->file('surat_camat')->store('pjkades/surat_camat', 'public');
         $cvPath = $request->file('riwayat_hidup')->store('pjkades/cv', 'public');
         $skPath = $request->file('sk_pangkat')->store('pjkades/sk_pangkat', 'public');
 
@@ -40,12 +42,13 @@ class PjKadesController extends Controller
             'nama_pns' => $request->nama_pns,
             'nip' => $request->nip,
             'pangkat' => $request->pangkat,
+            'surat_camat_path' => $camatPath,
             'riwayat_hidup_path' => $cvPath,
             'sk_pangkat_path' => $skPath,
             'status_bebas_hukdis' => 'pending',
             'status' => 'submitted',
         ]);
 
-        return redirect()->route('desa.pjkades.index')->with('success', 'Usulan Pj Kepala Desa berhasil dikirim.');
+        return redirect()->route('desa.pjkades.index')->with('success', 'Usulan Pj Kepala Desa berhasil dikirim ke Dinpermasdes.');
     }
 }

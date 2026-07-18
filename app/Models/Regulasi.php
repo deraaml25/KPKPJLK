@@ -12,6 +12,8 @@ class Regulasi extends Model
         'deskripsi',
         'tipe',
         'file_path',
+        'file_catatan_dinas',
+        'file_pdf',
         'status',
         'desa_id',
         'catatan_revisi',

@@ -6,8 +6,15 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
 use App\Http\Controllers\Desa\DashboardController as DesaDashboardController;
 
+
+
+
+
+
+
+
 Route::get('/', function () {
-    return view('welcome');
+    return redirect('/login');
 });
 
 Route::get('/dashboard', function () {
@@ -40,17 +47,22 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
     // Modul 1: e-Regulasi (Admin)
     Route::get('/regulasi', [\App\Http\Controllers\Admin\RegulasiController::class, 'index'])->name('regulasi.index');
     Route::get('/regulasi/{regulasi}', [\App\Http\Controllers\Admin\RegulasiController::class, 'show'])->name('regulasi.show');
-    Route::post('/regulasi/{regulasi}/approve', [\App\Http\Controllers\Admin\RegulasiController::class, 'approve'])->name('regulasi.approve');
-
+    Route::post('/regulasi/{regulasi}/kembalikan', [\App\Http\Controllers\Admin\RegulasiController::class, 'kembalikanUntukRevisi'])->name('regulasi.kembalikan');
+    Route::post('/regulasi/{regulasi}/sahkan', [\App\Http\Controllers\Admin\RegulasiController::class, 'sahkanAturan'])->name('regulasi.sahkan');
     // Modul 2: e-Bimtek (Admin)
     Route::get('/bimtek', [\App\Http\Controllers\Admin\BimtekController::class, 'index'])->name('bimtek.index');
     Route::get('/bimtek/create', [\App\Http\Controllers\Admin\BimtekController::class, 'create'])->name('bimtek.create');
     Route::post('/bimtek', [\App\Http\Controllers\Admin\BimtekController::class, 'store'])->name('bimtek.store');
+    Route::get('/bimtek/{bimtek}', [\App\Http\Controllers\Admin\BimtekController::class, 'show'])->name('bimtek.show');
+    Route::patch('/bimtek/presensi/{pendaftaran}', [\App\Http\Controllers\Admin\BimtekController::class, 'updatePresensi'])->name('bimtek.presensi');
+    Route::post('/bimtek/{bimtek}/upload-materi', [\App\Http\Controllers\Admin\BimtekController::class, 'uploadMateri'])->name('bimtek.upload-materi');
+    Route::patch('/bimtek/validasi-rtl/{pendaftaran}', [\App\Http\Controllers\Admin\BimtekController::class, 'validasiRtl'])->name('bimtek.validasi-rtl');
 
     // Modul 4: e-Siltap (Admin)
     Route::get('/siltap', [\App\Http\Controllers\Admin\SiltapController::class, 'index'])->name('siltap.index');
     Route::get('/siltap/{siltap}', [\App\Http\Controllers\Admin\SiltapController::class, 'show'])->name('siltap.show');
-    Route::post('/siltap/{siltap}/approve', [\App\Http\Controllers\Admin\SiltapController::class, 'approve'])->name('siltap.approve');
+    Route::post('/siltap/{siltap}/verifikasi', [\App\Http\Controllers\Admin\SiltapController::class, 'verifikasi'])->name('siltap.verifikasi');
+    Route::post('/siltap/{siltap}/kirim-bkad', [\App\Http\Controllers\Admin\SiltapController::class, 'kirimBkad'])->name('siltap.kirim-bkad');
 
     // Modul 5: e-Pj Kades (Admin)
     Route::get('/pjkades', [\App\Http\Controllers\Admin\PjKadesController::class, 'index'])->name('pjkades.index');
@@ -71,7 +83,8 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
     // Modul 8: e-Penataan Desa (Admin)
     Route::get('/penataan', [\App\Http\Controllers\Admin\PenataanController::class, 'index'])->name('penataan.index');
     Route::get('/penataan/{penataan}', [\App\Http\Controllers\Admin\PenataanController::class, 'show'])->name('penataan.show');
-    Route::post('/penataan/{penataan}/verifikasi', [\App\Http\Controllers\Admin\PenataanController::class, 'verifikasi'])->name('penataan.verifikasi');
+    Route::post('/penataan/{penataan}/set-persiapan', [\App\Http\Controllers\Admin\PenataanController::class, 'setPersiapan'])->name('penataan.set_persiapan');
+    Route::post('/penataan/{penataan}/set-definitif', [\App\Http\Controllers\Admin\PenataanController::class, 'setDefinitif'])->name('penataan.set_definitif');
 
     // Data Master
     Route::get('/perangkat', [\App\Http\Controllers\Admin\PerangkatController::class, 'index'])->name('perangkat.index');
@@ -84,6 +97,13 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
 Route::middleware(['auth', 'role:desa'])->prefix('desa')->name('desa.')->group(function () {
     Route::get('/dashboard', [DesaDashboardController::class, 'index'])->name('dashboard');
 
+    Route::get('/perangkat', [\App\Http\Controllers\Desa\PerangkatController::class, 'index'])->name('perangkat.index');
+    Route::get('/perangkat/create', [\App\Http\Controllers\Desa\PerangkatController::class, 'create'])->name('perangkat.create');
+    Route::post('/perangkat', [\App\Http\Controllers\Desa\PerangkatController::class, 'store'])->name('perangkat.store');
+    Route::get('/perangkat/{perangkat}/edit', [\App\Http\Controllers\Desa\PerangkatController::class, 'edit'])->name('perangkat.edit');
+    Route::put('/perangkat/{perangkat}', [\App\Http\Controllers\Desa\PerangkatController::class, 'update'])->name('perangkat.update');
+    Route::delete('/perangkat/{perangkat}', [\App\Http\Controllers\Desa\PerangkatController::class, 'destroy'])->name('perangkat.destroy');
+
     // Ajuan — /buat MUST come before /{ajuan} or it gets swallowed
     Route::get('/ajuan/buat', [\App\Http\Controllers\Desa\AjuanController::class, 'create'])->name('ajuan.create');
     Route::get('/ajuan', [\App\Http\Controllers\Desa\AjuanController::class, 'index'])->name('ajuan.index');
@@ -92,18 +112,19 @@ Route::middleware(['auth', 'role:desa'])->prefix('desa')->name('desa.')->group(f
     Route::post('/ajuan/{ajuan}/upload/{checklistAjuan}', [\App\Http\Controllers\Desa\AjuanController::class, 'uploadDokumen'])->name('ajuan.upload');
     Route::post('/ajuan/{ajuan}/bulk-upload', [\App\Http\Controllers\Desa\AjuanController::class, 'bulkUpload'])->name('ajuan.bulk-upload');
 
-    // Arsip
-    Route::get('/arsip', [\App\Http\Controllers\Desa\ArsipController::class, 'index'])->name('arsip.index');
-
+    // Arsip Rekomendasi khusus admin, di desa dimatikan
+    // Route::get('/arsip', [\App\Http\Controllers\Desa\ArsipController::class, 'index'])->name('arsip.index');
     // Modul 1: e-Regulasi (Desa)
     Route::get('/regulasi', [\App\Http\Controllers\Desa\RegulasiController::class, 'index'])->name('regulasi.index');
     Route::get('/regulasi/buat', [\App\Http\Controllers\Desa\RegulasiController::class, 'create'])->name('regulasi.create');
+    Route::get('/regulasi/{regulasi}', [\App\Http\Controllers\Desa\RegulasiController::class, 'show'])->name('regulasi.show');
     Route::post('/regulasi', [\App\Http\Controllers\Desa\RegulasiController::class, 'store'])->name('regulasi.store');
+    Route::post('/regulasi/{regulasi}/kirim-revisi', [\App\Http\Controllers\Desa\RegulasiController::class, 'kirimRevisi'])->name('regulasi.kirim-revisi');
 
     // Modul 2: e-Bimtek (Desa)
     Route::get('/bimtek', [\App\Http\Controllers\Desa\BimtekController::class, 'index'])->name('bimtek.index');
     Route::post('/bimtek/{bimtek}/daftar', [\App\Http\Controllers\Desa\BimtekController::class, 'daftar'])->name('bimtek.daftar');
-    Route::post('/bimtek/{pendaftaran}/upload-rtl', [\App\Http\Controllers\Desa\BimtekController::class, 'uploadRtl'])->name('bimtek.upload-rtl');
+    Route::post('/bimtek/pendaftaran/{pendaftaran}/upload-rtl', [\App\Http\Controllers\Desa\BimtekController::class, 'uploadRtl'])->name('bimtek.upload-rtl');
 
     // Modul 4: e-Siltap (Desa)
     Route::get('/siltap', [\App\Http\Controllers\Desa\SiltapController::class, 'index'])->name('siltap.index');
@@ -607,5 +628,91 @@ Route::get('/seed-checklist', function () {
 });
 
 Route::get('/debug-count', function () {
-    return "Total: " . \App\Models\PerangkatDesa::count();
+    try {
+        $out = "Start DB Fix...<br>\n";
+        $dbPath = database_path('database.sqlite');
+        $db = new PDO('sqlite:' . $dbPath);
+        $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $out .= "Connected to: $dbPath<br>\n";
+
+        // 1. ADD COLUMN
+        $q = $db->query("PRAGMA table_info(bimtek_pendaftarans)");
+        $cols = $q->fetchAll(PDO::FETCH_ASSOC);
+        $hasDesaId = false;
+        foreach ($cols as $c)
+            if ($c['name'] === 'desa_id')
+                $hasDesaId = true;
+        if (!$hasDesaId) {
+            $db->exec("ALTER TABLE bimtek_pendaftarans ADD COLUMN desa_id INTEGER");
+            $out .= "ADD COLUMN desa_id Sukses.<br>\n";
+        }
+
+        // 2. Fix Ajuans Checklists
+        for ($i = 4; $i <= 10; $i++) {
+            $stmt = $db->prepare("SELECT id, jenis_layanan_id, alasan_pemberhentian_id FROM ajuans WHERE id = ?");
+            $stmt->execute([$i]);
+            $ajuan = $stmt->fetch(PDO::FETCH_ASSOC);
+            if ($ajuan) {
+                $cStmt = $db->prepare("SELECT COUNT(*) as c FROM checklist_ajuans WHERE ajuan_id = ?");
+                $cStmt->execute([$i]);
+                if ($cStmt->fetchColumn() == 0) {
+                    if ($ajuan['alasan_pemberhentian_id']) {
+                        $tStmt = $db->prepare("SELECT id FROM template_checklists WHERE jenis_layanan_id = ? AND (alasan_pemberhentian_id IS NULL OR alasan_pemberhentian_id = ?)");
+                        $tStmt->execute([$ajuan['jenis_layanan_id'], $ajuan['alasan_pemberhentian_id']]);
+                    } else {
+                        $tStmt = $db->prepare("SELECT id FROM template_checklists WHERE jenis_layanan_id = ? AND alasan_pemberhentian_id IS NULL");
+                        $tStmt->execute([$ajuan['jenis_layanan_id']]);
+                    }
+                    $templates = $tStmt->fetchAll(PDO::FETCH_ASSOC);
+                    $ins = 0;
+                    foreach ($templates as $t) {
+                        $db->prepare("INSERT INTO checklist_ajuans (ajuan_id, template_checklist_id, status, versi, created_at, updated_at) VALUES (?, ?, 'belum_diunggah', 1, datetime('now'), datetime('now'))")->execute([$i, $t['id']]);
+                        $ins++;
+                    }
+                    $out .= "Ajuan $i: $ins checklist.<br>\n";
+                }
+            }
+        }
+
+        // 3. Karangendep Update
+        $desa = $db->prepare("SELECT id, nama_desa FROM desas WHERE nama_desa LIKE '%Karangendep%'");
+        $desa->execute();
+        $d = $desa->fetch(PDO::FETCH_ASSOC);
+        if ($d) {
+            // Update the first existing Perangkat to KARSINAH to preserve foreign keys!
+            $firstPStmt = $db->prepare("SELECT id FROM perangkat_desas WHERE desa_id = ? ORDER BY id ASC LIMIT 1");
+            $firstPStmt->execute([$d['id']]);
+            $firstP = $firstPStmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($firstP) {
+                $db->prepare("UPDATE perangkat_desas SET nama = 'KARSINAH', jabatan = 'Kepala Desa', no_sk_terakhir = '141/001/2020', tgl_mulai_jabatan = '2020-01-01', status_aktif = 1 WHERE id = ?")->execute([$firstP['id']]);
+                $out .= "Dummy Budi updated to Karsinah.<br>\n";
+            }
+
+            // Delete duplicates only
+            if ($firstP) {
+                $db->prepare("DELETE FROM perangkat_desas WHERE desa_id = ? AND id != ?")->execute([$d['id'], $firstP['id']]);
+            } else {
+                $db->prepare("DELETE FROM perangkat_desas WHERE desa_id = ?")->execute([$d['id']]); // fall back
+            }
+
+            $realData = [
+                ['jabatan' => 'Sekretaris Desa', 'nama' => 'TRIYO WIDODO'],
+                ['jabatan' => 'Kasi Pemerintahan', 'nama' => 'KIRTO'],
+                ['jabatan' => 'Kasi Kesejahteraan', 'nama' => 'SUTARKO'],
+                ['jabatan' => 'Kasi Pelayanan', 'nama' => 'AGUS SUPRIJATNO'],
+                ['jabatan' => 'Kaur Keuangan', 'nama' => 'NETY AMI PRABAWATI'],
+                ['jabatan' => 'Kaur Perencanaan', 'nama' => 'TRI YUNIA RUBIANTO'],
+                ['jabatan' => 'Kaur TU & Umum', 'nama' => 'INAWAN NUR KHOLIQ'],
+            ];
+            foreach ($realData as $p) {
+                $db->prepare("INSERT INTO perangkat_desas (desa_id, nama, jabatan, no_sk_terakhir, tgl_mulai_jabatan, status_aktif, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 1, datetime('now'), datetime('now'))")
+                    ->execute([$d['id'], $p['nama'], $p['jabatan'], '141/00' . rand(1, 9) . '/2020', '2020-01-01']);
+            }
+            $out .= "Karangendep berhasi disuntik sisa baris murni.<br>\n";
+        }
+        return $out;
+    } catch (\Exception $e) {
+        return "ERROR: " . $e->getMessage() . " line: " . $e->getLine();
+    }
 });

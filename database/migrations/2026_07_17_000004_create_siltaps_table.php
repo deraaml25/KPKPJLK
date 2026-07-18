@@ -12,13 +12,19 @@ return new class extends Migration {
             $table->foreignId('desa_id')->constrained('desas')->cascadeOnDelete();
             $table->integer('bulan'); // 1-12
             $table->integer('tahun');
+            $table->integer('jumlah_perangkat_aktif')->default(0); // Snapshot jumlah perangkat saat submit
             $table->string('rekomendasi_camat_path')->nullable();
             $table->string('bukti_bpjs_path')->nullable();
             $table->string('spj_path')->nullable();
-            $table->string('status')->default('draft'); // draft, submitted, approved, rejected
-            $table->text('notes')->nullable();
-            $table->string('sp2d_path')->nullable(); // Uploaded when approved
+            $table->string('status')->default('menunggu_verifikasi'); // menunggu_verifikasi, disetujui, ditolak, dikirim_bkad
+            $table->text('catatan_verifikator')->nullable();
+            $table->string('sp2d_path')->nullable();
+            // Audit Trail
+            $table->unsignedBigInteger('verified_by')->nullable(); // user_id verifikator
+            $table->timestamp('verified_at')->nullable();
             $table->timestamps();
+
+            $table->unique(['desa_id', 'bulan', 'tahun']); // 1 pengajuan per bulan per desa
         });
     }
 

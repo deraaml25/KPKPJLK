@@ -1,5 +1,5 @@
 <x-app-layout>
-    @section('title', 'Pj Kades Desa')
+    @section('title', 'e-Pj Kades')
 
     <div class="bg-white rounded-card p-6 shadow-sm border border-border mb-6">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -20,42 +20,29 @@
         </div>
     </div>
 
-    <!-- Info SLA -->
-    <div class="p-4 bg-muted/30 border border-border rounded-md text-xs mb-6 flex items-start gap-2.5">
-        <div class="w-6 h-6 rounded bg-primary-soft text-primary flex items-center justify-center flex-shrink-0">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-            </svg>
+    @if(session('success'))
+        <div class="p-4 bg-green-50 text-green-800 rounded border border-green-200 text-sm mb-6 font-medium">
+            {{ session('success') }}
         </div>
-        <div>
-            <strong class="font-bold text-ink">SLA Pengurusan: 14 Hari Kerja</strong>
-            <p class="text-muted mt-0.5">Sesuai peraturan, fasilitasi usulan Pj Kepala Desa, mulai dari verifikasi
-                berkas PNS, peninjauan sanksi disiplin, hingga penerbitan SK Bupati dilakukan dalam rentang waktu
-                maksimal 14 hari kerja.</p>
-        </div>
-    </div>
+    @endif
 
-    <!-- List -->
+    {{-- Table --}}
     <div class="bg-white rounded-card shadow-sm border border-border overflow-hidden">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-border">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Nama
+                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Nama
                             Calon Pj / NIP</th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
-                            Pangkat/Golongan</th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Bebas
+                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Pangkat
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Bebas
                             Hukdis</th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-muted tracking-wider uppercase">Status
-                            Usulan</th>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-muted tracking-wider uppercase">SK
+                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Status
+                        </th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Masa
+                            Jabatan</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">SK
                             Bupati</th>
                     </tr>
                 </thead>
@@ -66,9 +53,7 @@
                                 <div class="text-sm font-semibold text-ink font-display">{{ $pj->nama_pns }}</div>
                                 <div class="text-xs text-muted font-mono mt-0.5">NIP. {{ $pj->nip }}</div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-ink">
-                                {{ $pj->pangkat }}
-                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-ink">{{ $pj->pangkat }}</td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @if($pj->status_bebas_hukdis === 'clean')
                                     <span
@@ -79,21 +64,37 @@
                                         Temuan</span>
                                 @else
                                     <span
-                                        class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-800">Pending
-                                        Evaluasi</span>
+                                        class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-gray-100 text-gray-800">Pending</span>
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 @if($pj->status === 'approved')
                                     <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">SK
-                                        Terbit</span>
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Pj
+                                        Kades Aktif</span>
                                 @elseif($pj->status === 'rejected')
                                     <span
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">Ditolak</span>
                                 @else
                                     <span
-                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Dievaluasi</span>
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Menunggu
+                                        Verifikasi</span>
+                                @endif
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-xs text-ink">
+                                @if($pj->tgl_mulai && $pj->tgl_selesai)
+                                    <div>{{ $pj->tgl_mulai->format('d/m/Y') }} — {{ $pj->tgl_selesai->format('d/m/Y') }}</div>
+                                    @if($pj->status === 'approved')
+                                        @if($pj->sudah_berakhir)
+                                            <span class="text-red-600 font-bold">Sudah Berakhir</span>
+                                        @elseif($pj->hampir_berakhir)
+                                            <span class="text-yellow-600 font-bold">Sisa {{ $pj->sisa_hari }} hari</span>
+                                        @else
+                                            <span class="text-green-600 font-medium">Sisa {{ $pj->sisa_hari }} hari</span>
+                                        @endif
+                                    @endif
+                                @else
+                                    <span class="text-muted">—</span>
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm">
@@ -108,14 +109,18 @@
                                         SK Bupati
                                     </a>
                                 @else
-                                    <span class="text-muted text-xs font-medium">Dalam Proses</span>
+                                    <span class="text-muted text-xs font-medium">—</span>
                                 @endif
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="px-6 py-10 text-center text-sm text-muted">Belum ada usulan Pj Kepala
-                                Desa terdaftar.</td>
+                            <td colspan="6" class="p-0">
+                                <x-empty-state
+                                    icon="<path stroke-linecap='round' stroke-linejoin='round' d='M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z' />"
+                                    title="Pj Kepala Desa Kosong"
+                                    message="Belum ada usulan Pj Kepala Desa yang terdaftar. Tambahkan data dari tombol Ajukan." />
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>

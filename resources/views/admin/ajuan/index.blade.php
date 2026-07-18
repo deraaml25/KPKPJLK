@@ -37,7 +37,12 @@
                             </td>
                             <td class="px-6 py-4">
                                 <div class="text-sm font-semibold text-ink">{{ $ajuan->desa->nama_desa }}</div>
-                                <div class="text-xs text-muted mt-0.5">{{ $ajuan->perangkatDesa->nama }} ({{ $ajuan->perangkatDesa->jabatan }})</div>
+                                <div class="text-xs text-muted mt-0.5">
+                                    {{ $ajuan->pesertas->first() ? $ajuan->pesertas->first()->perangkatDesa->nama : '-' }}
+                                    @if($ajuan->pesertas->count() > 1)
+                                        <span class="text-primary font-bold ml-1">(+{{ $ajuan->pesertas->count() - 1 }})</span>
+                                    @endif
+                                </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $ajuan->jenisLayanan->nama == 'Pengangkatan' ? 'bg-primary-soft text-primary' : ($ajuan->jenisLayanan->nama == 'Pemberhentian' ? 'bg-red-100 text-danger' : 'bg-yellow-100 text-yellow-800') }}">

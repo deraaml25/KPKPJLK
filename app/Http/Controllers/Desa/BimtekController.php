@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Desa;
 use App\Http\Controllers\Controller;
 use App\Models\Bimtek;
 use App\Models\BimtekPendaftaran;
+use App\Models\PerangkatDesa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -12,59 +13,94 @@ class BimtekController extends Controller
 {
     public function index()
     {
-        $bimteks = Bimtek::where('tanggal_pelaksanaan', '>=', now())
+        $desaId = Auth::user()->desa_id;
+
+        // Event Bimtek yang masih terjadwal
+        $bimteks = Bimtek::withCount('pendaftarans')
             ->latest()
             ->get();
 
-        $myPendaftarans = BimtekPendaftaran::with('bimtek')
-            ->where('user_id', Auth::id())
+        // Pendaftaran milik desa ini
+        $myPendaftarans = BimtekPendaftaran::with(['bimtek', 'perangkatDesa'])
+            ->where('desa_id', $desaId)
             ->get();
 
-        return view('desa.bimtek.index', compact('bimteks', 'myPendaftarans'));
+        // ID bimtek yang sudah didaftarkan desa ini (untuk disable tombol)
+        $registeredBimtekIds = $myPendaftarans->pluck('bimtek_id')->toArray();
+
+        return view('desa.bimtek.index', compact('bimteks', 'myPendaftarans', 'registeredBimtekIds'));
     }
 
-    public function daftar(Bimtek $bimtek)
+    /**
+     * Tahap 2: Desa mendaftarkan perangkat untuk mengikuti Bimtek.
+     */
+    public function daftar(Request $request, Bimtek $bimtek)
     {
-        if ($bimtek->sisa_kuota <= 0) {
-            return redirect()->back()->with('error', 'Pendaftaran gagal: Kuota kelas pembinaan sudah penuh.');
+        $desaId = Auth::user()->desa_id;
+
+        // Validasi kuota
+        if (!$bimtek->kuotaTersedia()) {
+            return redirect()->back()->with('error', 'Pendaftaran gagal: Kuota kelas sudah penuh.');
         }
 
-        // Cek double pendaftaran
+        // Cek duplikasi pendaftaran per desa
         $exists = BimtekPendaftaran::where('bimtek_id', $bimtek->id)
-            ->where('user_id', Auth::id())
+            ->where('desa_id', $desaId)
             ->exists();
 
         if ($exists) {
-            return redirect()->back()->with('error', 'Anda sudah terdaftar dalam bimtek ini.');
+            return redirect()->back()->with('error', 'Desa Anda sudah mendaftarkan peserta untuk Bimtek ini.');
         }
+
+        $request->validate([
+            'perangkat_desa_id' => 'required|exists:perangkat_desas,id',
+        ]);
+
+        // Pastikan perangkat milik desa ini
+        $perangkat = PerangkatDesa::where('id', $request->perangkat_desa_id)
+            ->where('desa_id', $desaId)
+            ->firstOrFail();
 
         BimtekPendaftaran::create([
             'bimtek_id' => $bimtek->id,
             'user_id' => Auth::id(),
-            'status_presensi' => 'absen',
+            'desa_id' => $desaId,
+            'perangkat_desa_id' => $perangkat->id,
+            'status_presensi' => 'terdaftar',
+            'status_rtl' => 'menunggu_rtl',
         ]);
 
-        $bimtek->decrement('sisa_kuota');
-
-        return redirect()->route('desa.bimtek.index')->with('success', 'Berhasil mendaftar Bimtek.');
+        return redirect()->route('desa.bimtek.index')->with('success', 'Perangkat "' . $perangkat->nama . '" berhasil didaftarkan untuk Bimtek "' . $bimtek->judul . '".');
     }
 
+    /**
+     * Tahap 4: Setelah presensi valid, Desa mengunggah dokumen RTL.
+     */
     public function uploadRtl(Request $request, BimtekPendaftaran $pendaftaran)
     {
-        if ($pendaftaran->user_id !== Auth::id()) {
+        $desaId = Auth::user()->desa_id;
+
+        // Pastikan milik desa ini
+        if ($pendaftaran->desa_id !== $desaId) {
             abort(403);
         }
 
+        // Hanya bisa upload RTL jika sudah berstatus "hadir"
+        if ($pendaftaran->status_presensi !== 'hadir') {
+            return back()->with('error', 'Upload RTL hanya bisa dilakukan setelah kehadiran divalidasi oleh Dinpermasdes.');
+        }
+
         $request->validate([
-            'file_rtl' => 'required|file|mimes:pdf,docx,doc|max:10240'
+            'file_rtl' => 'required|file|mimes:pdf,docx,doc|max:10240',
         ]);
 
         $path = $request->file('file_rtl')->store('bimtek/rtl', 'public');
 
         $pendaftaran->update([
-            'file_rtl' => $path
+            'file_rtl' => $path,
+            'status_rtl' => 'menunggu_validasi',
         ]);
 
-        return redirect()->route('desa.bimtek.index')->with('success', 'Dokumen Rencana Tindak Lanjut (RTL) berhasil diunggah.');
+        return redirect()->route('desa.bimtek.index')->with('success', 'Dokumen RTL berhasil diunggah. Menunggu validasi Dinpermasdes.');
     }
 }

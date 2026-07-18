@@ -36,8 +36,14 @@
         </div>
         <div class="bg-white rounded-card p-6 shadow-sm border border-border flex items-center justify-between">
             <div>
-                <p class="text-sm font-medium text-muted mb-1">Laporan RTL Masuk</p>
+                <p class="text-sm font-medium text-muted mb-1">Laporan RTL Tuntas</p>
                 <h3 class="text-3xl font-display font-bold text-success">{{ $rtlUploads }}</h3>
+            </div>
+        </div>
+        <div class="bg-white rounded-card p-6 shadow-sm border border-border flex items-center justify-between">
+            <div>
+                <p class="text-sm font-medium text-muted mb-1">RTL Menunggu Validasi</p>
+                <h3 class="text-3xl font-display font-bold text-yellow-600">{{ $rtlMenunggu }}</h3>
             </div>
         </div>
     </div>
@@ -60,6 +66,9 @@
                         <th scope="col"
                             class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
                             Pendaftar</th>
+                        <th scope="col"
+                            class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">
+                            Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-border">
@@ -78,10 +87,14 @@
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-ink font-semibold">
                                 {{ $bim->pendaftarans_count ?? 0 }} / {{ $bim->kuota }}
                             </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                <a href="{{ route('admin.bimtek.show', $bim) }}"
+                                    class="text-primary hover:underline font-medium">Detail &rarr;</a>
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-6 py-10 text-center text-sm text-muted">Belum ada agenda pelatihan /
+                            <td colspan="5" class="px-6 py-10 text-center text-sm text-muted">Belum ada agenda pelatihan /
                                 bimtek tersimpan.</td>
                         </tr>
                     @endforelse

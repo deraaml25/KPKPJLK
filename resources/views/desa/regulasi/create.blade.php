@@ -27,9 +27,10 @@
                     </select>
                 </div>
                 <div>
-                    <label for="file" class="block text-sm font-medium text-ink mb-1">Draf Dokumen (.docx /
-                        .pdf)</label>
+                    <label for="file" class="block text-sm font-medium text-ink mb-1">Draf Dokumen (Wajib .doc /
+                        .docx)</label>
                     <input type="file" name="file" id="file" required
+                        accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                         class="w-full rounded-md border-border text-ink bg-white focus:border-primary focus:ring-primary shadow-sm text-sm p-1">
                 </div>
             </div>

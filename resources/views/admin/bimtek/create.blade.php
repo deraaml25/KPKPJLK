@@ -6,7 +6,7 @@
         <p class="text-muted text-sm mb-6">Tambahkan jadwal kelas pelatihan atau kapasitas peningkatan kompetensi
             aparatur desa.</p>
 
-        <form action="{{ route('admin.bimtek.store') }}" method="POST">
+        <form action="{{ route('admin.bimtek.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <div class="mb-4">
@@ -42,15 +42,21 @@
                 <textarea name="deskripsi" id="deskripsi" rows="4"
                     class="w-full rounded-md border-border text-ink bg-white focus:border-primary focus:ring-primary shadow-sm"
                     placeholder="Jelaskan secara singkat materi detail pelatihan..."></textarea>
-            </div>
+                <div class="mb-6">
+                    <label for="file_undangan" class="block text-sm font-medium text-ink mb-1">Surat Undangan Resmi
+                        (PDF, Opsional)</label>
+                    <input type="file" name="file_undangan" id="file_undangan" accept=".pdf"
+                        class="w-full rounded-md border-border text-ink bg-white focus:border-primary focus:ring-primary shadow-sm text-sm p-1">
+                    <p class="text-xs text-muted mt-1">Unggah surat undangan yang akan dilihat oleh seluruh desa.</p>
+                </div>
 
-            <div class="flex items-center justify-end gap-3 border-t border-border pt-6">
-                <a href="{{ route('admin.bimtek.index') }}"
-                    class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-ink font-medium rounded-btn transition-colors text-sm">Batal</a>
-                <button type="submit"
-                    class="px-4 py-2 bg-primary text-white font-medium rounded-btn hover:bg-primary-light transition-colors shadow-sm text-sm">Simpan
-                    Jadwal</button>
-            </div>
+                <div class="flex items-center justify-end gap-3 border-t border-border pt-6">
+                    <a href="{{ route('admin.bimtek.index') }}"
+                        class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-ink font-medium rounded-btn transition-colors text-sm">Batal</a>
+                    <button type="submit"
+                        class="px-4 py-2 bg-primary text-white font-medium rounded-btn hover:bg-primary-light transition-colors shadow-sm text-sm">Simpan
+                        Jadwal</button>
+                </div>
         </form>
     </div>
 </x-app-layout>

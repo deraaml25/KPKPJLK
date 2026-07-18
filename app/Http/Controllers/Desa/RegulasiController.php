@@ -24,33 +24,58 @@ class RegulasiController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'judul' => 'required',
+            'judul' => 'required|string|max:255',
             'tipe' => 'required|in:perdes,perkades,sk_kades',
-            'file' => 'required|file|mimes:pdf,docx,doc|max:10240'
+            'file' => 'required|file|mimes:doc,docx|max:10240'
         ]);
 
         $desaId = Auth::user()->desa_id;
-        $path = $request->file('file')->store('regulasi/draft', 'public');
-
-        // Generate No. Registrasi
-        $prefix = match ($request->tipe) {
-            'perdes' => 'PRD',
-            'perkades' => 'PKD',
-            'sk_kades' => 'SKD',
-        };
-        $noReg = $prefix . '/' . now()->format('Y') . '/' . now()->format('m') . '/' . str_pad(Regulasi::count() + 1, 4, '0', STR_PAD_LEFT);
+        $path = $request->file('file')->store('regulasi/draft_desa', 'public');
 
         Regulasi::create([
-            'no_regulasi' => $noReg,
             'judul' => $request->judul,
             'deskripsi' => $request->deskripsi,
             'tipe' => $request->tipe,
             'file_path' => $path,
-            'status' => 'diajukan', // otomatis diajukan ke dinas
+            'status' => 'menunggu_evaluasi',
             'desa_id' => $desaId,
             'tgl_diajukan' => now(),
+            'no_regulasi' => null,
         ]);
 
-        return redirect()->route('desa.regulasi.index')->with('success', 'Rancangan regulasi berhasil diajukan untuk fasilitasi.');
+        return redirect()->route('desa.regulasi.index')->with('success', 'Draf aturan berhasil dikirim. Menunggu evaluasi Dinpermasdes.');
+    }
+
+    public function show(Regulasi $regulasi)
+    {
+        if ($regulasi->desa_id !== Auth::user()->desa_id) {
+            abort(403);
+        }
+        return view('desa.regulasi.show', compact('regulasi'));
+    }
+
+    public function kirimRevisi(Request $request, Regulasi $regulasi)
+    {
+        if ($regulasi->desa_id !== Auth::user()->desa_id || $regulasi->status !== 'perlu_revisi') {
+            abort(403);
+        }
+
+        $request->validate([
+            'file_revisi' => 'required|file|mimes:doc,docx|max:10240',
+            'file_pdf_sah' => 'nullable|file|mimes:pdf|max:10240',
+        ]);
+
+        $updateData = [
+            'file_path' => $request->file('file_revisi')->store('regulasi/draft_desa', 'public'),
+            'status' => 'evaluasi_lanjutan'
+        ];
+
+        if ($request->hasFile('file_pdf_sah')) {
+            $updateData['file_pdf'] = $request->file('file_pdf_sah')->store('regulasi/pdf_final', 'public');
+        }
+
+        $regulasi->update($updateData);
+
+        return back()->with('success', 'Rancangan revisi telah diserahkan kembali ke Dinpermasdes.');
     }
 }

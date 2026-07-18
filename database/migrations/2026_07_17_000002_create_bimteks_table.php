@@ -12,10 +12,12 @@ return new class extends Migration {
             $table->string('judul');
             $table->text('deskripsi')->nullable();
             $table->integer('kuota')->default(0);
-            $table->integer('sisa_kuota')->default(0);
             $table->date('tanggal_pelaksanaan');
-            $table->string('file_materi')->nullable();
             $table->string('tempat')->nullable();
+            $table->string('file_undangan')->nullable(); // Surat Undangan Resmi (PDF)
+            $table->string('file_materi')->nullable(); // Materi Bimtek
+            $table->string('file_sertifikat')->nullable(); // Template Sertifikat
+            $table->string('status')->default('terjadwal'); // terjadwal, selesai
             $table->timestamps();
         });
     }

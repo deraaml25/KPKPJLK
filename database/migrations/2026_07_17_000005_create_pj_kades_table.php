@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->string('nip');
             $table->string('pangkat');
             $table->string('riwayat_hidup_path')->nullable();
+            $table->string('surat_camat_path')->nullable();
             $table->string('sk_pangkat_path')->nullable();
             $table->string('status_bebas_hukdis')->default('pending'); // pending, clean, has_issues
             $table->string('sk_bupati_path')->nullable();

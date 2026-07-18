@@ -21,7 +21,9 @@ class PerangkatController extends Controller
                 });
         }
 
-        $perangkats = $query->orderBy('desa_id')->paginate(15);
+        $perangkats = $query->orderBy('desa_id')
+            ->orderByRaw("CASE WHEN jabatan = 'Kepala Desa' THEN 0 ELSE 1 END")
+            ->paginate(15);
 
         return view('admin.perangkat.index', compact('perangkats'));
     }

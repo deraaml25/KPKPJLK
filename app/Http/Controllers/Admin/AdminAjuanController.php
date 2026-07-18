@@ -17,7 +17,7 @@ class AdminAjuanController extends Controller
     {
         // Hanya tampilkan ajuan yang sudah di-submit ke atas (bukan draft)
         $ajuans = Ajuan::where('status', '!=', 'draft')
-            ->with(['desa', 'jenisLayanan', 'perangkatDesa'])
+            ->with(['desa', 'jenisLayanan', 'pesertas.perangkatDesa'])
             ->orderBy('tgl_diajukan', 'desc')
             ->get();
 
@@ -34,7 +34,7 @@ class AdminAjuanController extends Controller
             abort(404, 'Ajuan belum disubmit oleh desa.');
         }
 
-        $ajuan->load(['desa', 'jenisLayanan', 'perangkatDesa', 'checklistAjuans.templateChecklist', 'milestoneTrackings']);
+        $ajuan->load(['desa', 'jenisLayanan', 'pesertas.perangkatDesa', 'checklistAjuans.templateChecklist', 'milestoneTrackings']);
 
         $dokumenList = $ajuan->checklistAjuans->sortBy('templateChecklist.urutan');
 
@@ -80,13 +80,24 @@ class AdminAjuanController extends Controller
             'status' => $request->status_ajuan_baru ?? $ajuan->status
         ]);
 
+        $tahap = match ($request->posisi_baru) {
+            'Front Office (FO)' => 2,
+            'Kabid PDPD' => 4,
+            'Sekretaris Dinas' => 5,
+            'Kepala Dinas' => 3,
+            'Asisten Setda / Sekda' => 6,
+            'Bupati' => 8,
+            'Selesai (Surat Terbit)' => 9,
+            default => 1,
+        };
+
         MilestoneTracking::create([
             'ajuan_id' => $ajuan->id,
-            'user_id' => auth()->id(), // Admin ID
-            'judul_tahapan' => 'Disposisi: ' . $request->posisi_baru,
-            'deskripsi' => $request->catatan_milestone ?? '',
-            'catatan_kekurangan' => null,
-            'tgl_verifikasi' => now()
+            'tahap' => $tahap,
+            'tgl_mulai' => now(),
+            'tgl_selesai' => now(),
+            'catatan' => $request->catatan_milestone ?? ('Disposisi ke ' . $request->posisi_baru),
+            'updated_by' => auth()->id(),
         ]);
 
         return back()->with('success', 'Sistem berhasil mendisposisikan ajuan ke ' . $request->posisi_baru);

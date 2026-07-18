@@ -1,121 +1,169 @@
 <x-app-layout>
-    @section('title', 'e-Bimtek')
+    @section('title', 'e-Bimtek Desa')
 
     <div class="bg-white rounded-card p-6 shadow-sm border border-border mb-6">
-        <div>
-            <h2 class="text-xl font-display font-bold text-ink">e-Bimtek Pembinaan</h2>
-            <p class="text-muted text-sm mt-1">Peningkatan kapasitas aparatur desa, pendaftaran bimtek daring, serta
-                kepatuhan pelaporan Rencana Tindak Lanjut (RTL).</p>
-        </div>
+        <h2 class="text-xl font-display font-bold text-ink">e-Bimtek (Bimbingan Teknis)</h2>
+        <p class="text-muted text-sm mt-1">Jadwal pelatihan aparatur desa dari Dinpermasdes. Daftarkan perangkat desa
+            Anda untuk mengikuti Bimtek.</p>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <!-- Upcoming Classes -->
-        <div class="lg:col-span-2 space-y-6">
-            <h3 class="text-lg font-display font-bold text-ink">Jadwal Kelas Pembinaan Tersedia</h3>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                @forelse ($bimteks as $bim)
-                    <div class="bg-white rounded-card p-6 border border-border shadow-sm flex flex-col justify-between">
-                        <div>
-                            <div class="flex items-center justify-between mb-3">
-                                <span
-                                    class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-primary-soft text-primary">Siskeudes/Sipades</span>
-                                <span class="text-xs text-muted font-bold font-mono">Sisa Kuota:
-                                    {{ $bim->sisa_kuota }}/{{ $bim->kuota }}</span>
+    <!-- Jadwal Bimtek Tersedia -->
+    <div class="bg-white rounded-card shadow-sm border border-border p-6 mb-6">
+        <h3 class="text-md font-display font-bold text-ink mb-4 pb-2 border-b border-border">📅 Jadwal Bimtek</h3>
+        <div class="space-y-4">
+            @forelse ($bimteks as $bimtek)
+                <div
+                    class="border border-border rounded-lg p-4 hover:shadow-sm transition-shadow {{ in_array($bimtek->id, $registeredBimtekIds) ? 'bg-green-50 border-green-200' : '' }}">
+                    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                        <div class="flex-1">
+                            <h4 class="font-display font-bold text-ink text-base">{{ $bimtek->judul }}</h4>
+                            <div class="flex items-center gap-3 text-xs text-muted mt-1">
+                                <span>📅 {{ $bimtek->tanggal_pelaksanaan->format('d M Y') }}</span>
+                                <span>📍 {{ $bimtek->tempat }}</span>
+                                <span>👥
+                                    {{ $bimtek->pendaftarans_count ?? $bimtek->pendaftarans->count() }}/{{ $bimtek->kuota }}
+                                    peserta</span>
                             </div>
-                            <h4 class="text-md font-display font-bold text-ink mb-1">{{ $bim->judul }}</h4>
-                            <p class="text-xs text-muted line-clamp-3 mb-4">{{ $bim->deskripsi }}</p>
-
-                            <div class="space-y-1 mb-4 text-xs text-ink font-medium">
-                                <div class="flex items-center gap-1.5">
-                                    <svg class="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                        </path>
-                                    </svg>
-                                    {{ $bim->tanggal_pelaksanaan ? $bim->tanggal_pelaksanaan->format('d M Y') : '-' }}
-                                </div>
-                                <div class="flex items-center gap-1.5">
-                                    <svg class="w-4 h-4 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z">
-                                        </path>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                    </svg>
-                                    {{ $bim->tempat ?? 'Daring' }}
-                                </div>
-                            </div>
+                            @if($bimtek->deskripsi)
+                                <p class="text-sm text-muted mt-2">{{ Str::limit($bimtek->deskripsi, 150) }}</p>
+                            @endif
+                            @if($bimtek->file_undangan)
+                                <a href="{{ asset('storage/' . $bimtek->file_undangan) }}" target="_blank"
+                                    class="inline-flex items-center text-primary text-xs hover:underline mt-2">📄 Unduh Surat
+                                    Undangan</a>
+                            @endif
                         </div>
 
-                        <form action="{{ route('desa.bimtek.daftar', $bim) }}" method="POST">
-                            @csrf
-                            <button type="submit" {{ $bim->sisa_kuota <= 0 ? 'disabled' : '' }}
-                                class="w-full text-center px-4 py-2 bg-primary text-white font-medium text-xs rounded-btn hover:bg-primary-light transition-colors disabled:bg-gray-100 disabled:text-gray-400">
-                                {{ $bim->sisa_kuota <= 0 ? 'Kuota Penuh' : 'Daftar Kelas' }}
-                            </button>
-                        </form>
-                    </div>
-                @empty
-                    <div
-                        class="col-span-2 p-6 bg-white border border border-border text-center rounded-card text-muted text-sm">
-                        Tidak ada kelas pembinaan terdekat yang tersedia.
-                    </div>
-                @endforelse
-            </div>
-        </div>
-
-        <!-- My Classes / RTL Tracker -->
-        <div class="lg:col-span-1">
-            <div class="bg-white rounded-card border border-border p-6 shadow-sm">
-                <h3 class="text-md font-display font-bold text-ink mb-4 pb-2 border-b border-border">Kelas Diikuti & RTL
-                </h3>
-
-                <div class="space-y-4">
-                    @forelse ($myPendaftarans as $pendaftaran)
-                        <div class="p-4 bg-gray-50/50 rounded-md border border-border text-xs">
-                            <h4 class="font-bold text-ink mb-1 font-display">{{ $pendaftaran->bimtek->judul }}</h4>
-                            <div class="flex items-center gap-1.5 text-muted mb-3">
-                                <span>Presensi:</span>
-                                @if($pendaftaran->status_presensi === 'hadir')
-                                    <span class="text-green-800 font-bold">Hadir</span>
-                                @else
-                                    <span class="text-red-800 font-bold">Belum Presensi / Absen</span>
-                                @endif
-                            </div>
-
-                            @if($pendaftaran->file_rtl)
-                                <div
-                                    class="bg-green-50 p-2.5 rounded border border-green-200 text-green-800 flex items-center justify-between">
-                                    <span>RTL Terunggah</span>
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z">
-                                        </path>
-                                    </svg>
-                                </div>
+                        <div class="flex-shrink-0">
+                            @if(in_array($bimtek->id, $registeredBimtekIds))
+                                <span
+                                    class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-green-100 text-green-800">✅
+                                    Sudah Terdaftar</span>
+                            @elseif($bimtek->sisa_kuota <= 0)
+                                <span
+                                    class="inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold bg-red-100 text-red-800">Kuota
+                                    Penuh</span>
                             @else
-                                <form action="{{ route('desa.bimtek.upload-rtl', $pendaftaran) }}" method="POST"
-                                    enctype="multipart/form-data" class="mt-2 space-y-2">
+                                <form action="{{ route('desa.bimtek.daftar', $bimtek) }}" method="POST" class="inline">
                                     @csrf
-                                    <label class="block font-semibold text-gray-700">Unggah Bukti Dokumen RTL
-                                        (PDF/DOCX):</label>
-                                    <input type="file" name="file_rtl" required
-                                        class="w-full text-xs rounded border border-border bg-white text-ink shadow-sm p-1">
-                                    <button type="submit"
-                                        class="w-full text-center px-3 py-1.5 bg-primary text-white font-medium rounded hover:bg-primary-light transition-colors">
-                                        Upload RTL
-                                    </button>
+                                    <div class="flex items-center gap-2">
+                                        <select name="perangkat_desa_id" required
+                                            class="text-xs rounded-md border-border shadow-sm">
+                                            <option value="">-- Pilih Perangkat --</option>
+                                            @foreach(\App\Models\PerangkatDesa::where('desa_id', auth()->user()->desa_id)->where('status_aktif', true)->get() as $p)
+                                                <option value="{{ $p->id }}">{{ $p->nama }} ({{ $p->jabatan }})</option>
+                                            @endforeach
+                                        </select>
+                                        <button type="submit"
+                                            class="px-3 py-1.5 bg-primary text-white text-xs font-medium rounded-btn hover:bg-primary-light transition-colors shadow-sm whitespace-nowrap">Daftar</button>
+                                    </div>
                                 </form>
                             @endif
                         </div>
-                    @empty
-                        <div class="text-center text-sm text-muted py-6">Anda belum mendaftar di kelas pembinaan manapun.
-                        </div>
-                    @endforelse
+                    </div>
                 </div>
-            </div>
+            @empty
+                <x-empty-state
+                    icon="<path stroke-linecap='round' stroke-linejoin='round' d='M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z' />"
+                    title="Jadwal Bimtek Kosong" message="Belum ada publikasi jadwal Bimtek dari Dinpermasdes Kabupaten." />
+            @endforelse
         </div>
     </div>
+
+    <!-- Riwayat Pendaftaran & RTL -->
+    @if($myPendaftarans->isNotEmpty())
+        <div class="bg-white rounded-card shadow-sm border border-border overflow-hidden">
+            <div class="px-6 py-4 border-b border-border">
+                <h3 class="text-md font-display font-bold text-ink">📋 Riwayat Pendaftaran & RTL</h3>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-border">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase">Bimtek</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase">Perangkat</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase">Presensi</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase">Status RTL</th>
+                            <th class="px-4 py-3 text-left text-xs font-medium text-muted uppercase">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-border">
+                        @foreach($myPendaftarans as $pendaftaran)
+                            <tr class="hover:bg-gray-50/50">
+                                <td class="px-4 py-3 text-sm text-ink font-medium">{{ $pendaftaran->bimtek->judul ?? '-' }}</td>
+                                <td class="px-4 py-3 text-sm text-ink">
+                                    {{ $pendaftaran->perangkatDesa->nama ?? '-' }}
+                                    <span
+                                        class="text-xs text-muted block">{{ $pendaftaran->perangkatDesa->jabatan ?? '' }}</span>
+                                </td>
+                                <td class="px-4 py-3">
+                                    @if($pendaftaran->status_presensi === 'hadir')
+                                        <span
+                                            class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">✅
+                                            Hadir</span>
+                                    @else
+                                        <span
+                                            class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">⏳
+                                            Menunggu Presensi</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3">
+                                    @if($pendaftaran->status_rtl === 'selesai')
+                                        <span
+                                            class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">✅
+                                            Tuntas</span>
+                                    @elseif($pendaftaran->status_rtl === 'menunggu_validasi')
+                                        <span
+                                            class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">🟡
+                                            Menunggu Validasi</span>
+                                    @elseif($pendaftaran->status_rtl === 'revisi')
+                                        <span
+                                            class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">🔴
+                                            Perlu Revisi</span>
+                                        @if($pendaftaran->catatan_revisi_rtl)
+                                            <span
+                                                class="text-xs text-red-600 block mt-0.5">{{ $pendaftaran->catatan_revisi_rtl }}</span>
+                                        @endif
+                                    @else
+                                        <span
+                                            class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">Menunggu
+                                            RTL</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3">
+                                    {{-- Materi & Sertifikat hanya muncul jika sudah hadir --}}
+                                    @if($pendaftaran->status_presensi === 'hadir')
+                                        @if($pendaftaran->bimtek->file_materi)
+                                            <a href="{{ asset('storage/' . $pendaftaran->bimtek->file_materi) }}" target="_blank"
+                                                class="text-primary text-xs hover:underline block">📥 Unduh Materi</a>
+                                        @endif
+                                        @if($pendaftaran->bimtek->file_sertifikat)
+                                            <a href="{{ asset('storage/' . $pendaftaran->bimtek->file_sertifikat) }}" target="_blank"
+                                                class="text-primary text-xs hover:underline block">📥 e-Sertifikat</a>
+                                        @endif
+
+                                        {{-- Form Upload RTL --}}
+                                        @if(in_array($pendaftaran->status_rtl, ['menunggu_rtl', 'revisi']))
+                                            <form action="{{ route('desa.bimtek.upload-rtl', $pendaftaran) }}" method="POST"
+                                                enctype="multipart/form-data" class="mt-2 border-t border-border pt-2">
+                                                @csrf
+                                                <input type="file" name="file_rtl" class="w-full text-xs rounded-md border-border mb-1"
+                                                    accept=".pdf,.doc,.docx" required>
+                                                <button type="submit"
+                                                    class="w-full px-2 py-1 bg-primary text-white text-xs font-medium rounded hover:bg-primary-light transition-colors">Unggah
+                                                    RTL</button>
+                                            </form>
+                                        @endif
+                                    @else
+                                        <span class="text-xs text-muted italic">Akses materi dikunci hingga presensi
+                                            divalidasi</span>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    @endif
 </x-app-layout>

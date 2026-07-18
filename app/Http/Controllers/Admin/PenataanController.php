@@ -5,42 +5,101 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\PenataanDesa;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class PenataanController extends Controller
 {
     public function index()
     {
-        $penataans = PenataanDesa::with('desa')->latest()->paginate(15);
-        return view('admin.penataan.index', compact('penataans'));
+        $penataan = PenataanDesa::withoutGlobalScopes()->with('desa')->latest()->paginate(15);
+        return view('admin.penataan.index', compact('penataan'));
     }
 
-    public function show(PenataanDesa $penataan)
+    public function show($id)
     {
-        $penataan->load('desa');
-        return view('admin.penataan.show', compact('penataan'));
+        $penataan = PenataanDesa::withoutGlobalScopes()->with('desa', 'prosesor')->findOrFail($id);
+
+        // Auto-run Kalkulator UU setiap kali admin membuka halaman (read-only insight)
+        $kalkulator = $penataan->runKalkulatorUU();
+
+        return view('admin.penataan.show', compact('penataan', 'kalkulator'));
     }
 
-    public function verifikasi(Request $request, PenataanDesa $penataan)
+    /**
+     * TAHAP 2: Gatekeeper Kalkulator UU -> Menetapkan Desa Persiapan
+     */
+    public function setPersiapan(Request $request, $id)
     {
-        $status = $request->input('status', 'approved');
+        $penataan = PenataanDesa::withoutGlobalScopes()->findOrFail($id);
 
-        // business rule: pulau jawa minimal 6000 jiwa / 1200 KK
-        if ($status === 'approved') {
-            if ($penataan->jumlah_penduduk < 6000 || $penataan->jumlah_kk < 1200) {
-                return redirect()->back()->with('error', 'Kalkulator Kelayakan UU Desa: Kriteria kelayakan minimal (6.000 jiwa atau 1.200 KK untuk Pulau Jawa) tidak terpenuhi.');
-            }
+        // 1. Otoritas Mesin: Apabila gagal syarat UU, sistem menolak tombol Approve (bypass protection)
+        $hasilHitung = $penataan->runKalkulatorUU();
+        if (!$hasilHitung['is_valid']) {
+            $alasanGagal = implode(" ", $hasilHitung['messages']);
+            $penataan->update([
+                'status' => 'ditolak',
+                'alasan_penolakan' => "Ditolak otomatis oleh sistem (Kalkulator UU Desa): {$alasanGagal}",
+                'diproses_oleh' => Auth::id(),
+                'diproses_at' => now(),
+            ]);
+
+            return redirect()->route('admin.penataan.show', $penataan)
+                ->with('error', 'Sistem menolak usulan! Data demografis atau spasial di bawah ambang batas UU Desa.');
         }
 
-        $path = null;
-        if ($request->hasFile('rekomendasi')) {
-            $path = $request->file('rekomendasi')->store('penataan/rekomendasi', 'public');
-        }
-
-        $penataan->update([
-            'status' => $status,
-            'rekomendasi_dinas_path' => $path ?? $penataan->rekomendasi_dinas_path,
+        // 2. Jika lolos UU, validasi upload Perbup penetapan
+        $request->validate([
+            'perbup_persiapan' => 'required|file|mimes:pdf|max:10240',
+            'tgl_mulai_persiapan' => 'required|date',
+            'lama_uji_coba_tahun' => 'required|integer|in:1,2,3', // UU batasan uji coba 1-3 thn
         ]);
 
-        return redirect()->route('admin.penataan.show', $penataan)->with('success', 'Status usulan penataan desa diperbarui.');
+        $perbupPath = $request->file('perbup_persiapan')->store('penataan/perbup', 'public');
+
+        // Set timeline persiapan
+        $mulai = \Carbon\Carbon::parse($request->tgl_mulai_persiapan);
+        $batas = $mulai->copy()->addYears($request->lama_uji_coba_tahun);
+
+        $penataan->update([
+            'perbup_persiapan_path' => $perbupPath,
+            'status' => 'persiapan',
+            'tgl_mulai_persiapan' => $mulai,
+            'tgl_batas_persiapan' => $batas,
+            'diproses_oleh' => Auth::id(),
+            'diproses_at' => now(),
+        ]);
+
+        return redirect()->route('admin.penataan.show', $penataan)
+            ->with('success', 'Usulan memenuhi syarat UU. Status berhasil ditingkatkan menjadi Desa Persiapan.');
+    }
+
+    /**
+     * TAHAP 4: Sinkronisasi Status Final Definitif dari Kemendagri
+     */
+    public function setDefinitif(Request $request, $id)
+    {
+        $penataan = PenataanDesa::withoutGlobalScopes()->findOrFail($id);
+
+        if ($penataan->status !== 'persiapan') {
+            abort(403, 'Aksi ilegal. Desa ini belum melalui masa persiapan.');
+        }
+
+        $request->validate([
+            'kode_desa_kemendagri' => 'required|string|unique:penataan_desas,kode_desa_kemendagri',
+        ]);
+
+        // Kunci kode definitif
+        $penataan->update([
+            'status' => 'definitif',
+            'kode_desa_kemendagri' => $request->kode_desa_kemendagri,
+            'diproses_oleh' => Auth::id(),
+            'diproses_at' => now(),
+        ]);
+
+        // Opsional: Integrasi Master Data
+        // \App\Models\Desa::create([ 'kode' => $request->kode, 'nama' => ... ])
+
+        return redirect()->route('admin.penataan.show', $penataan)
+            ->with('success', 'Selamat! Kode Kemendagri teregistrasi. Desa persiapan ini resmi menjadi Desa Definitif.');
     }
 }
