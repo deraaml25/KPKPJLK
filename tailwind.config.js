@@ -18,13 +18,14 @@ export default {
             },
             colors: {
                 primary: {
-                    DEFAULT: '#0F3C65',
-                    light: '#1A5A90',
-                    soft: '#FFF2BA',
+                    DEFAULT: '#95BBEA', // Cornflower
+                    light: '#AECDF4',
+                    soft: '#FFFFFF', // White
+                    accent: '#930500', // Sangria
                 },
-                surface: '#FFFFFF',
-                background: '#FFFDF0',
-                ink: '#0F3C65',
+                surface: '#FFFFFF', // White
+                background: '#FFFFFF', // White
+                ink: '#930500', // Sangria
                 muted: '#5A6F82',
                 success: '#2E9E6B',
                 warning: '#D9A02C',

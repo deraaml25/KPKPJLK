@@ -6,8 +6,10 @@ use Illuminate\Console\Command;
 use App\Models\Kecamatan;
 use App\Models\Desa;
 use App\Models\PerangkatDesa;
+use App\Models\User;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class ImportPerangkatDesa extends Command
 {
@@ -62,11 +64,55 @@ class ImportPerangkatDesa extends Command
                 // Get or create Kecamatan
                 $kecamatan = Kecamatan::firstOrCreate(['nama_kecamatan' => $kecamatanName]);
 
-                // Get or create Desa
-                $desa = Desa::firstOrCreate([
-                    'nama_desa' => $desaName,
-                    'kecamatan_id' => $kecamatan->id
-                ]);
+                // Reuse an existing desa with the same name when present, regardless of case.
+                $desa = Desa::query()
+                    ->whereRaw('LOWER(nama_desa) = ?', [strtolower($desaName)])
+                    ->where('kecamatan_id', $kecamatan->id)
+                    ->first();
+
+                if (!$desa) {
+                    $desa = Desa::create([
+                        'nama_desa' => $desaName,
+                        'kecamatan_id' => $kecamatan->id,
+                    ]);
+                }
+
+                $baseUsername = strtolower(str_replace([' ', '.', ',', '/', '\\'], '_', $desaName));
+                $baseUsername = preg_replace('/_+/', '_', trim($baseUsername, '_')) ?: 'desa';
+                $username = $baseUsername;
+                $counter = 1;
+
+                while (User::where('username', $username)->exists()) {
+                    $username = $baseUsername . '_' . $counter;
+                    $counter++;
+                }
+
+                $existingUser = User::where('role', 'desa')
+                    ->where(function ($query) use ($desaName) {
+                        $query->where('name', $desaName)
+                            ->orWhereRaw('LOWER(name) = ?', [strtolower($desaName)])
+                            ->orWhereHas('desa', function ($desaQuery) use ($desaName) {
+                                $desaQuery->where('nama_desa', $desaName)
+                                    ->orWhereRaw('LOWER(nama_desa) = ?', [strtolower($desaName)]);
+                            });
+                    })
+                    ->first();
+
+                User::updateOrCreate(
+                    [
+                        'role' => 'desa',
+                        'desa_id' => $desa->id,
+                    ],
+                    [
+                        'name' => $desaName,
+                        'username' => $username,
+                        'password' => Hash::make('password'),
+                    ]
+                );
+
+                if ($existingUser && $existingUser->id !== User::where('role', 'desa')->where('desa_id', $desa->id)->first()?->id) {
+                    $existingUser->update(['desa_id' => $desa->id]);
+                }
 
                 // Data mapping for Jabatan & Nama (Column letter)
                 $perangkatList = [
@@ -83,16 +129,16 @@ class ImportPerangkatDesa extends Command
                     ['jabatan' => 'Kadus III', 'nama' => trim($row['N'] ?? '')],
                 ];
 
-                // Kadus IV
-                if (!empty(trim($row['P'] ?? '')) && stripos(trim($row['O'] ?? ''), 'Tidak Ada') === false) {
+                // Kadus IV (only add if there is a name present, regardless of the status comment)
+                if (!empty(trim($row['P'] ?? '')) && trim($row['P']) !== '-') {
                     $perangkatList[] = [
-                        'jabatan' => 'Kadus IV', // or $row['O'] but 'Kadus IV' is standardized
+                        'jabatan' => 'Kadus IV',
                         'nama' => trim($row['P'])
                     ];
                 }
 
-                // Kadus V
-                if (!empty(trim($row['R'] ?? '')) && stripos(trim($row['Q'] ?? ''), 'Tidak Ada') === false) {
+                // Kadus V (only add if there is a name present, regardless of the status comment)
+                if (!empty(trim($row['R'] ?? '')) && trim($row['R']) !== '-') {
                     $perangkatList[] = [
                         'jabatan' => 'Kadus V',
                         'nama' => trim($row['R'])
@@ -100,7 +146,7 @@ class ImportPerangkatDesa extends Command
                 }
 
                 // Staf Perangkat Desa (Row U = Nama, Row V = Jabatan)
-                if (!empty(trim($row['U'] ?? '')) && stripos(trim($row['S'] ?? ''), 'Tidak Ada') === false) {
+                if (!empty(trim($row['U'] ?? '')) && trim($row['U']) !== '-') {
                     $perangkatList[] = [
                         'jabatan' => trim($row['V'] ?? 'Staf Perangkat Desa'),
                         'nama' => trim($row['U'])
@@ -108,7 +154,7 @@ class ImportPerangkatDesa extends Command
                 }
 
                 // Staf Non Perangkat Desa 1 (Row Y = Nama, Row Z = Jabatan)
-                if (!empty(trim($row['Y'] ?? '')) && stripos(trim($row['W'] ?? ''), 'Tidak Ada') === false) {
+                if (!empty(trim($row['Y'] ?? '')) && trim($row['Y']) !== '-') {
                     $perangkatList[] = [
                         'jabatan' => trim($row['Z'] ?? 'Staf Non Perangkat Desa 1'),
                         'nama' => trim($row['Y'])
@@ -174,7 +220,7 @@ class ImportPerangkatDesa extends Command
                 ];
 
                 foreach ($bpdList as $b) {
-                    if (!empty($b['nama']) && $b['nama'] !== '-' && stripos($b['status'], 'Ada') !== false) {
+                    if (!empty($b['nama']) && $b['nama'] !== '-' && !empty($b['status'])) {
                         PerangkatDesa::updateOrCreate(
                             [
                                 'desa_id' => $desa->id,

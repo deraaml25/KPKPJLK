@@ -32,69 +32,107 @@
         </div>
     @endif
 
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <!-- Card 1 -->
-        <div class="bg-surface rounded-card p-6 shadow-floating border border-border">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-muted mb-1">Total Ajuan Berjalan</p>
-                    <h3 class="text-3xl font-display font-bold text-primary">12</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+        @php($stats = [
+            ['label' => 'Total Ajuan Berjalan', 'value' => '12', 'tone' => 'primary', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />'],
+            ['label' => 'Perlu Perbaikan', 'value' => '3', 'tone' => 'danger', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />'],
+            ['label' => 'Mendekati SLA', 'value' => '2', 'tone' => 'warning', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />'],
+            ['label' => 'Lewat SLA', 'value' => '0', 'tone' => 'danger', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />'],
+        ])
+        @foreach($stats as $stat)
+            <div class="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-[0_16px_50px_rgba(15,23,42,0.06)] backdrop-blur">
+                <div class="flex items-start justify-between gap-4">
+                    <div>
+                        <p class="text-sm font-medium text-slate-500">{{ $stat['label'] }}</p>
+                        <h3 class="mt-2 text-3xl font-semibold tracking-tight text-slate-800">{{ $stat['value'] }}</h3>
+                    </div>
+                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            {!! $stat['icon'] !!}
+                        </svg>
+                    </div>
                 </div>
-                <div class="w-12 h-12 bg-primary-soft rounded-full flex items-center justify-center text-primary">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
-                        </path>
-                    </svg>
+            </div>
+        @endforeach
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-[1.4fr_0.8fr] gap-8">
+        <div class="rounded-3xl border border-slate-200 bg-white/90 p-0 shadow-[0_16px_50px_rgba(15,23,42,0.06)] backdrop-blur overflow-hidden">
+            <div class="flex items-center justify-between border-b border-slate-200 px-6 py-5">
+                <div>
+                    <p class="text-[11px] uppercase tracking-[0.3em] text-slate-400">Prioritas Hari Ini</p>
+                    <h3 class="text-lg font-semibold text-slate-800">Ajuan Prioritas</h3>
+                </div>
+                <a href="#" class="text-sm font-medium text-[#930500] hover:underline">Lihat Semua</a>
+            </div>
+            <div class="divide-y divide-slate-200">
+                <div class="flex items-center justify-between p-6 transition-colors hover:bg-slate-50">
+                    <div class="flex items-center gap-4">
+                        <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#95BBEA]/25 text-[#930500] font-semibold">K</div>
+                        <div>
+                            <h4 class="font-semibold text-slate-800">Desa Karangendep</h4>
+                            <div class="mt-1 flex items-center gap-2">
+                                <span class="rounded-full bg-[#95BBEA]/20 px-2.5 py-1 text-xs font-medium text-[#930500]">Pengangkatan</span>
+                                <span class="font-mono text-xs text-slate-500">PGKT/2026/07/0032</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-medium text-slate-700">Tahap 4: Verifikasi &amp; Validasi Kabid PDPD</p>
+                        <p class="mt-1 text-xs text-amber-600">Sisa 3 Hari Kerja</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center justify-between p-6 transition-colors hover:bg-slate-50">
+                    <div class="flex items-center gap-4">
+                        <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-red-50 text-red-600 font-semibold">S</div>
+                        <div>
+                            <h4 class="font-semibold text-slate-800">Desa Sumbang</h4>
+                            <div class="mt-1 flex items-center gap-2">
+                                <span class="rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600">Pemberhentian</span>
+                                <span class="font-mono text-xs text-slate-500">PBRH/2026/07/0014</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-medium text-slate-700">Tahap 2: Verifikasi &amp; Validasi</p>
+                        <p class="mt-1 text-xs text-emerald-600">Sisa 18 Hari Kerja</p>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Card 2 -->
-        <div class="bg-surface rounded-card p-6 shadow-floating border border-border">
-            <div class="flex items-center justify-between">
+        <div class="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.06)] backdrop-blur">
+            <div class="mb-6 flex items-center justify-between">
                 <div>
-                    <p class="text-sm font-medium text-muted mb-1">Perlu Perbaikan</p>
-                    <h3 class="text-3xl font-display font-bold text-danger">3</h3>
-                </div>
-                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-danger">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                        </path>
-                    </svg>
+                    <p class="text-[11px] uppercase tracking-[0.3em] text-slate-400">Distribusi</p>
+                    <h3 class="text-lg font-semibold text-slate-800">Jenis Layanan</h3>
                 </div>
             </div>
-        </div>
-
-        <!-- Card 3 -->
-        <div class="bg-surface rounded-card p-6 shadow-floating border border-border">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-muted mb-1">Mendekati SLA</p>
-                    <h3 class="text-3xl font-display font-bold text-warning">2</h3>
-                </div>
-                <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center text-warning">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
+            <div class="relative h-48 w-full">
+                <canvas id="jenisLayananChart"></canvas>
             </div>
-        </div>
-
-        <!-- Card 4 -->
-        <div class="bg-surface rounded-card p-6 shadow-floating border border-border">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-sm font-medium text-muted mb-1">Lewat SLA</p>
-                    <h3 class="text-3xl font-display font-bold text-danger">0</h3>
+            <div class="mt-6 space-y-3">
+                <div class="flex items-center justify-between text-sm">
+                    <div class="flex items-center gap-2">
+                        <span class="h-3 w-3 rounded-full bg-[#930500]"></span>
+                        <span class="text-slate-500">Pengangkatan</span>
+                    </div>
+                    <span class="font-semibold text-slate-700">65%</span>
                 </div>
-                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center text-danger">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
+                <div class="flex items-center justify-between text-sm">
+                    <div class="flex items-center gap-2">
+                        <span class="h-3 w-3 rounded-full bg-red-500"></span>
+                        <span class="text-slate-500">Pemberhentian</span>
+                    </div>
+                    <span class="font-semibold text-slate-700">25%</span>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                    <div class="flex items-center gap-2">
+                        <span class="h-3 w-3 rounded-full bg-[#95BBEA]"></span>
+                        <span class="text-slate-500">Rotasi</span>
+                    </div>
+                    <span class="font-semibold text-slate-700">10%</span>
                 </div>
             </div>
         </div>

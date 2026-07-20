@@ -7,10 +7,12 @@ use App\Models\BimtekPendaftaran;
 use App\Models\Desa;
 use App\Models\IzinCalon;
 use App\Models\PenataanDesa;
+use App\Models\PerangkatDesa;
 use App\Models\Pilkades;
 use App\Models\PjKades;
 use App\Models\Regulasi;
 use App\Models\Siltap;
+use App\Models\User;
 use Illuminate\Database\Seeder;
 
 class DummyModulesSeeder extends Seeder
@@ -18,7 +20,7 @@ class DummyModulesSeeder extends Seeder
     public function run(): void
     {
         $desa = Desa::first();
-        if (!$desa) {
+        if (! $desa) {
             return;
         }
 
@@ -31,7 +33,7 @@ class DummyModulesSeeder extends Seeder
             'file_path' => 'regulasi/draft/dummy.docx',
             'status' => 'diajukan',
             'desa_id' => $desa->id,
-            'tgl_diajukan' => now()->subDays(5)
+            'tgl_diajukan' => now()->subDays(5),
         ]);
 
         Regulasi::create([
@@ -44,7 +46,7 @@ class DummyModulesSeeder extends Seeder
             'desa_id' => $desa->id,
             'tgl_diajukan' => now()->subDays(10),
             'tgl_disahkan' => now()->subDays(8),
-            'catatan_revisi' => 'Pasal 3 ayat 2 diselaraskan dengan instruksi Bupati.'
+            'catatan_revisi' => 'Pasal 3 ayat 2 diselaraskan dengan instruksi Bupati.',
         ]);
 
         // 2. e-Bimtek
@@ -53,7 +55,7 @@ class DummyModulesSeeder extends Seeder
             'deskripsi' => 'Bimtek wajib bagi Sekretaris Desa dan Kaur Keuangan perihal penatausahaan aset keuangan desa.',
             'tanggal_pelaksanaan' => now()->addDays(7),
             'kuota' => 50,
-            'tempat' => 'Aula Dinpermasdes Kabupaten / Zoom'
+            'tempat' => 'Aula Dinpermasdes Kabupaten / Zoom',
         ]);
 
         $bimtek2 = Bimtek::create([
@@ -61,16 +63,18 @@ class DummyModulesSeeder extends Seeder
             'deskripsi' => 'Peningkatan kapasitas perancangan peraturan desa terpadu.',
             'tanggal_pelaksanaan' => now()->addDays(15),
             'kuota' => 30,
-            'tempat' => 'Lantai 2 Gedung Diklat Daerah'
+            'tempat' => 'Lantai 2 Gedung Diklat Daerah',
         ]);
 
-        $user = \App\Models\User::where('desa_id', $desa->id)->first();
+        $user = User::where('desa_id', $desa->id)->first();
 
         BimtekPendaftaran::create([
             'bimtek_id' => $bimtek1->id,
             'user_id' => $user->id,
+            'desa_id' => $desa->id,
+            'perangkat_desa_id' => PerangkatDesa::where('desa_id', $desa->id)->first()->id,
             'status_presensi' => 'absen',
-            'file_rtl' => null
+            'file_rtl' => null,
         ]);
 
         // 3. e-Siltap
@@ -83,7 +87,7 @@ class DummyModulesSeeder extends Seeder
             'spj_path' => 'siltap/spj_dummy.pdf',
             'status' => 'approved',
             'sp2d_path' => 'siltap/sp2d_dummy.pdf',
-            'notes' => 'Telah diproses dan dana telah dikirim ke Bank Jateng cabang terdekat.'
+            'catatan_verifikator' => 'Telah diproses dan dana telah dikirim ke Bank Jateng cabang terdekat.',
         ]);
 
         Siltap::create([
@@ -95,7 +99,7 @@ class DummyModulesSeeder extends Seeder
             'spj_path' => 'siltap/spj_dummy2.pdf',
             'status' => 'pending',
             'sp2d_path' => null,
-            'notes' => null
+            'catatan_verifikator' => null,
         ]);
 
         // 4. e-PjKades
@@ -108,7 +112,7 @@ class DummyModulesSeeder extends Seeder
             'sk_pangkat_path' => 'pjkades/sk_pangkat_dummy.pdf',
             'status_bebas_hukdis' => 'clean',
             'status' => 'pending',
-            'sk_bupati_path' => null
+            'sk_bupati_path' => null,
         ]);
 
         // 5. e-IzinCalon
@@ -120,7 +124,7 @@ class DummyModulesSeeder extends Seeder
             'bebas_temuan_inspektorat_path' => 'izincalon/inspektorat_dummy.pdf',
             'berkas_syarat_path' => 'izincalon/syarat_dummy.pdf',
             'status' => 'pending',
-            'catatan_inspektorat' => null
+            'catatan_inspektorat' => null,
         ]);
 
         // 6. e-Pilkades
@@ -130,21 +134,21 @@ class DummyModulesSeeder extends Seeder
             'total_tps' => 3,
             'status' => 'pemilihan',
             'pemenang_nama' => null,
-            'sk_bupati_path' => null
+            'sk_bupati_path' => null,
         ]);
 
         $pil->suaras()->create([
             'tps_name' => 'TPS 01 - Balai RW 01',
             'suara_calon_1' => 120,
             'suara_calon_2' => 85,
-            'suara_calon_3' => 95
+            'suara_calon_3' => 95,
         ]);
 
         $pil->suaras()->create([
             'tps_name' => 'TPS 02 - SD Negeri 1',
             'suara_calon_1' => 140,
             'suara_calon_2' => 110,
-            'suara_calon_3' => 105
+            'suara_calon_3' => 105,
         ]);
 
         // 7. e-PenataanDesa
@@ -156,7 +160,7 @@ class DummyModulesSeeder extends Seeder
             'jumlah_kk' => 1250,
             'proposal_path' => 'penataan/proposal_dummy.pdf',
             'status' => 'pending',
-            'rekomendasi_dinas_path' => null
+            'rekomendasi_dinas_path' => null,
         ]);
     }
 }

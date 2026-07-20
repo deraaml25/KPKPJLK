@@ -12,7 +12,19 @@ class PerangkatController extends Controller
     public function index(Request $request)
     {
         // TenantDesaScope memastikan hanya mengambil perangkat sesuai desa_id user login
-        $query = PerangkatDesa::orderByRaw("CASE WHEN jabatan = 'Kepala Desa' THEN 0 ELSE 1 END")->latest();
+        $query = PerangkatDesa::orderByRaw("CASE 
+                WHEN jabatan = 'Kepala Desa' THEN 0
+                WHEN jabatan = 'Sekretaris Desa' THEN 1
+                WHEN jabatan LIKE 'Kasi%' THEN 2
+                WHEN jabatan LIKE 'Kaur%' THEN 3
+                WHEN jabatan LIKE 'Kadus%' THEN 4
+                WHEN jabatan LIKE '%BPD%' THEN 5
+                WHEN jabatan LIKE '%Perangkat%' THEN 6
+                WHEN jabatan LIKE '%Non Perangkat%' THEN 7
+                ELSE 8
+            END")
+            ->orderBy('jabatan')
+            ->orderBy('nama');
 
         if ($request->has('search') && $request->search != '') {
             $query->where('nama', 'like', '%' . $request->search . '%')

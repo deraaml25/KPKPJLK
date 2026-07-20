@@ -47,6 +47,28 @@ class AjuanController extends Controller
             'arsipRekom',
         ]);
 
+        $templates = \App\Models\TemplateChecklist::where('jenis_layanan_id', $ajuan->jenis_layanan_id)
+            ->where(function ($query) use ($ajuan) {
+                $query->whereNull('alasan_pemberhentian_id')
+                    ->orWhere('alasan_pemberhentian_id', $ajuan->alasan_pemberhentian_id);
+            })
+            ->orderBy('urutan')
+            ->get();
+
+        $existingTemplateIds = $ajuan->checklistAjuans->pluck('template_checklist_id')->filter()->all();
+
+        foreach ($templates as $template) {
+            if (!in_array($template->id, $existingTemplateIds, true)) {
+                $ajuan->checklistAjuans()->create([
+                    'template_checklist_id' => $template->id,
+                    'status' => 'pending',
+                    'versi' => 1,
+                ]);
+                $existingTemplateIds[] = $template->id;
+            }
+        }
+
+        $ajuan->load('checklistAjuans.templateChecklist');
         $tahapAktif = $this->hitungTahapAktif($ajuan->milestoneTrackings);
 
         return view('admin.ajuan.show', compact('ajuan', 'tahapAktif'));

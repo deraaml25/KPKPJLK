@@ -64,21 +64,25 @@
             </div>
 
             <!-- Right Panel: Login Form -->
-            <div class="w-full lg:w-1/2 flex items-center justify-center p-8">
-                <div class="w-full max-w-md">
+            <div class="w-full lg:w-1/2 flex items-center justify-center p-8 relative overflow-hidden">
+                <!-- Decorative blurred blobs for right panel background -->
+                <div class="absolute top-20 right-20 w-64 h-64 bg-primary/20 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob"></div>
+                <div class="absolute bottom-20 left-20 w-72 h-72 bg-white/60 rounded-full mix-blend-multiply filter blur-3xl opacity-70 animate-blob animation-delay-2000"></div>
+
+                <div class="w-full max-w-md bg-white/40 backdrop-blur-2xl p-10 rounded-3xl shadow-[0_8px_40px_rgb(0,0,0,0.06)] border border-white/60 relative z-10 transition-all hover:shadow-[0_8px_50px_rgb(0,0,0,0.08)]">
                     <!-- Mobile logo -->
                     <div class="lg:hidden mb-8 text-center">
-                        <h1 class="text-3xl font-display font-bold text-primary">SID<span class="text-muted">mini</span></h1>
+                        <h1 class="text-3xl font-display font-bold text-primary drop-shadow-sm">SID<span class="text-ink">mini</span></h1>
                     </div>
 
-                    <div class="mb-8">
-                        <h2 class="text-3xl font-display font-bold text-ink">Selamat Datang</h2>
-                        <p class="text-muted mt-2">Masuk ke sistem untuk mengelola pelayanan rekomendasi perangkat desa.</p>
+                    <div class="mb-8 text-center">
+                        <h2 class="text-3xl font-display font-bold text-ink drop-shadow-sm">Selamat Datang</h2>
+                        <p class="text-muted mt-3 text-sm leading-relaxed">Masuk ke sistem untuk mengelola pelayanan rekomendasi perangkat desa.</p>
                     </div>
 
                     {{ $slot }}
 
-                    <p class="mt-8 text-center text-xs text-muted">
+                    <p class="mt-8 text-center text-xs text-muted/70 font-medium tracking-wide">
                         &copy; {{ date('Y') }} Dinpermasdes — SIDmini v1.0
                     </p>
                 </div>

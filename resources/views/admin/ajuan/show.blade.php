@@ -99,15 +99,18 @@
 
                 <div class="divide-y divide-border">
                     @foreach($dokumenList as $item)
-                        <div
-                            class="p-4 {{ $item->status == 'valid' ? 'bg-green-50/30' : ($item->status == 'kurang' ? 'bg-red-50/30' : '') }}">
+                        <div class="p-4 border-l-4 transition-colors {{ $item->status == 'valid' ? 'border-green-500 bg-green-50/40' : ($item->status == 'kurang' || $item->status == 'tidak_sesuai' ? 'border-red-500 bg-red-50/40' : 'border-amber-400 bg-amber-50/30') }}">
                             <div class="flex items-start gap-3">
-                                <span class="font-bold text-ink mt-0.5">{{ $item->templateChecklist->urutan }}.</span>
+                                <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-xs font-bold text-ink border border-border shadow-sm">{{ $item->templateChecklist->urutan }}</span>
                                 <div class="flex-1">
-                                    <p class="text-sm font-medium text-ink leading-tight mb-2">
-                                        {{ $item->templateChecklist->nama_dokumen }}
-                                        @if($item->templateChecklist->wajib) <span class="text-danger">*</span> @endif
-                                    </p>
+                                    <div class="flex items-center gap-2 mb-2 flex-wrap">
+                                        <p class="text-sm font-semibold text-ink leading-tight">
+                                            {{ $item->templateChecklist->nama_dokumen }}
+                                        </p>
+                                        @if($item->templateChecklist->wajib)
+                                            <span class="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-700">Wajib</span>
+                                        @endif
+                                    </div>
 
                                     @if($item->file_path)
                                         <div class="flex items-center gap-2 mb-3">
