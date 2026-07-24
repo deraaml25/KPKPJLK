@@ -1,5 +1,5 @@
 <x-app-layout>
-    @section('title', 'e-Pj Kades - Daftar Usulan')
+    @section('title', 'SK Kades')
 
     <div class="bg-white rounded-card p-6 shadow-sm border border-border mb-6">
         <h2 class="text-xl font-display font-bold text-ink">SK Kades</h2>

@@ -1,5 +1,5 @@
 <x-app-layout>
-    @section('title', 'e-Regulasi - Evaluasi Produk Hukum')
+    @section('title', 'Draft Regulasi')
 
     <div class="bg-white rounded-card p-6 shadow-sm border border-border mb-6">
         <div>

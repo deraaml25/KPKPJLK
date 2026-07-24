@@ -1,5 +1,5 @@
 <x-app-layout>
-    @section('title', 'e-Regulasi Desa')
+    @section('title', 'Draft Regulasi')
 
     <div class="bg-white rounded-card p-6 shadow-sm border border-border mb-6">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">

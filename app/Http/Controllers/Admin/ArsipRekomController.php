@@ -35,11 +35,12 @@ class ArsipRekomController extends Controller
         ]);
 
         // Pastikan folder ada
-        Storage::disk('public')->makeDirectory($ajuan->folder_path . '/rekom');
+        Storage::disk('public')->makeDirectory($ajuan->folder_path);
 
+        $safeNoReg = str_replace('/', '-', $ajuan->no_registrasi);
         $path = $request->file('file_rekom')->storeAs(
-            $ajuan->folder_path . '/rekom',
-            'REKOM_' . $ajuan->no_registrasi . '.pdf',
+            $ajuan->folder_path,
+            $safeNoReg . '_REKOM.pdf',
             'public'
         );
 

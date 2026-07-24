@@ -1,11 +1,11 @@
 <x-app-layout>
     @section('title', 'Data BPD')
 
-    <div class="bg-surface rounded-layout p-6 shadow-sm border border-border">
+    <div>
         <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
                 <h3 class="text-lg font-bold text-ink">Data BPD</h3>
-                <p class="text-sm text-text-muted mt-1">Data sentral bpd aktif seluruh desa di kabupaten.</p>
+                <p class="text-sm text-text-muted mt-1">Data sentral anggota BPD aktif seluruh desa di kabupaten.</p>
             </div>
 
             <form action="{{ route('admin.bpd.index') }}" method="GET" class="w-full md:w-72">
@@ -22,62 +22,44 @@
             </form>
         </div>
 
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm text-ink">
-                <thead class="bg-surface-alt text-text-muted uppercase text-xs font-semibold">
-                    <tr>
-                        <th scope="col" class="px-6 py-3 rounded-tl-lg">Nama Lengkap</th>
-                        <th scope="col" class="px-6 py-3">Jabatan</th>
-                        <th scope="col" class="px-6 py-3">Status</th>
-                        <th scope="col" class="px-6 py-3 rounded-tr-lg">Desa / Instansi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-border">
-                    @forelse($bpd as $p)
-                        <tr class="hover:bg-primary-soft/10 transition-colors">
-                            <td class="px-6 py-4 font-medium text-ink">
-                                {{ $p->nama }}
-                            </td>
-                            <td class="px-6 py-4 text-text-muted">
-                                {{ $p->jabatan }}
-                            </td>
-                            <td class="px-6 py-4">
-                                @if($p->status_aktif)
-                                    <span
-                                        class="inline-flex items-center gap-1.5 py-1 px-2 rounded-md text-xs font-medium bg-green-50 text-green-700 ring-1 ring-inset ring-green-600/20">
-                                        <span class="h-1.5 w-1.5 rounded-full bg-green-500"></span>
-                                        Aktif
-                                    </span>
-                                @else
-                                    <span
-                                        class="inline-flex items-center gap-1.5 py-1 px-2 rounded-md text-xs font-medium bg-red-50 text-red-700 ring-1 ring-inset ring-red-600/10">
-                                        <span class="h-1.5 w-1.5 rounded-full bg-red-500"></span>
-                                        Non Aktif
-                                    </span>
-                                @endif
-                            </td>
-                            <td class="px-6 py-4">
-                                <div class="text-sm font-medium text-ink">{{ $p->desa->nama_desa ?? '-' }}</div>
-                                <div class="text-xs text-text-muted">{{ $p->desa->kecamatan->nama_kecamatan ?? '-' }}</div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="4" class="px-6 py-8 text-center text-text-muted">
-                                @if(request('search'))
-                                    Data bpd tidak ditemukan untuk pencarian '{{ request('search') }}'.
-                                @else
-                                    Belum ada data bpd desa di sistem.
-                                @endif
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            @forelse($bpds as $p)
+                <div class="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-6 flex flex-col hover:shadow-[0_8px_25px_-5px_rgba(0,0,0,0.08)] transition-shadow border border-slate-100">
+                    <div class="flex justify-between items-start mb-8">
+                        <div class="w-[72px] h-[72px] rounded-full bg-slate-200 flex flex-shrink-0 items-center justify-center overflow-hidden">
+                            <svg class="w-12 h-12 text-slate-400 mt-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        </div>
+                        @if($p->status_aktif)
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-50 text-green-600 border border-green-200/80">
+                                <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-2"></span> Aktif
+                            </span>
+                        @else
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-600 border border-red-200/80">
+                                <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-2"></span> Nonaktif
+                            </span>
+                        @endif
+                    </div>
+                    
+                    <div class="flex-1 flex flex-col justify-end">
+                        <h3 class="text-[17px] font-black text-slate-800 leading-snug uppercase mb-1.5">{{ $p->nama }}</h3>
+                        <p class="text-[14px] text-slate-600">{{ $p->jabatan }}</p>
+                        <p class="text-[14px] text-slate-600">{{ $p->desa->nama_desa ?? 'Desa' }}, {{ $p->desa->kecamatan->nama_kecamatan ?? 'Kecamatan' }}</p>
+                    </div>
+                </div>
+            @empty
+                <div class="col-span-full">
+                    <div class="bg-white rounded-card shadow-sm border border-border p-8">
+                        <x-empty-state
+                            icon="<path stroke-linecap='round' stroke-linejoin='round' d='M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' />"
+                            title="Data BPD Kosong"
+                            message="Belum ada anggota BPD yang terdaftar." />
+                    </div>
+                </div>
+            @endforelse
         </div>
 
-        <div class="mt-4">
-            {{ $bpd->links() }}
+        <div class="mt-6">
+            {{ $bpds->links() }}
         </div>
     </div>
 </x-app-layout>

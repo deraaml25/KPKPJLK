@@ -74,7 +74,7 @@ class AjuanController extends Controller
         $kecamatan = Str::slug($desa->kecamatan->nama_kecamatan);
         $desaNama = Str::slug($desa->nama_desa);
         $jenis = Str::slug($jenisLayanan->nama);
-        $folderPath = "dokumen/{$kecamatan}/{$desaNama}/{$jenis}/{$noRegistrasi}";
+        $folderPath = "dokumen/{$kecamatan}/{$desaNama}/{$jenis}";
 
         $isDraft = $request->has('draft');
 
@@ -188,7 +188,8 @@ class AjuanController extends Controller
         $template = $checklistAjuan->templateChecklist;
         $urutan = str_pad($template->urutan, 2, '0', STR_PAD_LEFT);
         $ext = $request->file('dokumen')->extension();
-        $filename = $urutan . '_' . Str::slug($template->nama_dokumen) . '.' . $ext;
+        $safeNoReg = str_replace('/', '-', $ajuan->no_registrasi);
+        $filename = $safeNoReg . '_' . $urutan . '_' . Str::slug($template->nama_dokumen) . '.' . $ext;
 
         // Jika ada file lama, hapus dulu
         if ($checklistAjuan->file_path && Storage::disk('public')->exists($checklistAjuan->file_path)) {
@@ -240,7 +241,8 @@ class AjuanController extends Controller
                 $template = $checklistAjuan->templateChecklist;
                 $urutan = str_pad($template->urutan, 2, '0', STR_PAD_LEFT);
                 $ext = $file->extension();
-                $filename = $urutan . '_' . Str::slug($template->nama_dokumen) . '.' . $ext;
+                $safeNoReg = str_replace('/', '-', $ajuan->no_registrasi);
+                $filename = $safeNoReg . '_' . $urutan . '_' . Str::slug($template->nama_dokumen) . '.' . $ext;
 
                 if ($checklistAjuan->file_path && Storage::disk('public')->exists($checklistAjuan->file_path)) {
                     Storage::disk('public')->delete($checklistAjuan->file_path);

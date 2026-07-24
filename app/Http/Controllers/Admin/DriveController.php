@@ -83,7 +83,10 @@ class DriveController extends Controller
 
     private function buildBreadcrumbs(string $path): array
     {
-        if (empty($path)) {
+        // Clean up any trailing slashes
+        $path = trim($path, '/');
+        
+        if (empty($path) || $path === 'dokumen') {
             return [['label' => 'Drive Dokumen', 'path' => '']];
         }
 
@@ -93,7 +96,15 @@ class DriveController extends Controller
 
         foreach ($parts as $part) {
             $cumulative .= ($cumulative ? '/' : '') . $part;
-            $breadcrumbs[] = ['label' => $part, 'path' => $cumulative];
+            
+            // Skip the internal 'dokumen' root from breadcrumb display
+            if ($part === 'dokumen' && $cumulative === 'dokumen') {
+                continue;
+            }
+            
+            // Capitalize for better look
+            $label = ucwords(str_replace('-', ' ', $part));
+            $breadcrumbs[] = ['label' => $label, 'path' => $cumulative];
         }
 
         return $breadcrumbs;

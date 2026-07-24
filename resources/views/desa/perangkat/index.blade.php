@@ -40,78 +40,59 @@
     </div>
 
     <!-- Tabel -->
-    <div class="bg-white rounded-card shadow-sm border border-border overflow-hidden">
-        <div class="overflow-x-auto">
-            <table class="min-w-full divide-y divide-border">
-                <thead class="bg-gray-50">
-                    <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Nama</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Jabatan</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Nomor SK</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Mulai Menjabat</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase">Status</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-muted uppercase">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="bg-white divide-y divide-border text-sm">
-                    @forelse ($perangkat as $row)
-                        <tr class="hover:bg-gray-50/50">
-                            <td class="px-6 py-4 whitespace-nowrap font-bold text-ink">{{ $row->nama }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-muted">{{ $row->jabatan }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-muted">{{ $row->no_sk_terakhir ?? '-' }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-muted">
-                                {{ $row->tgl_mulai_jabatan ? $row->tgl_mulai_jabatan->format('d M Y') : '-' }}
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                @if($row->status_aktif)
-                                    <span
-                                        class="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">Aktif</span>
-                                @else
-                                    <span
-                                        class="inline-flex px-2 py-0.5 rounded text-xs font-medium bg-red-100 text-red-800">Tidak
-                                        Aktif</span>
-                                @endif
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
-                                <div class="flex items-center justify-end gap-3">
-                                    <a href="{{ route('desa.perangkat.edit', $row) }}"
-                                        class="text-primary hover:underline font-medium">Edit</a>
-                                    @if($row->status_aktif)
-                                        <form action="{{ route('desa.perangkat.destroy', $row) }}" method="POST"
-                                            class="w-24 text-right"
-                                            onsubmit="return confirm('Apakah Anda yakin ingin menonaktifkan perangkat ini? (Soft Delete)');">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit"
-                                                class="text-danger hover:underline font-medium">Nonaktifkan</button>
-                                        </form>
-                                    @else
-                                        <form action="{{ route('desa.perangkat.activate', $row) }}" method="POST"
-                                            class="w-24 text-right"
-                                            onsubmit="return confirm('Apakah Anda yakin ingin mengaktifkan perangkat ini kembali?');">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button type="submit"
-                                                class="text-green-600 hover:underline font-medium">Aktifkan</button>
-                                        </form>
-                                    @endif
-                                </div>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="p-0">
-                                <x-empty-state
-                                    icon="<path stroke-linecap='round' stroke-linejoin='round' d='M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' />"
-                                    title="Data Perangkat Desa Kosong"
-                                    message="Belum ada perangkat desa yang terdaftar. Data master ini umumnya disinkronkan dan dikelola bersama Kabupaten." />
-                            </td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+    <div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            @forelse ($perangkat as $row)
+                <div class="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-6 flex flex-col hover:shadow-[0_8px_25px_-5px_rgba(0,0,0,0.08)] transition-shadow border border-slate-100">
+                    <div class="flex justify-between items-start mb-8">
+                        <div class="w-[72px] h-[72px] rounded-full bg-slate-200 flex flex-shrink-0 items-center justify-center overflow-hidden">
+                            <svg class="w-12 h-12 text-slate-400 mt-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+                        </div>
+                        @if($row->status_aktif)
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-50 text-green-600 border border-green-200/80">
+                                <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-2"></span> Aktif
+                            </span>
+                        @else
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-600 border border-red-200/80">
+                                <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-2"></span> Nonaktif
+                            </span>
+                        @endif
+                    </div>
+                    
+                    <div class="flex-1 flex flex-col justify-end">
+                        <h3 class="text-[17px] font-black text-slate-800 leading-snug uppercase mb-1.5">{{ $row->nama }}</h3>
+                        <p class="text-[14px] text-slate-600">{{ $row->jabatan }}</p>
+                        <p class="text-[14px] text-slate-600">{{ $row->desa->nama_desa ?? auth()->user()->desa->nama_desa ?? 'Desa' }}, {{ $row->desa->kecamatan->nama_kecamatan ?? auth()->user()->desa->kecamatan->nama_kecamatan ?? 'Kecamatan' }}</p>
+                    </div>
+
+                    <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-end gap-4">
+                        <a href="{{ route('desa.perangkat.edit', $row) }}" class="text-[13px] font-bold text-blue-600 hover:text-blue-700">Edit</a>
+                        @if($row->status_aktif)
+                            <form action="{{ route('desa.perangkat.destroy', $row) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menonaktifkan perangkat ini?');">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="text-[13px] font-bold text-red-600 hover:text-red-700">Nonaktifkan</button>
+                            </form>
+                        @else
+                            <form action="{{ route('desa.perangkat.activate', $row) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin mengaktifkan kembali perangkat ini?');">
+                                @csrf @method('PATCH')
+                                <button type="submit" class="text-[13px] font-bold text-green-600 hover:text-green-700">Aktifkan</button>
+                            </form>
+                        @endif
+                    </div>
+                </div>
+            @empty
+                <div class="col-span-full">
+                    <div class="bg-white rounded-card shadow-sm border border-border p-8">
+                        <x-empty-state
+                            icon="<path stroke-linecap='round' stroke-linejoin='round' d='M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' />"
+                            title="Data Perangkat Desa Kosong"
+                            message="Belum ada perangkat desa yang terdaftar." />
+                    </div>
+                </div>
+            @endforelse
         </div>
         @if($perangkat->hasPages())
-            <div class="px-6 py-4 border-t border-border">{{ $perangkat->links() }}</div>
+            <div class="mt-6">{{ $perangkat->links() }}</div>
         @endif
     </div>
 </x-app-layout>
