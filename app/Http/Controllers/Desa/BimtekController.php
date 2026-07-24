@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Desa;
 
 use App\Http\Controllers\Controller;
 use App\Models\Bimtek;
+use App\Models\BimtekInformasi;
 use App\Models\BimtekPendaftaran;
+use App\Models\PengajuanPembinaan;
 use App\Models\PerangkatDesa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -14,6 +16,9 @@ class BimtekController extends Controller
     public function index()
     {
         $desaId = Auth::user()->desa_id;
+
+        // Informasi & berita pembinaan dari Dinpermasdes (yang sudah dipublikasikan)
+        $informasis = BimtekInformasi::published()->latest('published_at')->take(6)->get();
 
         // Event Bimtek yang masih terjadwal
         $bimteks = Bimtek::withCount('pendaftarans')
@@ -28,7 +33,10 @@ class BimtekController extends Controller
         // ID bimtek yang sudah didaftarkan desa ini (untuk disable tombol)
         $registeredBimtekIds = $myPendaftarans->pluck('bimtek_id')->toArray();
 
-        return view('desa.bimtek.index', compact('bimteks', 'myPendaftarans', 'registeredBimtekIds'));
+        // Pengajuan pembinaan dari desa ini
+        $myPengajuans = PengajuanPembinaan::where('desa_id', $desaId)->latest()->get();
+
+        return view('desa.bimtek.index', compact('bimteks', 'myPendaftarans', 'registeredBimtekIds', 'informasis', 'myPengajuans'));
     }
 
     /**
@@ -39,7 +47,7 @@ class BimtekController extends Controller
         $desaId = Auth::user()->desa_id;
 
         // Validasi kuota
-        if (!$bimtek->kuotaTersedia()) {
+        if (! $bimtek->kuotaTersedia()) {
             return redirect()->back()->with('error', 'Pendaftaran gagal: Kuota kelas sudah penuh.');
         }
 
@@ -63,14 +71,14 @@ class BimtekController extends Controller
 
         BimtekPendaftaran::create([
             'bimtek_id' => $bimtek->id,
-            'user_id' => Auth::id(),
+            'user_id' => Auth::user()->id,
             'desa_id' => $desaId,
             'perangkat_desa_id' => $perangkat->id,
             'status_presensi' => 'terdaftar',
             'status_rtl' => 'menunggu_rtl',
         ]);
 
-        return redirect()->route('desa.bimtek.index')->with('success', 'Perangkat "' . $perangkat->nama . '" berhasil didaftarkan untuk Bimtek "' . $bimtek->judul . '".');
+        return redirect()->route('desa.bimtek.index')->with('success', 'Perangkat "'.$perangkat->nama.'" berhasil didaftarkan untuk Bimtek "'.$bimtek->judul.'".');
     }
 
     /**

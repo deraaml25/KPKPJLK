@@ -7,45 +7,70 @@
 
         <title>{{ config('app.name', 'SIDmini') }} - @yield('title', 'Dashboard')</title>
 
+        <!-- Fonts & Icons -->
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0&display=block" rel="stylesheet">
+
         <!-- Scripts & Styles -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         <style>
             .scrollbar-none::-webkit-scrollbar { display: none; }
             .scrollbar-none { -ms-overflow-style: none; scrollbar-width: none; }
+            body { font-family: 'Inter', sans-serif; }
+            h1, h2, h3, h4, h5, h6, .font-display { font-family: 'Plus Jakarta Sans', sans-serif; }
+            
+            /* Active Nav Curve CSS */
+            .active-nav-curve {
+                background-color: #f8fafc !important;
+                border-radius: 40px 0 0 40px !important;
+            }
+            .active-nav-curve::before,
+            .active-nav-curve::after {
+                content: '';
+                position: absolute;
+                right: 0;
+                width: 20px;
+                height: 20px;
+                background-color: transparent;
+                pointer-events: none;
+            }
+            .active-nav-curve::before {
+                top: -20px;
+                border-radius: 0 0 20px 0;
+                box-shadow: 10px 10px 0 10px #f8fafc;
+            }
+            .active-nav-curve::after {
+                bottom: -20px;
+                border-radius: 0 20px 0 0;
+                box-shadow: 10px -10px 0 10px #f8fafc;
+            }
         </style>
 
         <!-- Chart.js -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     </head>
-    <body class="font-sans antialiased bg-background text-ink flex h-screen overflow-hidden">
-
-        <!-- ══════════════════════════════════════════════════════ -->
-        <!-- UNIFIED SIDEBAR: Blue icon zone (68px) + Red text zone -->
-        <!-- ══════════════════════════════════════════════════════ -->
-        <aside class="flex-shrink-0 flex flex-col z-30 relative shadow-floating h-screen"
-               style="width: 284px; background: linear-gradient(155deg, rgba(177,17,11,0.98) 0%, rgba(147,5,0,0.96) 48%, rgba(115,3,0,0.98) 100%); border-top-right-radius: 32px; border-bottom-right-radius: 32px; backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);">
-
-            <div class="absolute inset-y-0 left-0 bg-[linear-gradient(180deg,#95BBEA_0%,#6fa7e9_100%)]" style="width: 68px;"></div>
-            <div class="absolute inset-x-0 top-0 h-24 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.28),_transparent_65%)] pointer-events-none"></div>
-            <div class="absolute inset-x-0 bottom-0 h-24 bg-[linear-gradient(180deg,transparent_0%,rgba(0,0,0,0.16)_100%)] pointer-events-none"></div>
+    <body class="font-sans antialiased bg-[#f8fafc] text-slate-900 flex h-screen overflow-hidden text-sm">
+        
+        <!-- SIDEBAR -->
+        <aside class="flex-shrink-0 flex flex-col z-30 relative w-[260px] bg-[#0A1A3A] h-screen rounded-tr-[32px] rounded-br-[32px] shadow-xl overflow-hidden transition-all duration-300">
+            <!-- Background Kiri (Icon Rail) -->
+            <div class="absolute left-0 top-0 w-[60px] h-full bg-[#738FB9] z-0 shadow-md"></div>
 
             <div class="relative z-10 flex flex-col h-full">
-                <div class="flex h-20 flex-shrink-0 border-b border-white/15 px-3 py-4">
-                    <div class="flex items-center justify-center flex-shrink-0" style="width: 68px;">
-                        <div class="w-10 h-10 rounded-2xl bg-white/20 flex items-center justify-center text-white font-display font-bold text-sm shadow-[0_10px_24px_rgba(0,0,0,0.16)] ring-1 ring-white/20 backdrop-blur-sm">
-                            SD
-                        </div>
+                <!-- Logo Header -->
+                <div class="flex items-center h-[72px] mt-2">
+                    <div class="w-[60px] flex-shrink-0 flex justify-center items-center">
+                        <img src="{{ asset('logo.png') }}" onerror="this.src='https://lh3.googleusercontent.com/aida-public/AB6AXuDKBYY88kZ13swAXZCwTS6ub06DYmk7LgIvWrsJg4M5Mf764XFIciikJ_cuC39VrLn_VfTYs_HVED5VotHHKbdrPkVC9ZxMCk27gHWU2YHiYe1RguIfp1OfWuNAnoKAFkHh9p2cYiVxg-LNb09DpG2Pndv5ZtWWTy7W5rcPBE5qYyBjBfMS8eLV8wYS0VZ9sXduv8_vi7bSuXA4QGHHnSYxzVjt3Th6UicoO9-auMC89VtIMDJ4YkYG-qvLrLDMaAo85-DohAodwHVQ'" alt="Logo" class="w-8 h-8 object-contain">
                     </div>
-                    <div class="flex-1 flex items-center pl-3 pr-2">
-                        <div class="min-w-0">
-                            <p class="text-white font-display font-bold text-[15px] leading-tight truncate">SIDmini</p>
-                            <p class="text-white/70 text-[10px] uppercase tracking-[0.24em] leading-tight mt-1">Sistem Informasi Desa</p>
-                        </div>
+                    <div class="flex-grow px-4">
+                        <h1 class="text-white font-bold text-lg leading-none font-display">SIDmini</h1>
+                        <p class="text-slate-400 text-[9px] tracking-[0.1em] mt-1 uppercase font-semibold">Village Info System</p>
                     </div>
                 </div>
 
-                <nav class="flex-1 overflow-y-auto scrollbar-none px-2 py-3">
+                <!-- Navigation Links -->
+                <nav class="flex-1 overflow-y-auto scrollbar-none pt-2 flex flex-col w-full">
                     @if(auth()->user()->role === 'super_admin')
                         @include('layouts.partials.admin-nav')
                     @else
@@ -53,69 +78,63 @@
                     @endif
                 </nav>
 
-                <div class="border-t border-white/15 px-2 pb-3 pt-3">
-                    <div class="flex items-center rounded-2xl bg-white/12 px-2 py-2 mb-2 ring-1 ring-white/10 shadow-[0_12px_28px_rgba(0,0,0,0.16)] backdrop-blur-sm">
-                        <div class="flex items-center justify-center flex-shrink-0" style="width: 68px;">
-                            <div class="w-8 h-8 rounded-full bg-[linear-gradient(135deg,#95BBEA_0%,#4d81c9_100%)] flex items-center justify-center text-white font-bold text-sm shadow-sm">
-                                {{ substr(auth()->user()->name, 0, 1) }}
+                <!-- User Profile Footer -->
+                <div class="mt-auto flex w-full py-4 border-t border-white/10 bg-black/10 relative">
+                    <div class="w-[60px] flex-shrink-0 flex justify-center">
+                        <div class="relative h-8 w-8">
+                            <div class="w-8 h-8 rounded-full border-2 border-white/30 overflow-hidden shadow-lg bg-slate-200 flex items-center justify-center text-slate-800 font-bold text-[10px]">
+                                {{ substr(auth()->user()->name, 0, 2) }}
                             </div>
-                        </div>
-                        <div class="flex-1 pl-2 pr-2 min-w-0">
-                            <p class="text-white text-xs font-semibold truncate">{{ auth()->user()->name }}</p>
-                            <p class="text-white/60 text-[10px] uppercase truncate mt-0.5">
-                                {{ auth()->user()->role == 'super_admin' ? 'Administrator' : 'Operator Desa' }}
-                            </p>
-                            <p class="text-white/60 text-[10px] truncate">
-                                {{ auth()->user()->role == 'super_admin' ? 'Dinpermasdes' : (auth()->user()->desa->nama_desa ?? 'Karangendep') }}
-                            </p>
+                            <div class="absolute -right-0.5 -bottom-0.5 w-3 h-3 bg-green-500 border-2 border-[#738FB9] rounded-full"></div>
                         </div>
                     </div>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="nav-item w-full text-left rounded-2xl px-2">
-                            <span class="nav-icon text-white/60">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                    <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
-                                </svg>
-                            </span>
-                            <span class="nav-text text-white/60 font-semibold" style="padding-left: 16px;">Logout</span>
-                        </button>
-                    </form>
+                    <div class="flex-grow px-4 flex flex-col justify-center overflow-hidden">
+                        <h3 class="text-white font-bold text-xs truncate">{{ auth()->user()->name }}</h3>
+                        <p class="text-slate-400 text-[9px] uppercase font-semibold tracking-wide truncate mt-0.5">
+                            {{ auth()->user()->role == 'super_admin' ? 'Administrator' : 'Operator Desa' }}
+                        </p>
+                        @if(auth()->user()->role == 'super_admin')
+                        <p class="text-yellow-500 text-[9px] font-mono mt-0.5 truncate">NIP: 198001012005011001</p>
+                        @endif
+                        <form method="POST" action="{{ route('logout') }}" class="mt-2.5">
+                            @csrf
+                            <button type="submit" class="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-[11px] font-semibold w-full">
+                                <span class="material-symbols-outlined text-[14px]">logout</span>
+                                Keluar
+                            </button>
+                        </form>
+                    </div>
                 </div>
             </div>
         </aside>
 
-        <!-- ════════════════════ -->
-        <!-- MAIN CONTENT         -->
-        <!-- ════════════════════ -->
-        <div class="flex-1 flex flex-col relative z-10 overflow-hidden">
-            <main class="flex-1 overflow-y-auto bg-[linear-gradient(135deg,#f8fafc_0%,#f3f7fb_100%)] p-6 lg:p-8">
-                <div class="mx-auto flex max-w-7xl flex-col gap-6">
-                    <div class="feature-shell rounded-[30px] border border-[#DCE8F8] bg-white/90 px-6 py-5 shadow-[0_18px_45px_-25px_rgba(15,23,42,0.28)] backdrop-blur-xl ring-1 ring-[#E4EBF7]">
-                        <div class="flex flex-wrap items-center justify-between gap-4">
-                            <div class="space-y-1">
-                                <div class="inline-flex items-center gap-2 rounded-full border border-[#DDE9F8] bg-[linear-gradient(90deg,rgba(149,187,234,0.18)_0%,rgba(255,255,255,0.98)_100%)] px-3 py-1 shadow-sm">
-                                    <span class="h-2 w-2 rounded-full bg-[#930500]"></span>
-                                    <p class="text-[10px] font-semibold uppercase tracking-[0.32em] text-[#930500]">
-                                        @yield('page-kicker', 'Menu Utama')
-                                    </p>
-                                </div>
-                                <h2 class="text-xl font-display font-semibold text-slate-900">
-                                    @yield('title', 'Dashboard')
-                                </h2>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                @hasSection('page-actions')
-                                    @yield('page-actions')
-                                @else
-                                    <div class="flex items-center gap-2 rounded-full border border-[#DDE9F8] bg-[linear-gradient(90deg,rgba(149,187,234,0.16)_0%,rgba(255,255,255,0.96)_100%)] px-3 py-2 shadow-sm">
-                                        <span class="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#930500]">Mode</span>
-                                        <span class="text-sm font-semibold text-slate-700">{{ auth()->user()->role == 'super_admin' ? 'Admin' : 'Desa' }}</span>
-                                    </div>
-                                @endif
-                            </div>
+        <!-- MAIN CONTENT -->
+        <div class="flex-1 flex flex-col relative z-10 overflow-hidden bg-[#f8fafc]">
+            <!-- Top App Bar -->
+            <div class="sticky top-0 z-40 px-6 pt-5 pb-2 bg-[#f8fafc]">
+                <header class="flex items-center justify-between px-5 py-3 bg-white rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-slate-200/60 transition-all duration-200">
+                    <div class="flex items-center gap-3">
+                        <div class="w-1 h-6 bg-[#738FB9] rounded-full"></div>
+                        <div class="flex flex-col">
+                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
+                                @yield('page-kicker', 'Utama')
+                            </span>
+                            <h2 class="text-lg text-[#111827] font-bold font-display tracking-tight leading-none">
+                                @yield('title', 'Dashboard')
+                            </h2>
                         </div>
                     </div>
+                    <div class="flex items-center gap-4">
+                        <button class="w-8 h-8 rounded-full bg-slate-50 shadow-sm border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors relative">
+                            <span class="material-symbols-outlined text-[18px]">notifications</span>
+                            <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+                        </button>
+                    </div>
+                </header>
+            </div>
+
+            <main class="flex-1 overflow-y-auto px-6 pb-8 scrollbar-none mt-2">
+                <div class="mx-auto max-w-[1100px]">
                     {{ $slot }}
                 </div>
             </main>

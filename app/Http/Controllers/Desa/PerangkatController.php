@@ -89,4 +89,12 @@ class PerangkatController extends Controller
         return redirect()->route('desa.perangkat.index')
             ->with('success', 'Perangkat desa berhasil dinonaktifkan.');
     }
+
+    public function activate(PerangkatDesa $perangkat)
+    {
+        $perangkat->update(['status_aktif' => true]);
+
+        return redirect()->route('desa.perangkat.index')
+            ->with('success', 'Perangkat desa berhasil diaktifkan kembali.');
+    }
 }

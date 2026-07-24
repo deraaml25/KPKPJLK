@@ -1,17 +1,32 @@
 <?php
 
-use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\Admin\AdminAjuanController;
+use App\Http\Controllers\Admin\AjuanController;
+use App\Http\Controllers\Admin\ArsipRekomController;
+use App\Http\Controllers\Admin\BimtekController;
+use App\Http\Controllers\Admin\BimtekInformasiController;
+use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DashboardController as AdminDashboardController;
+use App\Http\Controllers\Admin\DriveController;
+use App\Http\Controllers\Admin\IzinCalonController;
+use App\Http\Controllers\Admin\MasterDataController;
+use App\Http\Controllers\Admin\PenataanController;
+use App\Http\Controllers\Admin\PengajuanPembinaanController;
+use App\Http\Controllers\Admin\PerangkatController;
+use App\Http\Controllers\Admin\PilkadesController;
+use App\Http\Controllers\Admin\PjKadesController;
+use App\Http\Controllers\Admin\RegulasiController;
+use App\Http\Controllers\Admin\SiltapController;
 use App\Http\Controllers\Desa\DashboardController as DesaDashboardController;
-
-
-
-
-
-
-
+use App\Http\Controllers\ProfileController;
+use App\Models\AlasanPemberhentian;
+use App\Models\Desa;
+use App\Models\JenisLayanan;
+use App\Models\Kecamatan;
+use App\Models\PerangkatDesa;
+use App\Models\TemplateChecklist;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return redirect('/login');
@@ -22,6 +37,7 @@ Route::get('/dashboard', function () {
     if ($user->role === 'super_admin') {
         return redirect()->route('admin.dashboard');
     }
+
     return redirect()->route('desa.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
@@ -29,145 +45,163 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
     Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
 
     // Ajuan
-    Route::get('/ajuan', [\App\Http\Controllers\Admin\AjuanController::class, 'index'])->name('ajuan.index');
-    Route::get('/ajuan/{ajuan}', [\App\Http\Controllers\Admin\AjuanController::class, 'show'])->name('ajuan.show');
-    Route::patch('/ajuan/{ajuan}/checklist/{checklistAjuan}/verifikasi', [\App\Http\Controllers\Admin\AjuanController::class, 'verifikasiChecklist'])->name('ajuan.verifikasi-checklist');
-    Route::post('/ajuan/{ajuan}/milestone', [\App\Http\Controllers\Admin\AjuanController::class, 'updateMilestone'])->name('ajuan.update-milestone');
+    Route::get('/ajuan', [AjuanController::class, 'index'])->name('ajuan.index');
+    Route::get('/ajuan/{ajuan}', [AjuanController::class, 'show'])->name('ajuan.show');
+    Route::patch('/ajuan/{ajuan}/checklist/{checklistAjuan}/verifikasi', [AjuanController::class, 'verifikasiChecklist'])->name('ajuan.verifikasi-checklist');
+    Route::post('/ajuan/{ajuan}/milestone', [AjuanController::class, 'updateMilestone'])->name('ajuan.update-milestone');
 
     // Arsip
-    Route::get('/arsip', [\App\Http\Controllers\Admin\ArsipRekomController::class, 'index'])->name('arsip.index');
-    Route::get('/arsip/{ajuan}/create', [\App\Http\Controllers\Admin\ArsipRekomController::class, 'create'])->name('arsip.create');
-    Route::post('/arsip/{ajuan}', [\App\Http\Controllers\Admin\ArsipRekomController::class, 'store'])->name('arsip.store');
-    Route::get('/arsip/{arsipRekom}/download', [\App\Http\Controllers\Admin\ArsipRekomController::class, 'download'])->name('arsip.download');
+    Route::get('/arsip', [ArsipRekomController::class, 'index'])->name('arsip.index');
+    Route::get('/arsip/{ajuan}/create', [ArsipRekomController::class, 'create'])->name('arsip.create');
+    Route::post('/arsip/{ajuan}', [ArsipRekomController::class, 'store'])->name('arsip.store');
+    Route::get('/arsip/{arsipRekom}/download', [ArsipRekomController::class, 'download'])->name('arsip.download');
 
     // Drive Dokumen
-    Route::get('/drive', [\App\Http\Controllers\Admin\DriveController::class, 'index'])->name('drive.index');
-    Route::get('/drive/download-zip', [\App\Http\Controllers\Admin\DriveController::class, 'downloadZip'])->name('drive.download-zip');
+    Route::get('/drive', [DriveController::class, 'index'])->name('drive.index');
+    Route::get('/drive/download-zip', [DriveController::class, 'downloadZip'])->name('drive.download-zip');
 
     // Modul 1: e-Regulasi (Admin)
-    Route::get('/regulasi', [\App\Http\Controllers\Admin\RegulasiController::class, 'index'])->name('regulasi.index');
-    Route::get('/regulasi/{regulasi}', [\App\Http\Controllers\Admin\RegulasiController::class, 'show'])->name('regulasi.show');
-    Route::post('/regulasi/{regulasi}/kembalikan', [\App\Http\Controllers\Admin\RegulasiController::class, 'kembalikanUntukRevisi'])->name('regulasi.kembalikan');
-    Route::post('/regulasi/{regulasi}/sahkan', [\App\Http\Controllers\Admin\RegulasiController::class, 'sahkanAturan'])->name('regulasi.sahkan');
-    // Modul 2: e-Bimtek (Admin)
-    Route::get('/bimtek', [\App\Http\Controllers\Admin\BimtekController::class, 'index'])->name('bimtek.index');
-    Route::get('/bimtek/create', [\App\Http\Controllers\Admin\BimtekController::class, 'create'])->name('bimtek.create');
-    Route::post('/bimtek', [\App\Http\Controllers\Admin\BimtekController::class, 'store'])->name('bimtek.store');
-    Route::get('/bimtek/{bimtek}', [\App\Http\Controllers\Admin\BimtekController::class, 'show'])->name('bimtek.show');
-    Route::patch('/bimtek/presensi/{pendaftaran}', [\App\Http\Controllers\Admin\BimtekController::class, 'updatePresensi'])->name('bimtek.presensi');
-    Route::post('/bimtek/{bimtek}/upload-materi', [\App\Http\Controllers\Admin\BimtekController::class, 'uploadMateri'])->name('bimtek.upload-materi');
-    Route::patch('/bimtek/validasi-rtl/{pendaftaran}', [\App\Http\Controllers\Admin\BimtekController::class, 'validasiRtl'])->name('bimtek.validasi-rtl');
+    Route::get('/regulasi', [RegulasiController::class, 'index'])->name('regulasi.index');
+    Route::get('/regulasi/{regulasi}', [RegulasiController::class, 'show'])->name('regulasi.show');
+    Route::post('/regulasi/{regulasi}/kembalikan', [RegulasiController::class, 'kembalikanUntukRevisi'])->name('regulasi.kembalikan');
+    Route::post('/regulasi/{regulasi}/sahkan', [RegulasiController::class, 'sahkanAturan'])->name('regulasi.sahkan');
+    // Modul 2: e-Bimtek (Admin) - Removed by request
+    // Modul 2b: Informasi & Berita Pembinaan (Admin CRUD)
+    Route::get('/bimtek-informasi', [BimtekInformasiController::class, 'index'])->name('bimtek-informasi.index');
+    Route::get('/bimtek-informasi/create', [BimtekInformasiController::class, 'create'])->name('bimtek-informasi.create');
+    Route::post('/bimtek-informasi', [BimtekInformasiController::class, 'store'])->name('bimtek-informasi.store');
+    Route::get('/bimtek-informasi/{bimtekInformasi}', [BimtekInformasiController::class, 'show'])->name('bimtek-informasi.show');
+    Route::get('/bimtek-informasi/{bimtekInformasi}/edit', [BimtekInformasiController::class, 'edit'])->name('bimtek-informasi.edit');
+    Route::put('/bimtek-informasi/{bimtekInformasi}', [BimtekInformasiController::class, 'update'])->name('bimtek-informasi.update');
+    Route::delete('/bimtek-informasi/{bimtekInformasi}', [BimtekInformasiController::class, 'destroy'])->name('bimtek-informasi.destroy');
+    // Modul 2c: Pengajuan Pembinaan dari Desa (Admin kelola)
+    Route::get('/pengajuan-pembinaan', [PengajuanPembinaanController::class, 'index'])->name('pengajuan-pembinaan.index');
+    Route::get('/pengajuan-pembinaan/{pengajuanPembinaan}', [PengajuanPembinaanController::class, 'show'])->name('pengajuan-pembinaan.show');
+    Route::post('/pengajuan-pembinaan/{pengajuanPembinaan}/balas', [PengajuanPembinaanController::class, 'balas'])->name('pengajuan-pembinaan.balas');
 
     // Modul 4: e-Siltap (Admin)
-    Route::get('/siltap', [\App\Http\Controllers\Admin\SiltapController::class, 'index'])->name('siltap.index');
-    Route::get('/siltap/{siltap}', [\App\Http\Controllers\Admin\SiltapController::class, 'show'])->name('siltap.show');
-    Route::post('/siltap/{siltap}/verifikasi', [\App\Http\Controllers\Admin\SiltapController::class, 'verifikasi'])->name('siltap.verifikasi');
-    Route::post('/siltap/{siltap}/kirim-bkad', [\App\Http\Controllers\Admin\SiltapController::class, 'kirimBkad'])->name('siltap.kirim-bkad');
+    Route::get('/siltap', [SiltapController::class, 'index'])->name('siltap.index');
+    Route::get('/siltap/{siltap}', [SiltapController::class, 'show'])->name('siltap.show');
+    Route::post('/siltap/{siltap}/verifikasi', [SiltapController::class, 'verifikasi'])->name('siltap.verifikasi');
+    Route::post('/siltap/{siltap}/kirim-bkad', [SiltapController::class, 'kirimBkad'])->name('siltap.kirim-bkad');
 
     // Modul 5: e-Pj Kades (Admin)
-    Route::get('/pjkades', [\App\Http\Controllers\Admin\PjKadesController::class, 'index'])->name('pjkades.index');
-    Route::get('/pjkades/{pjkades}', [\App\Http\Controllers\Admin\PjKadesController::class, 'show'])->name('pjkades.show');
-    Route::post('/pjkades/{pjkades}/generate-sk', [\App\Http\Controllers\Admin\PjKadesController::class, 'generateSk'])->name('pjkades.generate-sk');
+    Route::get('/pjkades', [PjKadesController::class, 'index'])->name('pjkades.index');
+    Route::get('/pjkades/{pjkades}', [PjKadesController::class, 'show'])->name('pjkades.show');
+    Route::post('/pjkades/{pjkades}/generate-sk', [PjKadesController::class, 'generateSk'])->name('pjkades.generate-sk');
 
     // Modul 6: e-Izin Calon (Admin)
-    Route::get('/izincalon', [\App\Http\Controllers\Admin\IzinCalonController::class, 'index'])->name('izincalon.index');
-    Route::get('/izincalon/{izincalon}', [\App\Http\Controllers\Admin\IzinCalonController::class, 'show'])->name('izincalon.show');
-    Route::post('/izincalon/{izincalon}/verifikasi', [\App\Http\Controllers\Admin\IzinCalonController::class, 'verifikasi'])->name('izincalon.verifikasi');
+    Route::get('/izincalon', [IzinCalonController::class, 'index'])->name('izincalon.index');
+    Route::get('/izincalon/{izincalon}', [IzinCalonController::class, 'show'])->name('izincalon.show');
+    Route::post('/izincalon/{izincalon}/verifikasi', [IzinCalonController::class, 'verifikasi'])->name('izincalon.verifikasi');
 
     // Modul 7: e-Pilkades (Admin)
-    Route::get('/pilkades', [\App\Http\Controllers\Admin\PilkadesController::class, 'index'])->name('pilkades.index');
-    Route::get('/pilkades/{pilkades}', [\App\Http\Controllers\Admin\PilkadesController::class, 'show'])->name('pilkades.show');
-    Route::post('/pilkades/create', [\App\Http\Controllers\Admin\PilkadesController::class, 'store'])->name('pilkades.store');
-    Route::post('/pilkades/{pilkades}/generate-sk', [\App\Http\Controllers\Admin\PilkadesController::class, 'generateSk'])->name('pilkades.generate-sk');
+    Route::get('/pilkades', [PilkadesController::class, 'index'])->name('pilkades.index');
+    Route::get('/pilkades/{pilkades}', [PilkadesController::class, 'show'])->name('pilkades.show');
+    Route::post('/pilkades/create', [PilkadesController::class, 'store'])->name('pilkades.store');
+    Route::post('/pilkades/{pilkades}/generate-sk', [PilkadesController::class, 'generateSk'])->name('pilkades.generate-sk');
 
     // Modul 8: e-Penataan Desa (Admin)
-    Route::get('/penataan', [\App\Http\Controllers\Admin\PenataanController::class, 'index'])->name('penataan.index');
-    Route::get('/penataan/{penataan}', [\App\Http\Controllers\Admin\PenataanController::class, 'show'])->name('penataan.show');
-    Route::post('/penataan/{penataan}/set-persiapan', [\App\Http\Controllers\Admin\PenataanController::class, 'setPersiapan'])->name('penataan.set_persiapan');
-    Route::post('/penataan/{penataan}/set-definitif', [\App\Http\Controllers\Admin\PenataanController::class, 'setDefinitif'])->name('penataan.set_definitif');
+    Route::get('/penataan', [PenataanController::class, 'index'])->name('penataan.index');
+    Route::get('/penataan/{penataan}', [PenataanController::class, 'show'])->name('penataan.show');
+    Route::post('/penataan/{penataan}/set-persiapan', [PenataanController::class, 'setPersiapan'])->name('penataan.set_persiapan');
+    Route::post('/penataan/{penataan}/set-definitif', [PenataanController::class, 'setDefinitif'])->name('penataan.set_definitif');
 
     // Data Master
-    Route::get('/perangkat', [\App\Http\Controllers\Admin\PerangkatController::class, 'index'])->name('perangkat.index');
+    Route::get('/perangkat', [PerangkatController::class, 'index'])->name('perangkat.index');
 
     Route::prefix('master')->name('master.')->group(function () {
-        Route::resource('kecamatan', \App\Http\Controllers\Admin\MasterDataController::class);
+        Route::resource('kecamatan', MasterDataController::class);
     });
 });
 
 Route::middleware(['auth', 'role:desa'])->prefix('desa')->name('desa.')->group(function () {
     Route::get('/dashboard', [DesaDashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/perangkat', [\App\Http\Controllers\Desa\PerangkatController::class, 'index'])->name('perangkat.index');
-    Route::get('/perangkat/create', [\App\Http\Controllers\Desa\PerangkatController::class, 'create'])->name('perangkat.create');
-    Route::post('/perangkat', [\App\Http\Controllers\Desa\PerangkatController::class, 'store'])->name('perangkat.store');
-    Route::get('/perangkat/{perangkat}/edit', [\App\Http\Controllers\Desa\PerangkatController::class, 'edit'])->name('perangkat.edit');
-    Route::put('/perangkat/{perangkat}', [\App\Http\Controllers\Desa\PerangkatController::class, 'update'])->name('perangkat.update');
-    Route::delete('/perangkat/{perangkat}', [\App\Http\Controllers\Desa\PerangkatController::class, 'destroy'])->name('perangkat.destroy');
+    Route::get('/perangkat', [App\Http\Controllers\Desa\PerangkatController::class, 'index'])->name('perangkat.index');
+    Route::get('/perangkat/create', [App\Http\Controllers\Desa\PerangkatController::class, 'create'])->name('perangkat.create');
+    Route::post('/perangkat', [App\Http\Controllers\Desa\PerangkatController::class, 'store'])->name('perangkat.store');
+    Route::get('/perangkat/{perangkat}/edit', [App\Http\Controllers\Desa\PerangkatController::class, 'edit'])->name('perangkat.edit');
+    Route::put('/perangkat/{perangkat}', [App\Http\Controllers\Desa\PerangkatController::class, 'update'])->name('perangkat.update');
+    Route::delete('/perangkat/{perangkat}', [App\Http\Controllers\Desa\PerangkatController::class, 'destroy'])->name('perangkat.destroy');
+    Route::patch('/perangkat/{perangkat}/activate', [App\Http\Controllers\Desa\PerangkatController::class, 'activate'])->name('perangkat.activate');
 
     // Ajuan — /buat MUST come before /{ajuan} or it gets swallowed
-    Route::get('/ajuan/buat', [\App\Http\Controllers\Desa\AjuanController::class, 'create'])->name('ajuan.create');
-    Route::get('/ajuan', [\App\Http\Controllers\Desa\AjuanController::class, 'index'])->name('ajuan.index');
-    Route::post('/ajuan', [\App\Http\Controllers\Desa\AjuanController::class, 'store'])->name('ajuan.store');
-    Route::get('/ajuan/{ajuan}', [\App\Http\Controllers\Desa\AjuanController::class, 'show'])->name('ajuan.show');
-    Route::post('/ajuan/{ajuan}/upload/{checklistAjuan}', [\App\Http\Controllers\Desa\AjuanController::class, 'uploadDokumen'])->name('ajuan.upload');
-    Route::post('/ajuan/{ajuan}/bulk-upload', [\App\Http\Controllers\Desa\AjuanController::class, 'bulkUpload'])->name('ajuan.bulk-upload');
+    Route::get('/ajuan/buat', [App\Http\Controllers\Desa\AjuanController::class, 'create'])->name('ajuan.create');
+    Route::get('/ajuan', [App\Http\Controllers\Desa\AjuanController::class, 'index'])->name('ajuan.index');
+    Route::post('/ajuan', [App\Http\Controllers\Desa\AjuanController::class, 'store'])->name('ajuan.store');
+    Route::get('/ajuan/{ajuan}', [App\Http\Controllers\Desa\AjuanController::class, 'show'])->name('ajuan.show');
+    Route::post('/ajuan/{ajuan}/upload/{checklistAjuan}', [App\Http\Controllers\Desa\AjuanController::class, 'uploadDokumen'])->name('ajuan.upload');
+    Route::post('/ajuan/{ajuan}/bulk-upload', [App\Http\Controllers\Desa\AjuanController::class, 'bulkUpload'])->name('ajuan.bulk-upload');
 
-    // Arsip Rekomendasi khusus admin, di desa dimatikan
-    // Route::get('/arsip', [\App\Http\Controllers\Desa\ArsipController::class, 'index'])->name('arsip.index');
+    Route::get('/arsip', [\App\Http\Controllers\Desa\ArsipController::class, 'index'])->name('arsip.index');
     // Modul 1: e-Regulasi (Desa)
-    Route::get('/regulasi', [\App\Http\Controllers\Desa\RegulasiController::class, 'index'])->name('regulasi.index');
-    Route::get('/regulasi/buat', [\App\Http\Controllers\Desa\RegulasiController::class, 'create'])->name('regulasi.create');
-    Route::get('/regulasi/{regulasi}', [\App\Http\Controllers\Desa\RegulasiController::class, 'show'])->name('regulasi.show');
-    Route::post('/regulasi', [\App\Http\Controllers\Desa\RegulasiController::class, 'store'])->name('regulasi.store');
-    Route::post('/regulasi/{regulasi}/kirim-revisi', [\App\Http\Controllers\Desa\RegulasiController::class, 'kirimRevisi'])->name('regulasi.kirim-revisi');
+    Route::get('/regulasi', [App\Http\Controllers\Desa\RegulasiController::class, 'index'])->name('regulasi.index');
+    Route::get('/regulasi/buat', [App\Http\Controllers\Desa\RegulasiController::class, 'create'])->name('regulasi.create');
+    Route::get('/regulasi/{regulasi}', [App\Http\Controllers\Desa\RegulasiController::class, 'show'])->name('regulasi.show');
+    Route::post('/regulasi', [App\Http\Controllers\Desa\RegulasiController::class, 'store'])->name('regulasi.store');
+    Route::post('/regulasi/{regulasi}/kirim-revisi', [App\Http\Controllers\Desa\RegulasiController::class, 'kirimRevisi'])->name('regulasi.kirim-revisi');
 
-    // Modul 2: e-Bimtek (Desa)
-    Route::get('/bimtek', [\App\Http\Controllers\Desa\BimtekController::class, 'index'])->name('bimtek.index');
-    Route::post('/bimtek/{bimtek}/daftar', [\App\Http\Controllers\Desa\BimtekController::class, 'daftar'])->name('bimtek.daftar');
-    Route::post('/bimtek/pendaftaran/{pendaftaran}/upload-rtl', [\App\Http\Controllers\Desa\BimtekController::class, 'uploadRtl'])->name('bimtek.upload-rtl');
+    // Modul 2: e-Bimtek (Desa) - Removed by request
+    // Modul 2b: Informasi & Berita Pembinaan (Desa)
+    Route::get('/bimtek-informasi', [App\Http\Controllers\Desa\BimtekInformasiController::class, 'index'])->name('bimtek-informasi.index');
+    Route::get('/bimtek-informasi/{bimtekInformasi}', [App\Http\Controllers\Desa\BimtekInformasiController::class, 'show'])->name('bimtek-informasi.show');
+    // Modul 2b: Pengajuan Pembinaan Desa ke Dinpermasdes
+    Route::get('/pengajuan-pembinaan', [App\Http\Controllers\Desa\PengajuanPembinaanController::class, 'index'])->name('pengajuan-pembinaan.index');
+    Route::get('/pengajuan-pembinaan/buat', [App\Http\Controllers\Desa\PengajuanPembinaanController::class, 'create'])->name('pengajuan-pembinaan.create');
+    Route::post('/pengajuan-pembinaan', [App\Http\Controllers\Desa\PengajuanPembinaanController::class, 'store'])->name('pengajuan-pembinaan.store');
+    Route::get('/pengajuan-pembinaan/{pengajuanPembinaan}', [App\Http\Controllers\Desa\PengajuanPembinaanController::class, 'show'])->name('pengajuan-pembinaan.show');
 
     // Modul 4: e-Siltap (Desa)
-    Route::get('/siltap', [\App\Http\Controllers\Desa\SiltapController::class, 'index'])->name('siltap.index');
-    Route::get('/siltap/buat', [\App\Http\Controllers\Desa\SiltapController::class, 'create'])->name('siltap.create');
-    Route::post('/siltap', [\App\Http\Controllers\Desa\SiltapController::class, 'store'])->name('siltap.store');
-    Route::get('/siltap/{siltap}', [\App\Http\Controllers\Desa\SiltapController::class, 'show'])->name('siltap.show');
+    Route::get('/siltap', [App\Http\Controllers\Desa\SiltapController::class, 'index'])->name('siltap.index');
+    Route::get('/siltap/buat', [App\Http\Controllers\Desa\SiltapController::class, 'create'])->name('siltap.create');
+    Route::post('/siltap', [App\Http\Controllers\Desa\SiltapController::class, 'store'])->name('siltap.store');
+    Route::get('/siltap/{siltap}', [App\Http\Controllers\Desa\SiltapController::class, 'show'])->name('siltap.show');
 
     // Modul 5: e-Pj Kades (Desa)
-    Route::get('/pjkades', [\App\Http\Controllers\Desa\PjKadesController::class, 'index'])->name('pjkades.index');
-    Route::get('/pjkades/buat', [\App\Http\Controllers\Desa\PjKadesController::class, 'create'])->name('pjkades.create');
-    Route::post('/pjkades', [\App\Http\Controllers\Desa\PjKadesController::class, 'store'])->name('pjkades.store');
+    Route::get('/pjkades', [App\Http\Controllers\Desa\PjKadesController::class, 'index'])->name('pjkades.index');
+    Route::get('/pjkades/buat', [App\Http\Controllers\Desa\PjKadesController::class, 'create'])->name('pjkades.create');
+    Route::post('/pjkades', [App\Http\Controllers\Desa\PjKadesController::class, 'store'])->name('pjkades.store');
 
     // Modul 6: e-Izin Calon (Desa)
-    Route::get('/izincalon', [\App\Http\Controllers\Desa\IzinCalonController::class, 'index'])->name('izincalon.index');
-    Route::get('/izincalon/buat', [\App\Http\Controllers\Desa\IzinCalonController::class, 'create'])->name('izincalon.create');
-    Route::post('/izincalon', [\App\Http\Controllers\Desa\IzinCalonController::class, 'store'])->name('izincalon.store');
+    Route::get('/izincalon', [App\Http\Controllers\Desa\IzinCalonController::class, 'index'])->name('izincalon.index');
+    Route::get('/izincalon/buat', [App\Http\Controllers\Desa\IzinCalonController::class, 'create'])->name('izincalon.create');
+    Route::post('/izincalon', [App\Http\Controllers\Desa\IzinCalonController::class, 'store'])->name('izincalon.store');
 
     // Modul 7: e-Pilkades (Desa)
-    Route::get('/pilkades', [\App\Http\Controllers\Desa\PilkadesController::class, 'index'])->name('pilkades.index');
-    Route::get('/pilkades/{pilkades}', [\App\Http\Controllers\Desa\PilkadesController::class, 'show'])->name('pilkades.show');
-    Route::post('/pilkades/{pilkades}/suara', [\App\Http\Controllers\Desa\PilkadesController::class, 'storeSuara'])->name('pilkades.store-suara');
+    Route::get('/pilkades', [App\Http\Controllers\Desa\PilkadesController::class, 'index'])->name('pilkades.index');
+    Route::get('/pilkades/{pilkades}', [App\Http\Controllers\Desa\PilkadesController::class, 'show'])->name('pilkades.show');
+    Route::post('/pilkades/{pilkades}/suara', [App\Http\Controllers\Desa\PilkadesController::class, 'storeSuara'])->name('pilkades.store-suara');
 
     // Modul 8: e-Penataan Desa (Desa)
-    Route::get('/penataan', [\App\Http\Controllers\Desa\PenataanController::class, 'index'])->name('penataan.index');
-    Route::get('/penataan/buat', [\App\Http\Controllers\Desa\PenataanController::class, 'create'])->name('penataan.create');
-    Route::post('/penataan', [\App\Http\Controllers\Desa\PenataanController::class, 'store'])->name('penataan.store');
+    Route::get('/penataan', [App\Http\Controllers\Desa\PenataanController::class, 'index'])->name('penataan.index');
+    Route::get('/penataan/buat', [App\Http\Controllers\Desa\PenataanController::class, 'create'])->name('penataan.create');
+    Route::post('/penataan', [App\Http\Controllers\Desa\PenataanController::class, 'store'])->name('penataan.store');
 
     // Data Master: Perangkat Desa
-    Route::get('/perangkat', [\App\Http\Controllers\Desa\PerangkatController::class, 'index'])->name('perangkat.index');
+    Route::get('/perangkat', [App\Http\Controllers\Desa\PerangkatController::class, 'index'])->name('perangkat.index');
+    Route::get('/bpd', [App\Http\Controllers\Desa\BpdController::class, 'index'])->name('bpd.index');
+    Route::get('/bpd/create', [App\Http\Controllers\Desa\BpdController::class, 'create'])->name('bpd.create');
+    Route::post('/bpd', [App\Http\Controllers\Desa\BpdController::class, 'store'])->name('bpd.store');
+    Route::get('/bpd/{bpd}/edit', [App\Http\Controllers\Desa\BpdController::class, 'edit'])->name('bpd.edit');
+    Route::put('/bpd/{bpd}', [App\Http\Controllers\Desa\BpdController::class, 'update'])->name('bpd.update');
+    Route::delete('/bpd/{bpd}', [App\Http\Controllers\Desa\BpdController::class, 'destroy'])->name('bpd.destroy');
+    Route::patch('/bpd/{bpd}/activate', [App\Http\Controllers\Desa\BpdController::class, 'activate'])->name('bpd.activate');
 });
 
 // Admin Dinpermasdes Routes
 Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
     // Modul e-Rekomendasi (Admin Verification)
-    Route::get('/ajuan', [\App\Http\Controllers\Admin\AdminAjuanController::class, 'index'])->name('ajuan.index');
-    Route::get('/ajuan/{ajuan}', [\App\Http\Controllers\Admin\AdminAjuanController::class, 'show'])->name('ajuan.show');
-    Route::post('/ajuan/{ajuan}/verify/{checklistAjuan}', [\App\Http\Controllers\Admin\AdminAjuanController::class, 'verifyDokumen'])->name('ajuan.verify');
-    Route::post('/ajuan/{ajuan}/disposisi', [\App\Http\Controllers\Admin\AdminAjuanController::class, 'updateDisposisi'])->name('ajuan.disposisi');
+    Route::get('/ajuan', [AdminAjuanController::class, 'index'])->name('ajuan.index');
+    Route::get('/ajuan/{ajuan}', [AdminAjuanController::class, 'show'])->name('ajuan.show');
+    Route::post('/ajuan/{ajuan}/verify/{checklistAjuan}', [AdminAjuanController::class, 'verifyDokumen'])->name('ajuan.verify');
+    Route::post('/ajuan/{ajuan}/disposisi', [AdminAjuanController::class, 'updateDisposisi'])->name('ajuan.disposisi');
 
-    Route::get('/perangkat', [\App\Http\Controllers\Admin\PerangkatController::class, 'index'])->name('perangkat.index');
-    Route::get('/penataan', [\App\Http\Controllers\Admin\PenataanController::class, 'index'])->name('penataan.index');
+    Route::get('/perangkat', [PerangkatController::class, 'index'])->name('perangkat.index');
+    Route::get('/bpd', [\App\Http\Controllers\Admin\BpdController::class, 'index'])->name('bpd.index');
+    Route::get('/penataan', [PenataanController::class, 'index'])->name('penataan.index');
 });
 
 Route::middleware('auth')->group(function () {
@@ -176,18 +210,18 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';
 
 Route::get('/parse-excel-diagnose', function () {
     try {
         $filePath = base_path('data_desa.xlsx');
-        if (!file_exists($filePath)) {
-            return "File not found at: " . $filePath;
+        if (! file_exists($filePath)) {
+            return 'File not found at: '.$filePath;
         }
 
-        $zip = new ZipArchive();
-        if ($zip->open($filePath) !== TRUE) {
-            return "Could not open ZIP file";
+        $zip = new ZipArchive;
+        if ($zip->open($filePath) !== true) {
+            return 'Could not open ZIP file';
         }
 
         // Read shared strings
@@ -199,7 +233,7 @@ Route::get('/parse-excel-diagnose', function () {
                 foreach ($xml->si as $si) {
                     if (isset($si->t)) {
                         $sharedStrings[] = (string) $si->t;
-                    } else if (isset($si->r)) {
+                    } elseif (isset($si->r)) {
                         $text = '';
                         foreach ($si->r as $r) {
                             $text .= (string) $r->t;
@@ -214,8 +248,8 @@ Route::get('/parse-excel-diagnose', function () {
 
         // Read sheet1
         $sheetData = $zip->getFromName('xl/worksheets/sheet1.xml');
-        if (!$sheetData) {
-            return "Could not read sheet1.xml";
+        if (! $sheetData) {
+            return 'Could not read sheet1.xml';
         }
 
         $xml = simplexml_load_string($sheetData);
@@ -244,11 +278,11 @@ Route::get('/parse-excel-diagnose', function () {
         return response()->json([
             'status' => 'success',
             'row_count' => count($rows),
-            'sample_rows' => array_slice($rows, 0, 10)
+            'sample_rows' => array_slice($rows, 0, 10),
         ]);
 
-    } catch (\Exception $e) {
-        return "Error: " . $e->getMessage() . "\n" . $e->getTraceAsString();
+    } catch (Exception $e) {
+        return 'Error: '.$e->getMessage()."\n".$e->getTraceAsString();
     }
 });
 
@@ -257,14 +291,14 @@ Route::get('/run-import', function () {
 
     $jsonFile = base_path('data_desa.json');
 
-    if (!file_exists($jsonFile)) {
-        return "File data_desa.json tidak ditemukan!";
+    if (! file_exists($jsonFile)) {
+        return 'File data_desa.json tidak ditemukan!';
     }
 
     $jsonData = json_decode(file_get_contents($jsonFile), true);
 
-    if (!$jsonData) {
-        return "Gagal membaca atau mem-parse JSON.";
+    if (! $jsonData) {
+        return 'Gagal membaca atau mem-parse JSON.';
     }
 
     // Row 0 is header, so shift it
@@ -273,7 +307,7 @@ Route::get('/run-import', function () {
     $insertedCount = 0;
     $errors = [];
 
-    \Illuminate\Support\Facades\DB::transaction(function () use ($jsonData, &$insertedCount, &$errors) {
+    DB::transaction(function () use ($jsonData, &$insertedCount, &$errors) {
         foreach ($jsonData as $index => $row) {
             $kecamatanName = trim($row['B'] ?? '');
             $desaName = trim($row['C'] ?? '');
@@ -283,10 +317,10 @@ Route::get('/run-import', function () {
             }
 
             try {
-                $kecamatan = \App\Models\Kecamatan::firstOrCreate(['nama_kecamatan' => $kecamatanName]);
-                $desa = \App\Models\Desa::firstOrCreate([
+                $kecamatan = Kecamatan::firstOrCreate(['nama_kecamatan' => $kecamatanName]);
+                $desa = Desa::firstOrCreate([
                     'nama_desa' => $desaName,
-                    'kecamatan_id' => $kecamatan->id
+                    'kecamatan_id' => $kecamatan->id,
                 ]);
 
                 $perangkatList = [
@@ -303,28 +337,28 @@ Route::get('/run-import', function () {
                     ['jabatan' => 'Kadus III', 'nama' => trim($row['N'] ?? '')],
                 ];
 
-                if (!empty(trim($row['P'] ?? '')) && stripos(trim($row['O'] ?? ''), 'Tidak Ada') === false) {
+                if (! empty(trim($row['P'] ?? '')) && stripos(trim($row['O'] ?? ''), 'Tidak Ada') === false) {
                     $perangkatList[] = ['jabatan' => 'Kadus IV', 'nama' => trim($row['P'])];
                 }
-                if (!empty(trim($row['R'] ?? '')) && stripos(trim($row['Q'] ?? ''), 'Tidak Ada') === false) {
+                if (! empty(trim($row['R'] ?? '')) && stripos(trim($row['Q'] ?? ''), 'Tidak Ada') === false) {
                     $perangkatList[] = ['jabatan' => 'Kadus V', 'nama' => trim($row['R'])];
                 }
-                if (!empty(trim($row['U'] ?? '')) && stripos(trim($row['S'] ?? ''), 'Tidak Ada') === false) {
+                if (! empty(trim($row['U'] ?? '')) && stripos(trim($row['S'] ?? ''), 'Tidak Ada') === false) {
                     $perangkatList[] = ['jabatan' => trim($row['V'] ?? 'Staf Perangkat Desa'), 'nama' => trim($row['U'])];
                 }
-                if (!empty(trim($row['Y'] ?? '')) && stripos(trim($row['W'] ?? ''), 'Tidak Ada') === false) {
+                if (! empty(trim($row['Y'] ?? '')) && stripos(trim($row['W'] ?? ''), 'Tidak Ada') === false) {
                     $perangkatList[] = ['jabatan' => trim($row['Z'] ?? 'Staf Non Perangkat Desa 1'), 'nama' => trim($row['Y'])];
                 }
-                if (!empty(trim($row['AA'] ?? '')) && trim($row['AA']) !== '-') {
+                if (! empty(trim($row['AA'] ?? '')) && trim($row['AA']) !== '-') {
                     $perangkatList[] = ['jabatan' => trim($row['AB'] ?? 'Staf Non Perangkat Desa 2'), 'nama' => trim($row['AA'])];
                 }
-                if (!empty(trim($row['AC'] ?? '')) && trim($row['AC']) !== '-') {
+                if (! empty(trim($row['AC'] ?? '')) && trim($row['AC']) !== '-') {
                     $perangkatList[] = ['jabatan' => trim($row['AD'] ?? 'Staf Non Perangkat Desa 3'), 'nama' => trim($row['AC'])];
                 }
 
                 foreach ($perangkatList as $p) {
-                    if (!empty($p['nama']) && $p['nama'] !== '-') {
-                        \App\Models\PerangkatDesa::updateOrCreate(
+                    if (! empty($p['nama']) && $p['nama'] !== '-') {
+                        PerangkatDesa::updateOrCreate(
                             ['desa_id' => $desa->id, 'jabatan' => $p['jabatan']],
                             ['nama' => $p['nama'], 'status_aktif' => true, 'tgl_mulai_jabatan' => now()]
                         );
@@ -345,48 +379,50 @@ Route::get('/run-import', function () {
                 ];
 
                 foreach ($bpdList as $b) {
-                    if (!empty($b['nama']) && $b['nama'] !== '-' && stripos($b['status'], 'Ada') !== false) {
-                        \App\Models\PerangkatDesa::updateOrCreate(
+                    if (! empty($b['nama']) && $b['nama'] !== '-' && stripos($b['status'], 'Ada') !== false) {
+                        PerangkatDesa::updateOrCreate(
                             ['desa_id' => $desa->id, 'jabatan' => $b['jabatan']],
                             ['nama' => $b['nama'], 'status_aktif' => true, 'tgl_mulai_jabatan' => now()]
                         );
                         $insertedCount++;
                     }
                 }
-            } catch (\Exception $e) {
-                $errors[] = "Baris " . ($index + 2) . ": " . $e->getMessage();
+            } catch (Exception $e) {
+                $errors[] = 'Baris '.($index + 2).': '.$e->getMessage();
             }
         }
     });
 
     $result = "Berhasil mengimpor $insertedCount data perangkat desa/BPD.";
     if (count($errors) > 0) {
-        $result .= "\n\nErrors:\n" . implode("\n", $errors);
+        $result .= "\n\nErrors:\n".implode("\n", $errors);
     }
+
     return nl2br($result);
 });
 
 Route::get('/buatakun', function () {
     set_time_limit(0);
 
-    $desas = \App\Models\Desa::with('kecamatan')->get();
+    $desas = Desa::with('kecamatan')->get();
     $created = 0;
     $skipped = 0;
     $details = [];
     $hashedPassword = bcrypt('password'); // Hash once, reuse for all
 
-    \Illuminate\Support\Facades\DB::transaction(function () use ($desas, &$created, &$skipped, &$details, $hashedPassword) {
+    DB::transaction(function () use ($desas, &$created, &$skipped, &$details, $hashedPassword) {
         foreach ($desas as $desa) {
             $username = strtolower(str_replace([' ', '.', ',', "'"], ['_', '', '', ''], $desa->nama_desa));
 
-            $exists = \Illuminate\Support\Facades\DB::table('users')->where('username', $username)->exists();
+            $exists = DB::table('users')->where('username', $username)->exists();
             if ($exists) {
                 $skipped++;
+
                 continue;
             }
 
-            \Illuminate\Support\Facades\DB::table('users')->insert([
-                'name' => 'Operator ' . $desa->nama_desa,
+            DB::table('users')->insert([
+                'name' => 'Operator '.$desa->nama_desa,
                 'username' => $username,
                 'password' => $hashedPassword,
                 'role' => 'desa',
@@ -401,17 +437,17 @@ Route::get('/buatakun', function () {
         }
     });
 
-    $html = "<h2>Hasil Pembuatan Akun Desa</h2>";
-    $html .= "<p>Total desa: " . count($desas) . " | Dibuat: <b>{$created}</b> | Sudah ada: {$skipped}</p>";
-    $html .= "<p>Password semua akun: <b>password</b></p>";
-    $html .= "<hr>";
-    $html .= "<ol>" . implode("", array_map(fn($d) => "<li>{$d}</li>", $details)) . "</ol>";
+    $html = '<h2>Hasil Pembuatan Akun Desa</h2>';
+    $html .= '<p>Total desa: '.count($desas)." | Dibuat: <b>{$created}</b> | Sudah ada: {$skipped}</p>";
+    $html .= '<p>Password semua akun: <b>password</b></p>';
+    $html .= '<hr>';
+    $html .= '<ol>'.implode('', array_map(fn ($d) => "<li>{$d}</li>", $details)).'</ol>';
 
     return $html;
 });
 
 Route::get('/daftarakun', function () {
-    $users = \Illuminate\Support\Facades\DB::table('users')
+    $users = DB::table('users')
         ->where('role', 'desa')
         ->join('desas', 'users.desa_id', '=', 'desas.id')
         ->leftJoin('kecamatans', 'desas.kecamatan_id', '=', 'kecamatans.id')
@@ -432,9 +468,9 @@ Route::get('/daftarakun', function () {
         .usr { font-family: monospace; font-weight: bold; color: #0F3C65; }
         .count { color: #666; margin-bottom: 16px; }
     </style></head><body>';
-    $html .= "<h2>📋 Daftar Lengkap Akun Operator Desa</h2>";
-    $html .= "<p class='count'>Total akun: <b>" . count($users) . "</b> | Password semua: <b>password</b></p>";
-    $html .= "<table><thead><tr><th>No</th><th>Kecamatan</th><th>Nama Desa</th><th>Username</th><th>Password</th></tr></thead><tbody>";
+    $html .= '<h2>📋 Daftar Lengkap Akun Operator Desa</h2>';
+    $html .= "<p class='count'>Total akun: <b>".count($users).'</b> | Password semua: <b>password</b></p>';
+    $html .= '<table><thead><tr><th>No</th><th>Kecamatan</th><th>Nama Desa</th><th>Username</th><th>Password</th></tr></thead><tbody>';
 
     foreach ($users as $i => $u) {
         $no = $i + 1;
@@ -447,7 +483,8 @@ Route::get('/daftarakun', function () {
         </tr>";
     }
 
-    $html .= "</tbody></table></body></html>";
+    $html .= '</tbody></table></body></html>';
+
     return $html;
 });
 
@@ -455,12 +492,12 @@ Route::get('/parse-docx', function () {
     $file = base_path('Ceklist Dokumen Pengangkatan, Rotasi dan Pemberhentian.docx');
     $zip = new ZipArchive;
 
-    if ($zip->open($file) === TRUE) {
+    if ($zip->open($file) === true) {
         if (($index = $zip->locateName('word/document.xml')) !== false) {
             $data = $zip->getFromIndex($index);
             $zip->close();
 
-            $dom = new DOMDocument();
+            $dom = new DOMDocument;
             $dom->loadXML($data, LIBXML_NOENT | LIBXML_XINCLUDE | LIBXML_NOERROR | LIBXML_NOWARNING);
             $text = '';
 
@@ -476,12 +513,12 @@ Route::get('/parse-docx', function () {
                         foreach ($paras as $p) {
                             $texts = $p->getElementsByTagName('t');
                             foreach ($texts as $t) {
-                                $cell_text .= $t->nodeValue . ' ';
+                                $cell_text .= $t->nodeValue.' ';
                             }
                         }
                         $row_text[] = trim($cell_text);
                     }
-                    $text .= implode(" | ", $row_text) . "\n";
+                    $text .= implode(' | ', $row_text)."\n";
                 }
             } else {
                 // Fallback to paragraphs if no tables
@@ -493,15 +530,16 @@ Route::get('/parse-docx', function () {
                         $p_text .= $t->nodeValue;
                     }
                     if ($p_text !== '') {
-                        $text .= $p_text . "\n";
+                        $text .= $p_text."\n";
                     }
                 }
             }
 
             file_put_contents(base_path('ceklist_parsed.txt'), $text);
-            return "<pre>Success parsing to ceklist_parsed.txt:\n\n" . htmlspecialchars($text) . "</pre>";
+
+            return "<pre>Success parsing to ceklist_parsed.txt:\n\n".htmlspecialchars($text).'</pre>';
         } else {
-            return "Could not find word/document.xml";
+            return 'Could not find word/document.xml';
         }
     } else {
         return "Could not open ZIP archive. Path: $file";
@@ -509,19 +547,19 @@ Route::get('/parse-docx', function () {
 });
 
 Route::get('/seed-checklist', function () {
-    \Illuminate\Support\Facades\DB::transaction(function () {
+    DB::transaction(function () {
         // Clear existing template checklists to replace dummy data
-        \App\Models\TemplateChecklist::query()->delete();
+        TemplateChecklist::query()->delete();
 
-        $pengangkatan = \App\Models\JenisLayanan::firstOrCreate(['nama' => 'Pengangkatan']);
-        $rotasi = \App\Models\JenisLayanan::firstOrCreate(['nama' => 'Rotasi']);
-        $pemberhentian = \App\Models\JenisLayanan::firstOrCreate(['nama' => 'Pemberhentian']);
+        $pengangkatan = JenisLayanan::firstOrCreate(['nama' => 'Pengangkatan']);
+        $rotasi = JenisLayanan::firstOrCreate(['nama' => 'Rotasi']);
+        $pemberhentian = JenisLayanan::firstOrCreate(['nama' => 'Pemberhentian']);
 
-        \App\Models\AlasanPemberhentian::query()->delete();
+        AlasanPemberhentian::query()->delete();
 
-        $alasanPurnaTugas = \App\Models\AlasanPemberhentian::firstOrCreate(['nama' => 'Purna Tugas']);
-        $alasanMundur = \App\Models\AlasanPemberhentian::firstOrCreate(['nama' => 'Permintaan Sendiri']);
-        $alasanDiberhentikan = \App\Models\AlasanPemberhentian::firstOrCreate(['nama' => 'Diberhentikan']);
+        $alasanPurnaTugas = AlasanPemberhentian::firstOrCreate(['nama' => 'Purna Tugas']);
+        $alasanMundur = AlasanPemberhentian::firstOrCreate(['nama' => 'Permintaan Sendiri']);
+        $alasanDiberhentikan = AlasanPemberhentian::firstOrCreate(['nama' => 'Diberhentikan']);
 
         $pengangkatanItems = [
             'Surat Pengantar dari Kecamatan',
@@ -577,7 +615,7 @@ Route::get('/seed-checklist', function () {
         ];
 
         $permintaanSendiriItems = array_merge($purnaTugasItems, [
-            'Fc. Surat Pernyataan Pengunduran diri dari Perangkat Desa yang ditujukan kepada Kepala Desa'
+            'Fc. Surat Pernyataan Pengunduran diri dari Perangkat Desa yang ditujukan kepada Kepala Desa',
         ]);
 
         $diberhentikanItems = [
@@ -607,7 +645,7 @@ Route::get('/seed-checklist', function () {
             foreach ($items as $idx => $item) {
                 // (apabila...) will make it wajib = false
                 $wajib = (strpos($item, '(apabila') === false && strpos($item, 'apabila') === false);
-                \App\Models\TemplateChecklist::create([
+                TemplateChecklist::create([
                     'jenis_layanan_id' => $jenis_layanan_id,
                     'alasan_pemberhentian_id' => $alasan_id,
                     'nama_dokumen' => $item,
@@ -624,43 +662,45 @@ Route::get('/seed-checklist', function () {
         $createTemplates($diberhentikanItems, $pemberhentian->id, $alasanDiberhentikan->id);
     });
 
-    return "Berhasil memperbarui Master Data Checklist";
+    return 'Berhasil memperbarui Master Data Checklist';
 });
 
 Route::get('/debug-count', function () {
     try {
         $out = "Start DB Fix...<br>\n";
         $dbPath = database_path('database.sqlite');
-        $db = new PDO('sqlite:' . $dbPath);
+        $db = new PDO('sqlite:'.$dbPath);
         $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $out .= "Connected to: $dbPath<br>\n";
 
         // 1. ADD COLUMN
-        $q = $db->query("PRAGMA table_info(bimtek_pendaftarans)");
+        $q = $db->query('PRAGMA table_info(bimtek_pendaftarans)');
         $cols = $q->fetchAll(PDO::FETCH_ASSOC);
         $hasDesaId = false;
-        foreach ($cols as $c)
-            if ($c['name'] === 'desa_id')
+        foreach ($cols as $c) {
+            if ($c['name'] === 'desa_id') {
                 $hasDesaId = true;
-        if (!$hasDesaId) {
-            $db->exec("ALTER TABLE bimtek_pendaftarans ADD COLUMN desa_id INTEGER");
+            }
+        }
+        if (! $hasDesaId) {
+            $db->exec('ALTER TABLE bimtek_pendaftarans ADD COLUMN desa_id INTEGER');
             $out .= "ADD COLUMN desa_id Sukses.<br>\n";
         }
 
         // 2. Fix Ajuans Checklists
         for ($i = 4; $i <= 10; $i++) {
-            $stmt = $db->prepare("SELECT id, jenis_layanan_id, alasan_pemberhentian_id FROM ajuans WHERE id = ?");
+            $stmt = $db->prepare('SELECT id, jenis_layanan_id, alasan_pemberhentian_id FROM ajuans WHERE id = ?');
             $stmt->execute([$i]);
             $ajuan = $stmt->fetch(PDO::FETCH_ASSOC);
             if ($ajuan) {
-                $cStmt = $db->prepare("SELECT COUNT(*) as c FROM checklist_ajuans WHERE ajuan_id = ?");
+                $cStmt = $db->prepare('SELECT COUNT(*) as c FROM checklist_ajuans WHERE ajuan_id = ?');
                 $cStmt->execute([$i]);
                 if ($cStmt->fetchColumn() == 0) {
                     if ($ajuan['alasan_pemberhentian_id']) {
-                        $tStmt = $db->prepare("SELECT id FROM template_checklists WHERE jenis_layanan_id = ? AND (alasan_pemberhentian_id IS NULL OR alasan_pemberhentian_id = ?)");
+                        $tStmt = $db->prepare('SELECT id FROM template_checklists WHERE jenis_layanan_id = ? AND (alasan_pemberhentian_id IS NULL OR alasan_pemberhentian_id = ?)');
                         $tStmt->execute([$ajuan['jenis_layanan_id'], $ajuan['alasan_pemberhentian_id']]);
                     } else {
-                        $tStmt = $db->prepare("SELECT id FROM template_checklists WHERE jenis_layanan_id = ? AND alasan_pemberhentian_id IS NULL");
+                        $tStmt = $db->prepare('SELECT id FROM template_checklists WHERE jenis_layanan_id = ? AND alasan_pemberhentian_id IS NULL');
                         $tStmt->execute([$ajuan['jenis_layanan_id']]);
                     }
                     $templates = $tStmt->fetchAll(PDO::FETCH_ASSOC);
@@ -680,7 +720,7 @@ Route::get('/debug-count', function () {
         $d = $desa->fetch(PDO::FETCH_ASSOC);
         if ($d) {
             // Update the first existing Perangkat to KARSINAH to preserve foreign keys!
-            $firstPStmt = $db->prepare("SELECT id FROM perangkat_desas WHERE desa_id = ? ORDER BY id ASC LIMIT 1");
+            $firstPStmt = $db->prepare('SELECT id FROM perangkat_desas WHERE desa_id = ? ORDER BY id ASC LIMIT 1');
             $firstPStmt->execute([$d['id']]);
             $firstP = $firstPStmt->fetch(PDO::FETCH_ASSOC);
 
@@ -691,9 +731,9 @@ Route::get('/debug-count', function () {
 
             // Delete duplicates only
             if ($firstP) {
-                $db->prepare("DELETE FROM perangkat_desas WHERE desa_id = ? AND id != ?")->execute([$d['id'], $firstP['id']]);
+                $db->prepare('DELETE FROM perangkat_desas WHERE desa_id = ? AND id != ?')->execute([$d['id'], $firstP['id']]);
             } else {
-                $db->prepare("DELETE FROM perangkat_desas WHERE desa_id = ?")->execute([$d['id']]); // fall back
+                $db->prepare('DELETE FROM perangkat_desas WHERE desa_id = ?')->execute([$d['id']]); // fall back
             }
 
             $realData = [
@@ -707,12 +747,13 @@ Route::get('/debug-count', function () {
             ];
             foreach ($realData as $p) {
                 $db->prepare("INSERT INTO perangkat_desas (desa_id, nama, jabatan, no_sk_terakhir, tgl_mulai_jabatan, status_aktif, created_at, updated_at) VALUES (?, ?, ?, ?, ?, 1, datetime('now'), datetime('now'))")
-                    ->execute([$d['id'], $p['nama'], $p['jabatan'], '141/00' . rand(1, 9) . '/2020', '2020-01-01']);
+                    ->execute([$d['id'], $p['nama'], $p['jabatan'], '141/00'.rand(1, 9).'/2020', '2020-01-01']);
             }
             $out .= "Karangendep berhasi disuntik sisa baris murni.<br>\n";
         }
+
         return $out;
-    } catch (\Exception $e) {
-        return "ERROR: " . $e->getMessage() . " line: " . $e->getLine();
+    } catch (Exception $e) {
+        return 'ERROR: '.$e->getMessage().' line: '.$e->getLine();
     }
 });

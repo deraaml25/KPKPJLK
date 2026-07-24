@@ -25,7 +25,7 @@ export default {
                 },
                 surface: '#FFFFFF', // White
                 background: '#FFFFFF', // White
-                ink: '#930500', // Sangria
+                ink: '#1A2E4B', // Dark Blue
                 muted: '#5A6F82',
                 success: '#2E9E6B',
                 warning: '#D9A02C',

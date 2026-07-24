@@ -1,24 +1,24 @@
 <x-app-layout>
-    @section('title', 'Data Perangkat Desa Saya')
+    @section('title', 'Data BPD Saya')
 
     <div
         class="bg-white rounded-card p-6 shadow-sm border border-border mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
-            <h2 class="text-xl font-display font-bold text-ink">Data Perangkat Desa</h2>
+            <h2 class="text-xl font-display font-bold text-ink">Data BPD</h2>
             <p class="text-muted text-sm mt-1">
-                Data master perangkat aktif di <strong>{{ auth()->user()->desa->nama_desa ?? 'Desa Anda' }}</strong>.
+                Data master bpd aktif di <strong>{{ auth()->user()->desa->nama_desa ?? 'Desa Anda' }}</strong>.
                 Data ini difilter otomatis oleh sistem (hanya menampilkan wilayah Anda).
             </p>
         </div>
         <div class="bg-primary/10 text-primary px-4 py-2 rounded-lg border border-primary/20 text-center shadow-sm">
             <span class="block text-2xl font-black font-display leading-none">{{ $totalAktif }}</span>
-            <span class="text-[10px] font-bold uppercase tracking-wider">Perangkat Aktif</span>
+            <span class="text-[10px] font-bold uppercase tracking-wider">BPD Aktif</span>
         </div>
     </div>
 
     <!-- Toolbar / Pencarian -->
     <div class="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <form method="GET" action="{{ route('desa.perangkat.index') }}" class="w-full md:w-1/3 relative">
+        <form method="GET" action="{{ route('desa.bpd.index') }}" class="w-full md:w-1/3 relative">
             <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                 <svg class="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -29,12 +29,12 @@
                 class="w-full text-sm rounded bg-white border border-border shadow-sm pl-10 h-10 focus:border-primary focus:ring-1 focus:ring-primary transition-all">
         </form>
         <div class="flex items-center gap-2">
-            <a href="{{ route('desa.perangkat.create') }}"
+            <a href="{{ route('desa.bpd.create') }}"
                 class="inline-flex items-center px-4 h-10 bg-primary text-white text-sm font-bold rounded-btn hover:bg-primary-light transition-colors shadow-sm whitespace-nowrap">
                 <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
-                Tambah Perangkat
+                Tambah BPD
             </a>
         </div>
     </div>
@@ -54,7 +54,7 @@
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-border text-sm">
-                    @forelse ($perangkat as $row)
+                    @forelse ($bpd as $row)
                         <tr class="hover:bg-gray-50/50">
                             <td class="px-6 py-4 whitespace-nowrap font-bold text-ink">{{ $row->nama }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-muted">{{ $row->jabatan }}</td>
@@ -73,21 +73,21 @@
                                 @endif
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
                                 <div class="flex items-center justify-end gap-3">
-                                    <a href="{{ route('desa.perangkat.edit', $row) }}"
+                                    <a href="{{ route('desa.bpd.edit', $row) }}"
                                         class="text-primary hover:underline font-medium">Edit</a>
                                     @if($row->status_aktif)
-                                        <form action="{{ route('desa.perangkat.destroy', $row) }}" method="POST"
+                                        <form action="{{ route('desa.bpd.destroy', $row) }}" method="POST"
                                             class="w-24 text-right"
-                                            onsubmit="return confirm('Apakah Anda yakin ingin menonaktifkan perangkat ini? (Soft Delete)');">
+                                            onsubmit="return confirm('Apakah Anda yakin ingin menonaktifkan bpd ini? (Soft Delete)');">
                                             @csrf
                                             @method('DELETE')
                                             <button type="submit"
                                                 class="text-danger hover:underline font-medium">Nonaktifkan</button>
                                         </form>
                                     @else
-                                        <form action="{{ route('desa.perangkat.activate', $row) }}" method="POST"
+                                        <form action="{{ route('desa.bpd.activate', $row) }}" method="POST"
                                             class="w-24 text-right"
-                                            onsubmit="return confirm('Apakah Anda yakin ingin mengaktifkan perangkat ini kembali?');">
+                                            onsubmit="return confirm('Apakah Anda yakin ingin mengaktifkan bpd ini kembali?');">
                                             @csrf
                                             @method('PATCH')
                                             <button type="submit"
@@ -102,16 +102,16 @@
                             <td colspan="6" class="p-0">
                                 <x-empty-state
                                     icon="<path stroke-linecap='round' stroke-linejoin='round' d='M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z' />"
-                                    title="Data Perangkat Desa Kosong"
-                                    message="Belum ada perangkat desa yang terdaftar. Data master ini umumnya disinkronkan dan dikelola bersama Kabupaten." />
+                                    title="Data BPD Kosong"
+                                    message="Belum ada bpd desa yang terdaftar. Data master ini umumnya disinkronkan dan dikelola bersama Kabupaten." />
                             </td>
                         </tr>
                     @endforelse
                 </tbody>
             </table>
         </div>
-        @if($perangkat->hasPages())
-            <div class="px-6 py-4 border-t border-border">{{ $perangkat->links() }}</div>
+        @if($bpd->hasPages())
+            <div class="px-6 py-4 border-t border-border">{{ $bpd->links() }}</div>
         @endif
     </div>
 </x-app-layout>

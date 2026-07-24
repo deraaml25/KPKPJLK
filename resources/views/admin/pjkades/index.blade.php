@@ -2,7 +2,7 @@
     @section('title', 'e-Pj Kades - Daftar Usulan')
 
     <div class="bg-white rounded-card p-6 shadow-sm border border-border mb-6">
-        <h2 class="text-xl font-display font-bold text-ink">Daftar Usulan Pj Kepala Desa</h2>
+        <h2 class="text-xl font-display font-bold text-ink">SK Kades</h2>
         <p class="text-muted text-sm mt-1">Fasilitasi penunjukan penjabat kepala desa dari unsur aparatur sipil negara
             (ASN/PNS).</p>
     </div>

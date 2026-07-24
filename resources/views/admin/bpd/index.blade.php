@@ -1,14 +1,14 @@
 <x-app-layout>
-    @section('title', 'Data Perangkat Desa')
+    @section('title', 'Data BPD')
 
     <div class="bg-surface rounded-layout p-6 shadow-sm border border-border">
         <div class="mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
-                <h3 class="text-lg font-bold text-ink">Data Perangkat Desa</h3>
-                <p class="text-sm text-text-muted mt-1">Data sentral perangkat aktif seluruh desa di kabupaten.</p>
+                <h3 class="text-lg font-bold text-ink">Data BPD</h3>
+                <p class="text-sm text-text-muted mt-1">Data sentral bpd aktif seluruh desa di kabupaten.</p>
             </div>
 
-            <form action="{{ route('admin.perangkat.index') }}" method="GET" class="w-full md:w-72">
+            <form action="{{ route('admin.bpd.index') }}" method="GET" class="w-full md:w-72">
                 <div class="relative mt-2 rounded-md shadow-sm">
                     <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                         <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -33,7 +33,7 @@
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border">
-                    @forelse($perangkats as $p)
+                    @forelse($bpd as $p)
                         <tr class="hover:bg-primary-soft/10 transition-colors">
                             <td class="px-6 py-4 font-medium text-ink">
                                 {{ $p->nama }}
@@ -65,9 +65,9 @@
                         <tr>
                             <td colspan="4" class="px-6 py-8 text-center text-text-muted">
                                 @if(request('search'))
-                                    Data perangkat tidak ditemukan untuk pencarian '{{ request('search') }}'.
+                                    Data bpd tidak ditemukan untuk pencarian '{{ request('search') }}'.
                                 @else
-                                    Belum ada data perangkat desa di sistem.
+                                    Belum ada data bpd desa di sistem.
                                 @endif
                             </td>
                         </tr>
@@ -77,7 +77,7 @@
         </div>
 
         <div class="mt-4">
-            {{ $perangkats->links() }}
+            {{ $bpd->links() }}
         </div>
     </div>
 </x-app-layout>

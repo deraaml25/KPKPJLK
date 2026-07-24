@@ -4,7 +4,7 @@
     <div class="bg-white rounded-card p-6 shadow-sm border border-border mb-6">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-                <h2 class="text-xl font-display font-bold text-ink">e-Regulasi Desa</h2>
+                <h2 class="text-xl font-display font-bold text-ink">Draft Regulasi</h2>
                 <p class="text-muted text-sm mt-1">Fasilitasi dan pendampingan draf produk hukum desa (Perdes, Perkades,
                     SK Kades).</p>
             </div>

@@ -4,7 +4,7 @@
     <div class="bg-white rounded-card p-6 shadow-sm border border-border mb-6">
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
             <div>
-                <h2 class="text-xl font-display font-bold text-ink">e-Pj Kades (Pj Kepala Desa)</h2>
+                <h2 class="text-xl font-display font-bold text-ink">SK Kades</h2>
                 <p class="text-muted text-sm mt-1">Usulan penunjukan Pj Kepala Desa dari unsur PNS untuk menjaga
                     kesinambungan pemerintahan desa.</p>
             </div>

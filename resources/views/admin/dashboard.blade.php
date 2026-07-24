@@ -1,265 +1,209 @@
 <x-app-layout>
-    @section('title', 'Dashboard Super Admin')
+    @section('title', 'Dashboard')
 
-    {{-- PERINGATAN DINI: Pj Kades hampir/sudah berakhir --}}
-    @if(isset($pjKadesAlert) && $pjKadesAlert->count() > 0)
-        <div class="p-4 bg-red-50 border-l-4 border-red-500 text-red-800 rounded-r-card shadow-sm mb-6">
-            <div class="flex items-start gap-3">
-                <div class="w-8 h-8 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                    <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z">
-                        </path>
-                    </svg>
-                </div>
-                <div>
-                    <strong class="font-bold block text-sm">⚠️ PERINGATAN — Krisis Kepemimpinan Desa</strong>
-                    <p class="text-xs mt-0.5">Terdapat <strong>{{ $pjKadesAlert->count() }}</strong> Pj Kades yang masa
-                        jabatannya akan/telah berakhir:</p>
-                    <ul class="list-disc ml-4 mt-1 text-xs space-y-0.5">
-                        @foreach($pjKadesAlert as $alert)
-                            <li>
-                                <strong>{{ $alert->nama_pns }}</strong> ({{ $alert->desa->nama_desa }})
-                                — @if($alert->sudah_berakhir) <span class="text-red-700 font-bold">SUDAH BERAKHIR</span> @else
-                                Sisa <strong>{{ $alert->sisa_hari }} hari</strong> @endif
-                            </li>
-                        @endforeach
-                    </ul>
-                    <a href="{{ route('admin.pjkades.index') }}"
-                        class="text-xs font-bold mt-2 inline-block hover:underline">Buka Modul e-Pj Kades →</a>
-                </div>
-            </div>
+    <!-- Welcome Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-slate-900 font-display">Halo, Admin Dinpermasdes</h1>
+            <p class="text-slate-500 mt-0.5 text-sm">Selamat datang kembali di pusat kendali administrasi desa Anda.</p>
         </div>
-    @endif
-
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
-        @php($stats = [
-            ['label' => 'Total Ajuan Berjalan', 'value' => '12', 'tone' => 'primary', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />'],
-            ['label' => 'Perlu Perbaikan', 'value' => '3', 'tone' => 'danger', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />'],
-            ['label' => 'Mendekati SLA', 'value' => '2', 'tone' => 'warning', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />'],
-            ['label' => 'Lewat SLA', 'value' => '0', 'tone' => 'danger', 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />'],
-        ])
-        @foreach($stats as $stat)
-            <div class="rounded-3xl border border-slate-200 bg-white/90 p-5 shadow-[0_16px_50px_rgba(15,23,42,0.06)] backdrop-blur">
-                <div class="flex items-start justify-between gap-4">
-                    <div>
-                        <p class="text-sm font-medium text-slate-500">{{ $stat['label'] }}</p>
-                        <h3 class="mt-2 text-3xl font-semibold tracking-tight text-slate-800">{{ $stat['value'] }}</h3>
-                    </div>
-                    <div class="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
-                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            {!! $stat['icon'] !!}
-                        </svg>
-                    </div>
-                </div>
-            </div>
-        @endforeach
+        <button class="bg-[#111827] text-white px-4 py-2 rounded-lg flex items-center gap-2 font-semibold hover:bg-slate-800 transition-colors text-sm">
+            <span class="material-symbols-outlined text-[18px]">add_circle</span>
+            Buat Dokumen Baru
+        </button>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-[1.4fr_0.8fr] gap-8">
-        <div class="rounded-3xl border border-slate-200 bg-white/90 p-0 shadow-[0_16px_50px_rgba(15,23,42,0.06)] backdrop-blur overflow-hidden">
-            <div class="flex items-center justify-between border-b border-slate-200 px-6 py-5">
-                <div>
-                    <p class="text-[11px] uppercase tracking-[0.3em] text-slate-400">Prioritas Hari Ini</p>
-                    <h3 class="text-lg font-semibold text-slate-800">Ajuan Prioritas</h3>
+    <!-- 4 Stat Cards Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
+        <!-- Card 1 -->
+        <div class="bg-white rounded-2xl border-2 border-slate-900 p-5 shadow-sm relative overflow-hidden">
+            <div class="flex items-start justify-between">
+                <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-[#111827]">
+                    <span class="material-symbols-outlined text-[20px]">description</span>
                 </div>
-                <a href="#" class="text-sm font-medium text-[#930500] hover:underline">Lihat Semua</a>
+                <span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-md">+12%</span>
             </div>
-            <div class="divide-y divide-slate-200">
-                <div class="flex items-center justify-between p-6 transition-colors hover:bg-slate-50">
-                    <div class="flex items-center gap-4">
-                        <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#95BBEA]/25 text-[#930500] font-semibold">K</div>
-                        <div>
-                            <h4 class="font-semibold text-slate-800">Desa Karangendep</h4>
-                            <div class="mt-1 flex items-center gap-2">
-                                <span class="rounded-full bg-[#95BBEA]/20 px-2.5 py-1 text-xs font-medium text-[#930500]">Pengangkatan</span>
-                                <span class="font-mono text-xs text-slate-500">PGKT/2026/07/0032</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-sm font-medium text-slate-700">Tahap 4: Verifikasi &amp; Validasi Kabid PDPD</p>
-                        <p class="mt-1 text-xs text-amber-600">Sisa 3 Hari Kerja</p>
-                    </div>
-                </div>
-
-                <div class="flex items-center justify-between p-6 transition-colors hover:bg-slate-50">
-                    <div class="flex items-center gap-4">
-                        <div class="flex h-11 w-11 items-center justify-center rounded-2xl bg-red-50 text-red-600 font-semibold">S</div>
-                        <div>
-                            <h4 class="font-semibold text-slate-800">Desa Sumbang</h4>
-                            <div class="mt-1 flex items-center gap-2">
-                                <span class="rounded-full bg-red-50 px-2.5 py-1 text-xs font-medium text-red-600">Pemberhentian</span>
-                                <span class="font-mono text-xs text-slate-500">PBRH/2026/07/0014</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-sm font-medium text-slate-700">Tahap 2: Verifikasi &amp; Validasi</p>
-                        <p class="mt-1 text-xs text-emerald-600">Sisa 18 Hari Kerja</p>
-                    </div>
-                </div>
+            <div class="mt-4">
+                <p class="text-xs font-bold text-slate-900 mb-0.5">Draft Regulasi</p>
+                <h3 class="text-3xl font-bold text-slate-900 font-display">245</h3>
             </div>
         </div>
 
-        <div class="rounded-3xl border border-slate-200 bg-white/90 p-6 shadow-[0_16px_50px_rgba(15,23,42,0.06)] backdrop-blur">
-            <div class="mb-6 flex items-center justify-between">
-                <div>
-                    <p class="text-[11px] uppercase tracking-[0.3em] text-slate-400">Distribusi</p>
-                    <h3 class="text-lg font-semibold text-slate-800">Jenis Layanan</h3>
+        <!-- Card 2 -->
+        <div class="bg-white rounded-2xl border-2 border-slate-300 hover:border-slate-400 p-5 shadow-sm transition-colors relative overflow-hidden">
+            <div class="flex items-start justify-between">
+                <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400">
+                    <span class="material-symbols-outlined text-[20px]">group</span>
                 </div>
+                <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-md">Aktif</span>
             </div>
-            <div class="relative h-48 w-full">
-                <canvas id="jenisLayananChart"></canvas>
+            <div class="mt-4">
+                <p class="text-xs font-bold text-slate-900 mb-0.5">Perangkat Desa</p>
+                <h3 class="text-3xl font-bold text-slate-900 font-display">42</h3>
             </div>
-            <div class="mt-6 space-y-3">
-                <div class="flex items-center justify-between text-sm">
-                    <div class="flex items-center gap-2">
-                        <span class="h-3 w-3 rounded-full bg-[#930500]"></span>
-                        <span class="text-slate-500">Pengangkatan</span>
-                    </div>
-                    <span class="font-semibold text-slate-700">65%</span>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="bg-white rounded-2xl border-2 border-slate-900 p-5 shadow-sm relative overflow-hidden">
+            <div class="flex items-start justify-between">
+                <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400">
+                    <span class="material-symbols-outlined text-[20px]">approval</span>
                 </div>
-                <div class="flex items-center justify-between text-sm">
-                    <div class="flex items-center gap-2">
-                        <span class="h-3 w-3 rounded-full bg-red-500"></span>
-                        <span class="text-slate-500">Pemberhentian</span>
-                    </div>
-                    <span class="font-semibold text-slate-700">25%</span>
+                <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-md">8 Pending</span>
+            </div>
+            <div class="mt-4">
+                <p class="text-xs font-bold text-slate-900 mb-0.5">e-Rekomendasi</p>
+                <h3 class="text-3xl font-bold text-slate-900 font-display">1,084</h3>
+            </div>
+        </div>
+
+        <!-- Card 4 -->
+        <div class="bg-white rounded-2xl border-2 border-slate-300 hover:border-slate-400 p-5 shadow-sm transition-colors relative overflow-hidden">
+            <div class="flex items-start justify-between">
+                <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400">
+                    <span class="material-symbols-outlined text-[20px]">archive</span>
                 </div>
-                <div class="flex items-center justify-between text-sm">
-                    <div class="flex items-center gap-2">
-                        <span class="h-3 w-3 rounded-full bg-[#95BBEA]"></span>
-                        <span class="text-slate-500">Rotasi</span>
-                    </div>
-                    <span class="font-semibold text-slate-700">10%</span>
-                </div>
+                <span class="bg-slate-200 text-slate-700 text-[10px] font-bold px-2 py-1 rounded-md">Total</span>
+            </div>
+            <div class="mt-4">
+                <p class="text-xs font-bold text-slate-900 mb-0.5">Arsip Terdata</p>
+                <h3 class="text-3xl font-bold text-slate-900 font-display">5,201</h3>
             </div>
         </div>
     </div>
 
     <!-- Main Content Area -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <!-- Ajuan Prioritas List -->
-        <div class="lg:col-span-2">
-            <div class="bg-surface rounded-card shadow-floating border border-border overflow-hidden">
-                <div class="px-6 py-5 border-b border-border flex justify-between items-center">
-                    <h3 class="text-lg font-display font-semibold">Ajuan Prioritas</h3>
-                    <a href="#" class="text-sm text-primary hover:text-primary-light font-medium">Lihat Semua</a>
-                </div>
-                <div class="divide-y divide-border">
-                    <!-- Placeholder Item -->
-                    <div class="p-6 hover:bg-gray-50 transition-colors flex items-center justify-between">
-                        <div class="flex items-center gap-4">
-                            <div
-                                class="w-10 h-10 rounded-full bg-primary-soft flex items-center justify-center text-primary font-bold">
-                                K
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-ink">Desa Karangendep</h4>
-                                <div class="flex items-center gap-2 mt-1">
-                                    <span
-                                        class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-primary-soft text-primary">
-                                        Pengangkatan
-                                    </span>
-                                    <span class="text-xs text-muted font-mono">PGKT/2026/07/0032</span>
+    <div class="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-8 mb-8">
+        <!-- Aktivitas Terkini -->
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-slate-900">Aktivitas Terkini</h3>
+                <a href="#" class="text-sm font-semibold text-slate-500 hover:text-slate-700">Lihat Semua</a>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 bg-slate-50">Dokumen</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 bg-slate-50">Status</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 bg-slate-50">Admin</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 bg-slate-50">Tanggal</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        <tr>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-slate-400">description</span>
+                                    <span class="text-sm font-semibold text-slate-700">Draft SK Kades No.<br>24/2023</span>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-sm font-medium text-ink">Tahap 4: Verifikasi & Validasi Kabid PDPD</p>
-                            <p class="text-xs text-warning mt-1">Sisa 3 Hari Kerja</p>
-                        </div>
-                    </div>
-
-                    <div class="p-6 hover:bg-gray-50 transition-colors flex items-center justify-between">
-                        <div class="flex items-center gap-4">
-                            <div
-                                class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-danger font-bold">
-                                S
-                            </div>
-                            <div>
-                                <h4 class="font-semibold text-ink">Desa Sumbang</h4>
-                                <div class="flex items-center gap-2 mt-1">
-                                    <span
-                                        class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-danger">
-                                        Pemberhentian
-                                    </span>
-                                    <span class="text-xs text-muted font-mono">PBRH/2026/07/0014</span>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="bg-yellow-100 text-yellow-800 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Review</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-slate-600">Siska<br>Amelia</td>
+                            <td class="px-6 py-4 text-sm text-slate-600">Hari ini,<br>10:24</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-slate-400">approval</span>
+                                    <span class="text-sm font-semibold text-slate-700">Rekomendasi Penataan<br>Lahan</span>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <p class="text-sm font-medium text-ink">Tahap 2: Verifikasi & Validasi</p>
-                            <p class="text-xs text-success mt-1">Sisa 18 Hari Kerja</p>
-                        </div>
-                    </div>
-                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="bg-green-100 text-green-800 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Selesai</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-slate-600">Budi<br>Santoso</td>
+                            <td class="px-6 py-4 text-sm text-slate-600">Kemarin,<br>14:55</td>
+                        </tr>
+                        <tr>
+                            <td class="px-6 py-4">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-slate-400">history_edu</span>
+                                    <span class="text-sm font-semibold text-slate-700">Pembinaan<br>Kesejahteraan Desa</span>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <span class="bg-slate-200 text-slate-700 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Draft</span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-slate-600">Admin<br>Unsoed</td>
+                            <td class="px-6 py-4 text-sm text-slate-600">12 Okt 2023</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
-        <!-- Widget Statistik -->
-        <div>
-            <div class="bg-surface rounded-card shadow-floating border border-border p-6 h-full">
-                <h3 class="text-lg font-display font-semibold mb-6">Statistik Jenis Layanan</h3>
-                <div class="relative h-48 w-full flex items-center justify-center">
-                    <canvas id="jenisLayananChart"></canvas>
+        <!-- Right Column Widgets -->
+        <div class="flex flex-col gap-6">
+            <!-- Widget 1: Informasi Wilayah -->
+            <div class="rounded-2xl overflow-hidden relative shadow-sm" style="background-image: url('https://images.unsplash.com/photo-1542224566-6e85f2e6772f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); background-size: cover; background-position: center;">
+                <div class="absolute inset-0 bg-black/40"></div>
+                <div class="relative p-6 h-full flex flex-col justify-end min-h-[180px]">
+                    <h3 class="text-xl font-bold text-white mb-2">Informasi Wilayah</h3>
+                    <p class="text-white/80 text-sm mb-4">Data spasial dan demografi desa terbaru.</p>
+                    <a href="https://maps.app.goo.gl/jFDWxg1pKXNHyZz78" target="_blank" class="bg-white text-slate-900 text-sm font-bold py-2.5 rounded-lg w-full hover:bg-slate-50 transition-colors text-center block">
+                        Buka Peta Desa
+                    </a>
                 </div>
-                <div class="mt-6 space-y-3">
-                    <div class="flex items-center justify-between text-sm">
-                        <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full bg-primary"></span>
-                            <span class="text-muted">Pengangkatan</span>
-                        </div>
-                        <span class="font-semibold">65%</span>
-                    </div>
-                    <div class="flex items-center justify-between text-sm">
-                        <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full bg-danger"></span>
-                            <span class="text-muted">Pemberhentian</span>
-                        </div>
-                        <span class="font-semibold">25%</span>
-                    </div>
-                    <div class="flex items-center justify-between text-sm">
-                        <div class="flex items-center gap-2">
-                            <span class="w-3 h-3 rounded-full" style="background-color: #6F7FD8"></span>
-                            <span class="text-muted">Rotasi</span>
-                        </div>
-                        <span class="font-semibold">10%</span>
-                    </div>
-                </div>
+            </div>
+
+            <!-- Widget 2: Sistem Update -->
+            <div class="bg-[#7895CB] rounded-2xl p-6 text-white shadow-sm flex-1 flex flex-col justify-center">
+                <h3 class="text-lg font-bold mb-2 text-slate-900">Sistem Update Berkala</h3>
+                <p class="text-slate-800 text-sm opacity-90 leading-relaxed">
+                    Pemeliharaan server akan dilakukan pada 15 Oktober pukul 23:00 WIB.
+                </p>
             </div>
         </div>
     </div>
 
-    <!-- Script for Chart -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            if (document.getElementById('jenisLayananChart')) {
-                const ctx = document.getElementById('jenisLayananChart').getContext('2d');
-                new Chart(ctx, {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['Pengangkatan', 'Pemberhentian', 'Rotasi'],
-                        datasets: [{
-                            data: [65, 25, 10],
-                            backgroundColor: ['#4B3F9E', '#D9534F', '#6F7FD8'],
-                            borderWidth: 0,
-                            hoverOffset: 4
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        cutout: '75%',
-                        plugins: {
-                            legend: {
-                                display: false
-                            }
-                        }
-                    }
-                });
-            }
-        });
-    </script>
+    <!-- Bottom Circular Charts -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- Chart 1 -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 text-center shadow-sm">
+            <div class="w-32 h-32 mx-auto relative flex items-center justify-center">
+                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                    <path class="text-slate-100" stroke-width="4" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    <path class="text-[#111827]" stroke-width="4" stroke-dasharray="85, 100" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <span class="text-2xl font-bold font-display text-slate-900">85%</span>
+                </div>
+            </div>
+            <h4 class="mt-6 font-bold text-slate-900">Efisiensi Layanan</h4>
+            <p class="text-xs text-slate-500 mt-1">Peningkatan 5% dari bulan lalu</p>
+        </div>
+        
+        <!-- Chart 2 -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 text-center shadow-sm">
+            <div class="w-32 h-32 mx-auto relative flex items-center justify-center">
+                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                    <path class="text-slate-100" stroke-width="4" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    <path class="text-[#6fa7e9]" stroke-width="4" stroke-dasharray="100, 100" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <span class="text-2xl font-bold font-display text-slate-900">128</span>
+                </div>
+            </div>
+            <h4 class="mt-6 font-bold text-slate-900">Pemohon Aktif</h4>
+            <p class="text-xs text-slate-500 mt-1">Total warga yang mengakses layanan</p>
+        </div>
+
+        <!-- Chart 3 -->
+        <div class="bg-white rounded-2xl border border-slate-200 p-6 text-center shadow-sm">
+            <div class="w-32 h-32 mx-auto relative flex items-center justify-center">
+                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                    <path class="text-slate-100" stroke-width="4" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                    <path class="text-slate-400" stroke-width="4" stroke-dasharray="92, 100" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                </svg>
+                <div class="absolute inset-0 flex items-center justify-center">
+                    <span class="text-2xl font-bold font-display text-slate-900">92%</span>
+                </div>
+            </div>
+            <h4 class="mt-6 font-bold text-slate-900">Akurasi Data</h4>
+            <p class="text-xs text-slate-500 mt-1">Verifikasi kependudukan sukses</p>
+        </div>
+    </div>
 </x-app-layout>
