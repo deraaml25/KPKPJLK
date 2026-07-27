@@ -45,7 +45,6 @@ class PjKadesController extends Controller
 
         // Alasan Plt Kades (Sementara / Cuti)
         $alasanPlt = AlasanPemberhentian::whereIn('nama', [
-            'Pemberhentian Sementara',
             'Cuti Sakit',
             'Cuti Umroh / Haji',
             'Cuti Tahunan',

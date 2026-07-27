@@ -30,7 +30,7 @@ class AjuanController extends Controller
 
     public function create()
     {
-        $jenisLayanans = JenisLayanan::all();
+        $jenisLayanans = JenisLayanan::whereIn('nama', ['Pengangkatan', 'Rotasi', 'Pemberhentian'])->get();
         $alasanPemberhentians = AlasanPemberhentian::all();
         $perangkatDesas = PerangkatDesa::where('desa_id', Auth::user()->desa_id)
             ->where('status_aktif', true)

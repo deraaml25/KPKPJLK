@@ -221,7 +221,7 @@ class ImportPerangkatDesa extends Command
 
                 foreach ($bpdList as $b) {
                     if (!empty($b['nama']) && $b['nama'] !== '-' && !empty($b['status'])) {
-                        PerangkatDesa::updateOrCreate(
+                        \App\Models\Bpd::updateOrCreate(
                             [
                                 'desa_id' => $desa->id,
                                 'jabatan' => $b['jabatan']
