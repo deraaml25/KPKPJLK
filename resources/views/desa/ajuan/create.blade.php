@@ -35,8 +35,50 @@
             otomatis menyesuaikan jenis layanan yang Anda pilih. Anda dapat mengunggah dokumen nanti di halaman detail.
         </p>
 
-        <form method="POST" action="{{ route('desa.ajuan.store') }}">
+        <form method="POST" action="{{ route('desa.ajuan.store') }}" @submit="isSubmitting = true">
             @csrf
+
+            <!-- 0. Metode Pengajuan -->
+            <div class="mb-6">
+                <label class="block text-sm font-medium text-ink mb-2">Metode Pengajuan <span class="text-danger">*</span></label>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label class="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none"
+                        :class="{ 'border-primary ring-1 ring-primary bg-primary-soft/30': metode == 'online', 'border-border': metode != 'online' }">
+                        <input type="radio" name="metode" value="online" class="sr-only" x-model="metode">
+                        <span class="flex flex-1">
+                            <span class="flex flex-col">
+                                <span class="block text-sm font-medium"
+                                    :class="{ 'text-primary': metode == 'online', 'text-ink': metode != 'online' }">Online</span>
+                                <span class="mt-1 flex items-center text-sm text-muted">Unggah dokumen persyaratan dalam bentuk ZIP.</span>
+                            </span>
+                        </span>
+                        <svg class="h-5 w-5 text-primary" :class="{ 'invisible': metode != 'online' }"
+                            viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </label>
+
+                    <label class="relative flex cursor-pointer rounded-lg border bg-white p-4 shadow-sm focus:outline-none"
+                        :class="{ 'border-primary ring-1 ring-primary bg-primary-soft/30': metode == 'offline', 'border-border': metode != 'offline' }">
+                        <input type="radio" name="metode" value="offline" class="sr-only" x-model="metode">
+                        <span class="flex flex-1">
+                            <span class="flex flex-col">
+                                <span class="block text-sm font-medium"
+                                    :class="{ 'text-primary': metode == 'offline', 'text-ink': metode != 'offline' }">Offline</span>
+                                <span class="mt-1 flex items-center text-sm text-muted">Berkas diserahkan langsung, tidak perlu unggah ZIP.</span>
+                            </span>
+                        </span>
+                        <svg class="h-5 w-5 text-primary" :class="{ 'invisible': metode != 'offline' }"
+                            viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </label>
+                </div>
+            </div>
 
             <!-- 1. Jenis Layanan -->
             <div class="mb-6">
@@ -158,11 +200,23 @@
                 <a href="{{ route('desa.ajuan.index') }}"
                     class="px-5 py-2.5 text-sm font-medium text-ink bg-white border border-border rounded-btn hover:bg-gray-50 transition-colors shadow-sm">Batal</a>
                 <button type="submit" name="draft" value="1"
-                    class="px-5 py-2.5 text-sm font-medium text-primary bg-primary-soft border border-primary-soft rounded-btn hover:bg-primary-light hover:text-white transition-colors shadow-sm">Simpan
-                    sebagai Draft</button>
+                    :disabled="isSubmitting"
+                    :class="{'opacity-50 cursor-not-allowed': isSubmitting}"
+                    class="px-5 py-2.5 text-sm font-medium text-primary bg-primary-soft border border-primary-soft rounded-btn hover:bg-primary-light hover:text-white transition-colors shadow-sm">
+                    <span x-show="!isSubmitting">Simpan sebagai Draft</span>
+                    <span x-show="isSubmitting">Memproses...</span>
+                </button>
                 <button type="submit"
-                    class="px-5 py-2.5 text-sm font-medium text-white bg-primary rounded-btn hover:bg-primary-light transition-colors shadow-sm shadow-primary/30">Buat
-                    Ajuan & Lanjut Upload</button>
+                    :disabled="isSubmitting"
+                    :class="{'opacity-50 cursor-not-allowed': isSubmitting}"
+                    class="px-5 py-2.5 text-sm font-medium text-white bg-primary rounded-btn hover:bg-primary-light transition-colors shadow-sm shadow-primary/30 flex items-center">
+                    <svg x-show="isSubmitting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span x-show="!isSubmitting">Buat Ajuan & Lanjut Upload</span>
+                    <span x-show="isSubmitting">Menyimpan...</span>
+                </button>
             </div>
         </form>
     </div>
@@ -171,6 +225,8 @@
     <script>
         document.addEventListener('alpine:init', () => {
             Alpine.data('ajuanForm', () => ({
+                isSubmitting: false,
+                metode: '{{ old('metode', 'online') }}',
                 jenisLayanan: '{{ old('jenis_layanan_id') }}',
                 showAlasan: false,
                 showRotasi: false,

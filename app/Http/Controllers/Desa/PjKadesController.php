@@ -69,6 +69,7 @@ class PjKadesController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'metode' => ['required', 'in:online,offline'],
             'kategori' => ['required', 'in:pj_kades,plt_kades'],
             'alasan_pemberhentian_id' => ['required', 'exists:alasan_pemberhentians,id'],
 
@@ -118,6 +119,7 @@ class PjKadesController extends Controller
             'tgl_diajukan' => now()->toDateString(),
             'status_bebas_hukdis' => 'pending',
             'status' => 'draft',
+            'metode' => $request->metode,
         ]);
 
         // Generate Checklist Items dari TemplateChecklist
@@ -187,6 +189,56 @@ class PjKadesController extends Controller
         return back()->with('success', "Dokumen {$checklist->nama_dokumen} berhasil diunggah.");
     }
 
+    public function bulkUpload(Request $request, $id)
+    {
+        $desaId = Auth::user()->desa_id;
+        $pjKades = PjKades::withoutGlobalScopes()
+            ->where('desa_id', $desaId)
+            ->findOrFail($id);
+
+        $isSubmit = $request->has('submit_ajuan');
+
+        $request->validate([
+            'berkas_zip' => ['nullable', 'file', 'mimes:zip,rar,pdf,doc,docx', 'max:51200'], // max 50MB
+        ]);
+
+        if (!in_array($pjKades->status, ['draft', 'rejected'])) {
+            return back()->with('error', 'Dokumen tidak dapat diubah karena usulan sedang diproses oleh dinas.');
+        }
+
+        Storage::disk('public')->makeDirectory($pjKades->folder_path);
+
+        if ($request->hasFile('berkas_zip')) {
+            $file = $request->file('berkas_zip');
+            $ext = $file->extension();
+            $safeNoReg = str_replace('/', '-', $pjKades->no_registrasi);
+            $filename = $safeNoReg . '_berkas_persyaratan.' . $ext;
+
+            if ($pjKades->berkas_zip && Storage::disk('public')->exists($pjKades->berkas_zip)) {
+                Storage::disk('public')->delete($pjKades->berkas_zip);
+            }
+
+            $path = $file->storeAs(
+                $pjKades->folder_path,
+                $filename,
+                'public'
+            );
+
+            $pjKades->update(['berkas_zip' => $path]);
+        }
+
+        if ($isSubmit) {
+            // Validasi jika belum unggah file zip (hanya jika online)
+            if ($pjKades->metode === 'online' && !$pjKades->berkas_zip) {
+                return back()->with('error', 'Gagal mengirim. Anda belum mengunggah file ZIP persyaratan.');
+            }
+            $pjKades->update(['status' => 'submitted']);
+            return redirect()->route('desa.pjkades.index')->with('success', 'Usulan SK Kades berhasil dikirim ke Dinpermasdes.');
+        }
+
+        return back()->with('success', 'File gabungan berhasil diunggah dan disimpan sebagai draft.');
+    }
+
     public function submitUsulan($id)
     {
         $desaId = Auth::user()->desa_id;
@@ -194,10 +246,16 @@ class PjKadesController extends Controller
             ->where('desa_id', $desaId)
             ->findOrFail($id);
 
-        // Cek kelengkapan dokumen wajib
-        $unuploadedWajib = $pjKades->checklists()->where('wajib', true)->whereNull('file_path')->count();
-        if ($unuploadedWajib > 0) {
-            return back()->with('error', "Masih terdapat {$unuploadedWajib} dokumen wajib yang belum diunggah. Mohon lengkapi seluruh berkas terlebih dahulu.");
+        if ($pjKades->metode === 'online') {
+            if (!$pjKades->berkas_zip) {
+                return back()->with('error', 'Gagal mengirim. Anda belum mengunggah file ZIP persyaratan.');
+            }
+        } else {
+            // Cek kelengkapan dokumen wajib untuk metode offline
+            $unuploadedWajib = $pjKades->checklists()->where('wajib', true)->whereNull('file_path')->count();
+            if ($unuploadedWajib > 0) {
+                return back()->with('error', "Masih terdapat {$unuploadedWajib} dokumen wajib yang belum diunggah. Mohon lengkapi seluruh berkas terlebih dahulu.");
+            }
         }
 
         $pjKades->update([

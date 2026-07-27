@@ -92,6 +92,8 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
     Route::get('/pjkades/{pjkades}', [PjKadesController::class, 'show'])->name('pjkades.show');
     Route::post('/pjkades/{pjkades}/verify/{checklistPjKades}', [PjKadesController::class, 'verifyChecklist'])->name('pjkades.verify-checklist');
     Route::post('/pjkades/{pjkades}/generate-sk', [PjKadesController::class, 'generateSk'])->name('pjkades.generate-sk');
+    Route::post('/pjkades/{pjkades}/update-catatan', [PjKadesController::class, 'updateCatatanAdmin'])->name('pjkades.update-catatan');
+    Route::post('/pjkades/{pjkades}/disposisi', [PjKadesController::class, 'updateDisposisi'])->name('pjkades.disposisi');
 
     // Modul 6: e-Izin Calon (Admin)
     Route::get('/izincalon', [IzinCalonController::class, 'index'])->name('izincalon.index');
@@ -173,6 +175,7 @@ Route::middleware(['auth', 'role:desa'])->prefix('desa')->name('desa.')->group(f
     Route::post('/pjkades', [App\Http\Controllers\Desa\PjKadesController::class, 'store'])->name('pjkades.store');
     Route::get('/pjkades/{pjkades}', [App\Http\Controllers\Desa\PjKadesController::class, 'show'])->name('pjkades.show');
     Route::post('/pjkades/{pjkades}/upload/{checklistPjKades}', [App\Http\Controllers\Desa\PjKadesController::class, 'uploadChecklist'])->name('pjkades.upload');
+    Route::post('/pjkades/{pjkades}/bulk-upload', [App\Http\Controllers\Desa\PjKadesController::class, 'bulkUpload'])->name('pjkades.bulkUpload');
     Route::post('/pjkades/{pjkades}/submit', [App\Http\Controllers\Desa\PjKadesController::class, 'submitUsulan'])->name('pjkades.submit');
 
     // Modul 6: e-Izin Calon (Desa)
@@ -217,6 +220,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
     Route::get('/ajuan', [AdminAjuanController::class, 'index'])->name('ajuan.index');
     Route::get('/ajuan/{ajuan}', [AdminAjuanController::class, 'show'])->name('ajuan.show');
     Route::post('/ajuan/{ajuan}/verify/{checklistAjuan}', [AdminAjuanController::class, 'verifyDokumen'])->name('ajuan.verify');
+    Route::post('/ajuan/{ajuan}/update-catatan', [AdminAjuanController::class, 'updateCatatanAdmin'])->name('ajuan.update-catatan');
     Route::post('/ajuan/{ajuan}/disposisi', [AdminAjuanController::class, 'updateDisposisi'])->name('ajuan.disposisi');
 
     Route::get('/perangkat', [PerangkatController::class, 'index'])->name('perangkat.index');

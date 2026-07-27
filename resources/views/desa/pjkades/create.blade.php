@@ -3,6 +3,7 @@
 
     <div class="max-w-4xl mx-auto bg-white rounded-card shadow-sm border border-border p-8 mb-8" x-data="{
         kategori: 'pj_kades',
+        metode: 'online',
         alasanPjId: '{{ $alasanPj->first()->id ?? '' }}',
         alasanPltId: '{{ $alasanPlt->first()->id ?? '' }}'
     }">
@@ -24,6 +25,29 @@
 
         <form action="{{ route('desa.pjkades.store') }}" method="POST">
             @csrf
+
+            {{-- Metode Penyerahan --}}
+            <div class="mb-8">
+                <label class="block text-sm font-bold text-ink mb-2">Metode Penyerahan Berkas <span class="text-red-500">*</span></label>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <label class="relative flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all"
+                        :class="metode === 'online' ? 'border-primary bg-primary/5 shadow-sm' : 'border-border hover:border-gray-300'">
+                        <input type="radio" name="metode" value="online" x-model="metode" class="text-primary focus:ring-primary w-4 h-4 mr-3">
+                        <div>
+                            <span class="block text-sm font-bold text-ink">Online (Unggah ZIP)</span>
+                            <span class="block text-xs text-muted mt-0.5">Unggah seluruh syarat dalam 1 file ZIP di web.</span>
+                        </div>
+                    </label>
+                    <label class="relative flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all"
+                        :class="metode === 'offline' ? 'border-primary bg-primary/5 shadow-sm' : 'border-border hover:border-gray-300'">
+                        <input type="radio" name="metode" value="offline" x-model="metode" class="text-primary focus:ring-primary w-4 h-4 mr-3">
+                        <div>
+                            <span class="block text-sm font-bold text-ink">Offline (Tatap Muka)</span>
+                            <span class="block text-xs text-muted mt-0.5">Berkas fisik diantar langsung ke Dinpermasdes.</span>
+                        </div>
+                    </label>
+                </div>
+            </div>
 
             {{-- STEP 1: Pilih Jenis Pemberhentian Kepala Desa --}}
             <div class="mb-6">

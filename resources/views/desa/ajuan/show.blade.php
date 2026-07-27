@@ -48,7 +48,7 @@
                 <div class="absolute -top-10 -right-10 w-40 h-40 bg-white opacity-5 rounded-full blur-xl"></div>
                 <div class="flex flex-wrap justify-between items-start gap-3 mb-5">
                     <div>
-                        <p class="text-xs font-mono text-primary-soft tracking-widest mb-1">{{ $ajuan->no_registrasi }}</p>
+                        <p class="text-xs font-mono text-primary-soft tracking-widest mb-1">{{ $ajuan->no_registrasi }} &bull; Metode: <span class="font-bold uppercase">{{ $ajuan->metode }}</span></p>
                         <h2 class="text-xl font-display font-bold">Ajuan {{ $ajuan->jenisLayanan->nama }}</h2>
                         <div class="mt-2 text-sm text-primary-soft space-y-1 max-h-32 overflow-y-auto custom-scrollbar pr-2">
                             @foreach($ajuan->pesertas as $index => $peserta)
@@ -81,73 +81,43 @@
             </div>
 
             {{-- Dokumen Persyaratan --}}
-            <div class="bg-surface rounded-card border border-border shadow-sm overflow-hidden">
-                <form method="POST" action="{{ route('desa.ajuan.bulk-upload', $ajuan) }}" enctype="multipart/form-data">
+            <div class="bg-surface rounded-card border border-border shadow-sm overflow-hidden" x-data="{ isSubmitting: false }">
+                <form method="POST" action="{{ route('desa.ajuan.bulk-upload', $ajuan) }}" enctype="multipart/form-data" @submit="isSubmitting = true">
                     @csrf
                     <div class="px-6 py-4 border-b border-border bg-gray-50 flex flex-wrap justify-between items-center gap-3">
                         <div>
                             <h3 class="text-base font-display font-semibold text-ink">Checklist Berkas Persyaratan ({{ $ajuan->checklistAjuans->count() }} item)</h3>
-                            <p class="text-xs text-muted mt-0.5">Unggah dokumen (PDF, maks 10MB) untuk setiap persyaratan.</p>
+                            <p class="text-xs text-muted mt-0.5">Unggah dokumen sesuai persyaratan.</p>
                         </div>
                     </div>
 
                     <div class="divide-y divide-border">
                         @forelse($ajuan->checklistAjuans->sortBy('templateChecklist.urutan') as $item)
-                            @can('update', $ajuan)
                             <div class="px-6 py-4 flex flex-col lg:flex-row lg:items-center justify-between hover:bg-gray-50 transition-colors gap-4">
                                 <div class="flex items-start lg:items-center gap-3 flex-1 pr-4">
                                     <span class="font-medium text-ink flex-shrink-0">{{ $item->templateChecklist->urutan }}.</span>
                                     <span class="text-sm text-ink">{{ $item->templateChecklist->nama_dokumen }}</span>
-                                    @if($item->templateChecklist->wajib)
+                                    @if($item->templateChecklist->wajib && !in_array(strtolower($ajuan->jenisLayanan->nama), ['rotasi', 'pengangkatan']))
                                         <span class="text-danger text-xs font-bold flex-shrink-0">*</span>
                                     @endif
                                 </div>
                                 
                                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 lg:gap-4 flex-shrink-0">
-                                    @if($item->file_path)
+                                    @if($item->status === 'lengkap' || $item->status === 'valid')
                                         <div class="flex items-center text-success text-sm font-medium whitespace-nowrap">
                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                            Terunggah
+                                            Memenuhi
                                         </div>
-                                    @endif
-                                    
-                                    <input type="file" name="dokumen[{{ $item->id }}]" accept=".pdf" 
-                                           class="block w-full sm:w-auto text-xs text-gray-500 file:mr-2 file:py-1.5 file:px-4 file:rounded-md file:border-0 file:text-xs file:font-semibold file:bg-primary file:text-white hover:file:bg-primary-light file:cursor-pointer cursor-pointer focus:outline-none">
-
-                                    @if($item->file_path)
-                                        <a href="{{ Storage::disk('public')->url($item->file_path) }}" target="_blank" 
-                                           class="text-xs font-medium text-primary hover:underline truncate max-w-[150px] whitespace-nowrap" title="{{ basename($item->file_path) }}">
-                                            Lihat File
-                                        </a>
-                                    @endif
-                                </div>
-                            </div>
-                            @else
-                            <div class="px-6 py-4 flex flex-col lg:flex-row lg:items-center justify-between hover:bg-gray-50 transition-colors gap-4">
-                                <div class="flex items-start lg:items-center gap-3 flex-1 pr-4">
-                                    <span class="font-medium text-ink flex-shrink-0">{{ $item->templateChecklist->urutan }}.</span>
-                                    <span class="text-sm text-ink">{{ $item->templateChecklist->nama_dokumen }}</span>
-                                    @if($item->templateChecklist->wajib)
-                                        <span class="text-danger text-xs font-bold flex-shrink-0">*</span>
-                                    @endif
-                                </div>
-                                
-                                <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 lg:gap-4 flex-shrink-0">
-                                    @if($item->file_path)
-                                        <div class="flex items-center text-success text-sm font-medium whitespace-nowrap">
-                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                            Terunggah
+                                    @elseif(in_array($item->status, ['kurang', 'tidak_sesuai']))
+                                        <div class="flex items-center text-danger text-sm font-medium whitespace-nowrap">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                                            Tidak Memenuhi
                                         </div>
-                                        <a href="{{ Storage::disk('public')->url($item->file_path) }}" target="_blank" 
-                                           class="text-xs font-medium text-primary hover:underline truncate max-w-[150px] whitespace-nowrap" title="{{ basename($item->file_path) }}">
-                                            Lihat File
-                                        </a>
                                     @else
-                                        <span class="text-xs text-muted italic">Belum diunggah</span>
+                                        <span class="text-xs text-muted italic">Belum Diperiksa</span>
                                     @endif
                                 </div>
                             </div>
-                            @endcan
 
                             @if($item->catatan && in_array($item->status, ['kurang', 'tidak_sesuai']))
                                 <div class="px-6 py-2 bg-red-50 text-xs text-red-800 border-b border-border">
@@ -159,13 +129,46 @@
                         @endforelse
                     </div>
 
+                    @if($ajuan->metode === 'online' && auth()->user()->can('update', $ajuan))
+                    <div class="px-6 py-6 bg-white border-t border-border">
+                        <label class="block text-sm font-medium text-ink mb-2">Unggah Keseluruhan Persyaratan (.ZIP / .RAR / .PDF / .DOC / .DOCX)</label>
+                        <input type="file" name="berkas_zip" accept=".zip,.rar,.pdf,.doc,.docx" 
+                               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary-light file:cursor-pointer cursor-pointer focus:outline-none border border-border rounded-md p-2">
+                        @if($ajuan->berkas_zip)
+                            <div class="mt-3 text-sm text-success flex items-center">
+                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                Berkas telah diunggah. <a href="{{ Storage::disk('public')->url($ajuan->berkas_zip) }}" target="_blank" class="ml-2 underline text-primary">Unduh / Lihat</a>
+                            </div>
+                        @endif
+                    </div>
+                    @endif
+
+                    @if($ajuan->catatan_admin)
+                    <div class="px-6 py-5 bg-yellow-50 border-t border-yellow-200 text-yellow-900 text-sm">
+                        <strong class="block mb-1 font-bold">Catatan dari Admin:</strong>
+                        <p class="whitespace-pre-line">{{ $ajuan->catatan_admin }}</p>
+                    </div>
+                    @endif
+
                     @can('update', $ajuan)
                     <div class="px-6 py-5 bg-gray-50 border-t border-border flex flex-wrap items-center justify-end gap-3">
-                        <button type="submit" name="simpan_draft" value="1" class="px-5 py-2.5 bg-white border border-border rounded-btn text-ink text-sm font-medium hover:bg-gray-50 transition-colors shadow-sm">
-                            Simpan Draft
+                        <button type="submit" name="simpan_draft" value="1" 
+                                :disabled="isSubmitting"
+                                :class="{'opacity-50 cursor-not-allowed': isSubmitting}"
+                                class="px-5 py-2.5 bg-white border border-border rounded-btn text-ink text-sm font-medium hover:bg-gray-50 transition-colors shadow-sm">
+                            <span x-show="!isSubmitting">Simpan Draft</span>
+                            <span x-show="isSubmitting">Menyimpan...</span>
                         </button>
-                        <button type="submit" name="submit_ajuan" value="1" class="px-5 py-2.5 bg-success rounded-btn text-white text-sm font-medium hover:bg-green-700 transition-colors shadow-sm">
-                            Kirim Pengajuan (Submit)
+                        <button type="submit" name="submit_ajuan" value="1" 
+                                :disabled="isSubmitting"
+                                :class="{'opacity-50 cursor-not-allowed': isSubmitting}"
+                                class="px-5 py-2.5 bg-success rounded-btn text-white text-sm font-medium hover:bg-green-700 transition-colors shadow-sm flex items-center">
+                            <svg x-show="isSubmitting" class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span x-show="!isSubmitting">Kirim Pengajuan (Submit)</span>
+                            <span x-show="isSubmitting">Mengunggah...</span>
                         </button>
                     </div>
                     @endcan

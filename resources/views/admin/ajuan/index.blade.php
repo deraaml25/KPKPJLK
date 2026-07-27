@@ -48,6 +48,7 @@
                                 <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $ajuan->jenisLayanan->nama == 'Pengangkatan' ? 'bg-primary-soft text-primary' : ($ajuan->jenisLayanan->nama == 'Pemberhentian' ? 'bg-red-100 text-danger' : 'bg-yellow-100 text-yellow-800') }}">
                                     {{ $ajuan->jenisLayanan->nama }}
                                 </span>
+                                <div class="text-xs text-muted mt-1 uppercase font-bold">{{ $ajuan->metode }}</div>
                             </td>
                             <td class="px-6 py-4">
                                 <span class="text-sm font-medium text-ink">{{ $ajuan->posisi_surat ?? 'Front Office (FO)' }}</span>

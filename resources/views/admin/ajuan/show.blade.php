@@ -27,8 +27,9 @@
         </div>
     @endif
 
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 h-[80vh]">
+    <div class="{{ $ajuan->metode !== 'offline' ? 'grid grid-cols-1 lg:grid-cols-12 gap-6' : 'max-w-4xl mx-auto' }} h-[80vh]">
 
+        @if($ajuan->metode !== 'offline')
         {{-- PANEL KIRI: PREVIEW PDF --}}
         <div
             class="lg:col-span-7 bg-surface rounded-card border border-border shadow-sm flex flex-col overflow-hidden h-full">
@@ -58,9 +59,10 @@
                     frameborder="0"></iframe>
             </div>
         </div>
+        @endif
 
         {{-- PANEL KANAN: VERIFIKASI GRANULAR & DISPOSISI --}}
-        <div class="lg:col-span-5 flex flex-col gap-6 h-full overflow-y-auto pr-2 custom-scrollbar">
+        <div class="{{ $ajuan->metode !== 'offline' ? 'lg:col-span-5' : 'w-full' }} flex flex-col gap-6 h-full overflow-y-auto pr-2 custom-scrollbar">
 
             {{-- IDENTITAS DESA --}}
             <div class="bg-primary text-white rounded-card shadow-sm p-5">
@@ -99,78 +101,72 @@
 
                 <div class="divide-y divide-border">
                     @foreach($dokumenList as $item)
-                        <div class="p-4 border-l-4 transition-colors {{ $item->status == 'valid' ? 'border-green-500 bg-green-50/40' : ($item->status == 'kurang' || $item->status == 'tidak_sesuai' ? 'border-red-500 bg-red-50/40' : 'border-amber-400 bg-amber-50/30') }}">
-                            <div class="flex items-start gap-3">
-                                <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-xs font-bold text-ink border border-border shadow-sm">{{ $item->templateChecklist->urutan }}</span>
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-2 mb-2 flex-wrap">
+                        <div class="p-4 border-l-4 transition-colors {{ $item->status == 'valid' || $item->status == 'lengkap' ? 'border-green-500 bg-green-50/40' : ($item->status == 'kurang' || $item->status == 'tidak_sesuai' ? 'border-red-500 bg-red-50/40' : 'border-amber-400 bg-amber-50/30') }}">
+                            <div class="flex items-center gap-3">
+                                <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-xs font-bold text-ink border border-border shadow-sm flex-shrink-0">{{ $item->templateChecklist->urutan }}</span>
+                                <div class="flex-1 flex flex-col sm:flex-row sm:items-center gap-2 justify-between">
+                                    <div class="flex items-center gap-2 flex-wrap">
                                         <p class="text-sm font-semibold text-ink leading-tight">
                                             {{ $item->templateChecklist->nama_dokumen }}
                                         </p>
-                                        @if($item->templateChecklist->wajib)
+                                        @if($item->templateChecklist->wajib && !in_array(strtolower($ajuan->jenisLayanan->nama), ['rotasi', 'pengangkatan']))
                                             <span class="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-700">Wajib</span>
                                         @endif
-                                    </div>
 
-                                    @if($item->file_path)
-                                        <div class="flex items-center gap-2 mb-3">
+                                        @if($item->file_path)
                                             <button
                                                 onclick="previewPdf('{{ Storage::disk('public')->url($item->file_path) }}', '{{ addslashes($item->templateChecklist->nama_dokumen) }}')"
-                                                class="inline-flex items-center text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded font-medium text-ink transition-colors">
-                                                <svg class="w-3.5 h-3.5 mr-1.5" fill="none" viewBox="0 0 24 24"
-                                                    stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                class="ml-2 inline-flex items-center text-xs px-2 py-1 bg-white hover:bg-gray-50 border border-gray-300 rounded font-medium text-ink transition-colors shadow-sm">
+                                                <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                                                 </svg>
                                                 Lihat PDF
                                             </button>
+                                        @elseif($ajuan->metode === 'online' && !$ajuan->berkas_zip)
+                                            <span class="ml-2 inline-block px-2 py-1 bg-gray-100 text-gray-500 text-xs font-medium rounded border border-gray-200">Belum Terunggah</span>
+                                        @endif
+                                    </div>
 
-                                            <span
-                                                class="text-xs font-semibold px-2 py-0.5 rounded {{ $item->status == 'valid' ? 'bg-green-100 text-green-700' : ($item->status == 'menunggu' ? 'bg-gray-100 text-gray-600' : 'bg-red-100 text-red-700') }}">
-                                                Status: {{ strtoupper($item->status) }}
-                                            </span>
-                                        </div>
-
-                                        <form action="{{ route('admin.ajuan.verify', [$ajuan, $item]) }}" method="POST"
-                                            class="bg-white p-3 border border-border rounded shadow-sm text-sm">
-                                            @csrf
-                                            <div class="flex items-center gap-4 mb-2">
-                                                <label class="inline-flex items-center">
-                                                    <input type="radio" name="status" value="valid"
-                                                        class="text-success focus:ring-success" {{ $item->status == 'valid' ? 'checked' : '' }} onclick="toggleCatatan(this, {{ $item->id }})">
-                                                    <span class="ml-2 font-medium">Valid (Sesuai)</span>
-                                                </label>
-                                                <label class="inline-flex items-center">
-                                                    <input type="radio" name="status" value="kurang"
-                                                        class="text-danger focus:ring-danger" {{ in_array($item->status, ['kurang', 'tidak_sesuai']) ? 'checked' : '' }}
-                                                        onclick="toggleCatatan(this, {{ $item->id }})">
-                                                    <span class="ml-2 font-medium">Tolak / Revisi</span>
-                                                </label>
-                                            </div>
-                                            <div id="catatan-box-{{ $item->id }}"
-                                                class="{{ in_array($item->status, ['kurang', 'tidak_sesuai']) ? 'block' : 'hidden' }}">
-                                                <textarea name="catatan"
-                                                    class="w-full text-xs rounded border-gray-300 focus:border-red-500 focus:ring-red-500 mb-2"
-                                                    rows="2"
-                                                    placeholder="Tulis catatan perbaikan untuk desa...">{{ $item->catatan }}</textarea>
-                                            </div>
-                                            <button type="submit"
-                                                class="w-full py-1.5 bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded text-xs font-semibold transition-colors">
-                                                Simpan Keputusan Ceklis
-                                            </button>
-                                        </form>
-                                    @else
-                                        <span
-                                            class="inline-block px-2 py-1 bg-gray-100 text-gray-500 text-xs font-medium rounded border border-gray-200 mt-1">Belum
-                                            Terunggah</span>
-                                    @endif
+                                    <form action="{{ route('admin.ajuan.verify', [$ajuan, $item]) }}" method="POST" class="flex-shrink-0 ml-auto sm:ml-4">
+                                        @csrf
+                                        <input type="hidden" name="status" value="kurang">
+                                        <input type="checkbox" name="status" value="valid" 
+                                               class="w-7 h-7 text-blue-400 focus:ring-blue-400 border-gray-300 rounded shadow-sm cursor-pointer transition-colors" 
+                                               {{ $item->status == 'valid' || $item->status == 'lengkap' ? 'checked' : '' }}
+                                               onchange="this.form.submit()"
+                                               title="Tandai Sesuai">
+                                    </form>
                                 </div>
                             </div>
                         </div>
                     @endforeach
                 </div>
+            </div>
+
+            {{-- PANEL BERKAS ZIP & CATATAN ADMIN --}}
+            <div class="bg-surface rounded-card border border-border shadow-sm flex flex-col mb-2">
+                <div class="px-5 py-4 border-b border-border bg-gray-50 flex justify-between items-center">
+                    <h3 class="font-display font-semibold text-ink">Keseluruhan Persyaratan & Catatan</h3>
+                    @if($ajuan->metode === 'online' && $ajuan->berkas_zip)
+                        <a href="{{ Storage::disk('public')->url($ajuan->berkas_zip) }}" target="_blank" class="inline-flex items-center text-xs px-3 py-1 bg-primary text-white hover:bg-primary-light rounded font-medium transition-colors shadow-sm">
+                            <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Unduh Berkas ZIP
+                        </a>
+                    @elseif($ajuan->metode === 'offline')
+                        <span class="text-xs font-semibold px-2 py-1 bg-gray-200 text-gray-700 rounded">Metode: Offline</span>
+                    @else
+                        <span class="text-xs font-semibold px-2 py-1 bg-red-100 text-red-700 rounded">Berkas ZIP belum diunggah</span>
+                    @endif
+                </div>
+                <form action="{{ route('admin.ajuan.update-catatan', $ajuan) }}" method="POST" class="p-5">
+                    @csrf
+                    <label class="block text-sm font-medium text-ink mb-2">Catatan Kelengkapan dari Admin untuk Desa</label>
+                    <textarea name="catatan_admin" rows="3" class="w-full text-sm border-gray-300 rounded-md focus:border-primary focus:ring focus:ring-primary/20" placeholder="Tuliskan catatan lengkap atau tidaknya berkas keseluruhan di sini...">{{ $ajuan->catatan_admin }}</textarea>
+                    <div class="mt-3 text-right">
+                        <button type="submit" class="px-4 py-2 bg-gray-800 hover:bg-black text-white text-xs font-medium rounded shadow-sm transition-colors">Simpan Catatan Admin</button>
+                    </div>
+                </form>
             </div>
 
             {{-- PANEL UPDATE DISPOSISI SURAT --}}

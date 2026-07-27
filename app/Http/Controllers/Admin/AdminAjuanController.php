@@ -102,4 +102,20 @@ class AdminAjuanController extends Controller
 
         return back()->with('success', 'Sistem berhasil mendisposisikan ajuan ke ' . $request->posisi_baru);
     }
+
+    /**
+     * Update Catatan Admin untuk Keseluruhan Berkas
+     */
+    public function updateCatatanAdmin(Request $request, Ajuan $ajuan)
+    {
+        $request->validate([
+            'catatan_admin' => 'nullable|string'
+        ]);
+
+        $ajuan->update([
+            'catatan_admin' => $request->catatan_admin
+        ]);
+
+        return back()->with('success', 'Catatan admin berhasil disimpan!');
+    }
 }

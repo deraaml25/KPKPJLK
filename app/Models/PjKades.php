@@ -33,6 +33,10 @@ class PjKades extends Model
         'tgl_mulai',
         'tgl_selesai',
         'status',
+        'metode',
+        'berkas_zip',
+        'catatan_admin',
+        'posisi_surat',
     ];
 
     protected $casts = [

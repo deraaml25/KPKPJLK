@@ -86,95 +86,135 @@
                         </div>
                     </div>
                 </div>
+                @if($pjkades->metode === 'online' && $pjkades->berkas_zip)
+                    <div class="bg-blue-50 border border-blue-200 rounded-card p-4 mb-6 flex items-center justify-between">
+                        <div>
+                            <h4 class="text-sm font-bold text-blue-900">Berkas Persyaratan (ZIP/PDF)</h4>
+                            <p class="text-xs text-blue-700">Desa telah mengunggah keseluruhan berkas persyaratan dalam satu file.</p>
+                        </div>
+                        <a href="{{ Storage::disk('public')->url($pjkades->berkas_zip) }}" target="_blank"
+                           class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-btn shadow-sm hover:bg-blue-700 transition-colors flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                            Unduh Berkas
+                        </a>
+                    </div>
+                @endif
 
                 {{-- Checklist Dokumen Verification Table --}}
-                <div class="bg-white rounded-card shadow-sm border border-border overflow-hidden">
-                    <div class="p-6 border-b border-border flex items-center justify-between">
-                        <h3 class="text-md font-display font-bold text-ink">Pemeriksaan & Verifikasi Dokumen Persyaratan</h3>
+                <div class="bg-surface rounded-card shadow-sm border border-border overflow-hidden">
+                    <div class="px-5 py-4 border-b border-border bg-gray-50 flex items-center justify-between">
+                        <h3 class="text-base font-display font-semibold text-ink">Verifikasi Syarat Formil</h3>
                         @php
-                            $approvedCount = $pjkades->checklists->where('status_verifikasi', 'disetujui')->count();
+                            $approvedCount = $pjkades->checklists->where('status_verifikasi', 'valid')->count();
                             $totalCount = $pjkades->checklists->count();
                         @endphp
-                        <span class="text-xs font-bold px-2.5 py-1 bg-gray-100 rounded-full text-ink">
-                            {{ $approvedCount }} / {{ $totalCount }} Disetujui
+                        <span class="text-xs font-bold px-2.5 py-1 bg-white border border-border rounded-full text-ink shadow-sm">
+                            {{ $approvedCount }} / {{ $totalCount }} Memenuhi
                         </span>
                     </div>
 
                     <div class="divide-y divide-border">
                         @foreach($pjkades->checklists as $index => $item)
-                            <div class="p-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3 hover:bg-gray-50/50">
-                                <div class="flex-1">
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <span class="w-5 h-5 rounded-full bg-gray-100 text-ink text-xs font-bold flex items-center justify-center font-mono">
-                                            {{ $index + 1 }}
-                                        </span>
-                                        <span class="text-sm font-semibold text-ink">{{ $item->nama_dokumen }}</span>
-                                        @if($item->wajib)
-                                            <span class="px-1.5 py-0.5 rounded text-[10px] font-bold bg-red-100 text-red-700">Wajib</span>
-                                        @endif
-                                    </div>
+                            <div class="p-4 border-l-4 transition-colors {{ $item->status_verifikasi == 'valid' ? 'border-green-500 bg-green-50/40' : ($item->status_verifikasi == 'tidak_sesuai' ? 'border-red-500 bg-red-50/40' : 'border-amber-400 bg-amber-50/30') }}">
+                                <div class="flex items-center gap-3">
+                                    <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-xs font-bold text-ink border border-border shadow-sm flex-shrink-0">{{ $index + 1 }}</span>
+                                    
+                                    <div class="flex-1 flex flex-col sm:flex-row sm:items-center gap-2 justify-between">
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <p class="text-sm font-semibold text-ink leading-tight">
+                                                {{ $item->nama_dokumen }}
+                                            </p>
 
-                                    <div class="ml-7 text-xs">
-                                        @if($item->file_path)
-                                            <a href="{{ asset('storage/' . $item->file_path) }}" target="_blank" class="text-primary hover:underline font-medium inline-flex items-center gap-1">
-                                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                                                </svg>
-                                                Buka / Download File
-                                            </a>
-                                            <span class="text-muted ml-2">Diunggah: {{ $item->tgl_diunggah ? $item->tgl_diunggah->format('d/m/Y H:i') : '-' }}</span>
-                                        @else
-                                            <span class="text-amber-600 italic">Belum diunggah oleh desa</span>
-                                        @endif
-
-                                        @if($item->catatan_revisi)
-                                            <div class="mt-1 text-red-600 font-medium">Catatan Revisi: {{ $item->catatan_revisi }}</div>
-                                        @endif
-                                    </div>
-                                </div>
-
-                                {{-- Action Form Verifikasi --}}
-                                <div class="flex items-center gap-2 ml-7 md:ml-0" x-data="{ showRevisi: false }">
-                                    @if($item->status_verifikasi === 'disetujui')
-                                        <span class="inline-flex items-center px-2.5 py-1 rounded text-xs font-bold bg-green-100 text-green-800">
-                                            ✓ Disetujui
-                                        </span>
-                                    @endif
-
-                                    @if($item->file_path)
-                                        <form action="{{ route('admin.pjkades.verify-checklist', [$pjkades->id, $item->id]) }}" method="POST" class="inline flex items-center gap-2">
-                                            @csrf
-                                            <input type="hidden" name="status_verifikasi" value="disetujui">
-                                            <button type="submit" class="px-2.5 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded transition-colors">
-                                                Setujui
-                                            </button>
-                                        </form>
-
-                                        <button type="button" @click="showRevisi = !showRevisi" class="px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white text-xs font-medium rounded transition-colors">
-                                            Tolak / Revisi
-                                        </button>
-
-                                        <div x-show="showRevisi" class="mt-2 p-2 bg-gray-50 border rounded text-xs" style="display: none;">
-                                            <form action="{{ route('admin.pjkades.verify-checklist', [$pjkades->id, $item->id]) }}" method="POST">
-                                                @csrf
-                                                <input type="hidden" name="status_verifikasi" value="ditolak">
-                                                <input type="text" name="catatan_revisi" required placeholder="Tuliskan catatan revisi..." class="w-full text-xs rounded border-gray-300 p-1 mb-1">
-                                                <button type="submit" class="w-full bg-red-600 text-white py-1 rounded text-xs font-bold">Kirim Revisi</button>
-                                            </form>
+                                            @if($item->file_path)
+                                                <a href="{{ asset('storage/' . $item->file_path) }}" target="_blank"
+                                                    class="ml-2 inline-flex items-center text-xs px-2 py-1 bg-white hover:bg-gray-50 border border-gray-300 rounded font-medium text-ink transition-colors shadow-sm">
+                                                    Lihat Dokumen
+                                                </a>
+                                            @endif
                                         </div>
-                                    @endif
+
+                                        <form action="{{ route('admin.pjkades.verify-checklist', [$pjkades->id, $item->id]) }}" method="POST" class="flex-shrink-0 ml-auto sm:ml-4">
+                                            @csrf
+                                            <input type="hidden" name="status_verifikasi" value="tidak_sesuai">
+                                            <input type="checkbox" name="status_verifikasi" value="valid" 
+                                                   class="w-7 h-7 text-blue-400 focus:ring-blue-400 border-gray-300 rounded shadow-sm cursor-pointer transition-colors" 
+                                                   {{ $item->status_verifikasi == 'valid' ? 'checked' : '' }}
+                                                   onchange="this.form.submit()"
+                                                   title="Tandai Sesuai">
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         @endforeach
                     </div>
                 </div>
+
+                {{-- Kolom Catatan Admin --}}
+                <div class="mt-6 bg-surface rounded-card shadow-sm border border-border p-6 relative">
+                    <form action="{{ route('admin.pjkades.update-catatan', $pjkades->id) }}" method="POST">
+                        @csrf
+                        <label class="block text-sm font-display font-semibold text-ink mb-2">Evaluasi Syarat Formil</label>
+                        <p class="text-xs text-muted mb-3">Tuliskan jika ada syarat yang kurang (khususnya untuk metode offline) atau perbaikan yang harus dilakukan desa.</p>
+                        
+                        <textarea name="catatan_admin" rows="3" placeholder="Tulis catatan jika ada berkas yang kurang/salah..." 
+                                  class="w-full text-sm rounded-lg border-border focus:ring-primary focus:border-primary placeholder-gray-400">{{ old('catatan_admin', $pjkades->catatan_admin) }}</textarea>
+                                  
+                        <div class="mt-3 flex justify-end">
+                            <button type="submit" class="px-4 py-2 bg-primary text-white text-sm font-medium rounded-btn hover:bg-primary-light transition-colors shadow-sm">
+                                Simpan Catatan
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
-            {{-- Kolom Kanan: Verifikasi Disiplin & Penerbitan SK Bupati --}}
+            {{-- Kolom Kanan: Disposisi & Penerbitan SK --}}
             <div class="lg:col-span-1 space-y-6">
-                <div class="bg-white rounded-card shadow-sm border border-border p-6">
-                    <h3 class="text-md font-display font-bold text-ink mb-4 pb-2 border-b border-border">Penerbitan SK & Penetapan Masa Jabatan</h3>
+
+                <div class="bg-surface rounded-card shadow-sm border border-border p-6">
+                    <h3 class="text-base font-display font-semibold text-ink mb-1">Status Proses</h3>
+                    <p class="text-xs text-muted mb-4 pb-4 border-b border-border">Pantau tahapan perjalanan usulan SK Kades.</p>
+                    
+                    <x-pjkades-tracker :posisiAktif="$pjkades->posisi_surat ?? 'Berkas Diterima'" :status="$pjkades->status" />
+                </div>
+
+                <div class="bg-surface rounded-card shadow-sm border border-border p-6">
+                    <h3 class="text-base font-display font-semibold text-ink mb-4 pb-2 border-b border-border">Disposisi & Posisi Surat</h3>
+                    <form action="{{ route('admin.pjkades.disposisi', $pjkades->id) }}" method="POST">
+                        @csrf
+                        <div class="mb-4">
+                            <label class="block text-xs font-bold text-ink mb-2">Pembaruan Posisi Terkini</label>
+                            <select name="posisi_surat" required class="w-full text-sm rounded-md border-border focus:ring-primary focus:border-primary shadow-sm bg-white">
+                                @php
+                                    $posisiOptions = [
+                                        'Berkas Diterima',
+                                        'Verifikasi & Validasi Petugas',
+                                        'Penyusunan Draft Rekomendasi',
+                                        'Verifikasi & Validasi Kabid PDPD',
+                                        'Verifikasi & Validasi Sekretaris Dinas',
+                                        'Verifikasi & Validasi Kepala Dinas',
+                                        'Verifikasi & Validasi Kepala Bagian Hukum',
+                                        'Verifikasi & Validasi Asisten Pemerintahan & Kesra',
+                                        'Verifikasi & Validasi Sekda',
+                                        'Tanda Tangan Bupati',
+                                        'Penomoran TU Umum Setda & Selesai'
+                                    ];
+                                @endphp
+                                @foreach($posisiOptions as $opt)
+                                    <option value="{{ $opt }}" {{ ($pjkades->posisi_surat ?? 'Berkas Diterima') == $opt ? 'selected' : '' }}>
+                                        {{ $opt }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full py-2 bg-white border border-border text-ink text-sm font-medium rounded-btn hover:bg-gray-50 shadow-sm transition-colors">
+                            Update Posisi
+                        </button>
+                    </form>
+                </div>
+
+                <div class="bg-surface rounded-card shadow-sm border border-border p-6">
+                    <h3 class="text-base font-display font-semibold text-ink mb-4 pb-2 border-b border-border">Penerbitan SK & Penetapan Masa Jabatan</h3>
 
                     @if($pjkades->status === 'approved')
                         <div class="p-4 bg-green-50 text-green-800 rounded border border-green-200 text-sm mb-4">

@@ -80,7 +80,7 @@
                                 @php
                                     $totalChecklist = $pj->checklists->count();
                                     $uploadedChecklist = $pj->checklists->whereNotNull('file_path')->count();
-                                    $approvedChecklist = $pj->checklists->where('status_verifikasi', 'disetujui')->count();
+                                    $approvedChecklist = $pj->checklists->where('status_verifikasi', 'valid')->count();
                                 @endphp
                                 <div class="text-xs font-bold text-ink">{{ $approvedChecklist }}/{{ $totalChecklist }} Disetujui</div>
                                 <div class="text-xs text-muted">{{ $uploadedChecklist }} Berkas Diunggah</div>

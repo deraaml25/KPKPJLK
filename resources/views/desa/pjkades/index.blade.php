@@ -78,7 +78,7 @@
                                 @php
                                     $totalChecklist = $pj->checklists->count();
                                     $uploadedChecklist = $pj->checklists->whereNotNull('file_path')->count();
-                                    $approvedChecklist = $pj->checklists->where('status_verifikasi', 'disetujui')->count();
+                                    $approvedChecklist = $pj->checklists->where('status_verifikasi', 'valid')->count();
                                     $percent = $totalChecklist > 0 ? round(($uploadedChecklist / $totalChecklist) * 100) : 0;
                                 @endphp
                                 <div class="flex items-center gap-2">

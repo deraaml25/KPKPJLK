@@ -31,7 +31,7 @@ class AjuanController extends Controller
     public function create()
     {
         $jenisLayanans = JenisLayanan::whereIn('nama', ['Pengangkatan', 'Rotasi', 'Pemberhentian'])->get();
-        $alasanPemberhentians = AlasanPemberhentian::all();
+        $alasanPemberhentians = AlasanPemberhentian::whereIn('nama', ['Purna Tugas', 'Permintaan Sendiri', 'Diberhentikan'])->get();
         $perangkatDesas = PerangkatDesa::where('desa_id', Auth::user()->desa_id)
             ->where('status_aktif', true)
             ->where('jabatan', '!=', 'Kepala Desa')
@@ -45,6 +45,7 @@ class AjuanController extends Controller
         $rotasiLayanan = JenisLayanan::where('nama', 'Rotasi')->first();
 
         $request->validate([
+            'metode' => ['required', 'in:online,offline'],
             'jenis_layanan_id' => ['required', 'exists:jenis_layanans,id'],
             'alasan_pemberhentian_id' => ['nullable', 'exists:alasan_pemberhentians,id'],
             'pesertas' => ['required', 'array', 'min:1'],
@@ -83,6 +84,7 @@ class AjuanController extends Controller
             'desa_id' => $desa->id,
             'jenis_layanan_id' => $request->jenis_layanan_id,
             'alasan_pemberhentian_id' => $request->alasan_pemberhentian_id,
+            'metode' => $request->metode,
             'status' => 'draft',
             'folder_path' => $folderPath,
             'tgl_diajukan' => now()->toDateString(),
@@ -220,8 +222,7 @@ class AjuanController extends Controller
         $isSubmit = $request->has('submit_ajuan');
 
         $request->validate([
-            'dokumen' => ['nullable', 'array'],
-            'dokumen.*' => ['nullable', 'file', 'mimes:pdf', 'max:10240'],
+            'berkas_zip' => ['nullable', 'file', 'mimes:zip,rar,pdf,doc,docx', 'max:51200'], // max 50MB
         ]);
 
         // Enforcement: Rule Immutable status
@@ -231,34 +232,25 @@ class AjuanController extends Controller
 
         Storage::disk('public')->makeDirectory($ajuan->folder_path);
 
-        if ($request->hasFile('dokumen')) {
-            foreach ($request->file('dokumen') as $checklistAjuanId => $file) {
-                $checklistAjuan = $ajuan->checklistAjuans()->find($checklistAjuanId);
-                if (!$checklistAjuan) {
-                    continue;
-                }
+        if ($request->hasFile('berkas_zip')) {
+            $file = $request->file('berkas_zip');
+            $ext = $file->extension();
+            $safeNoReg = str_replace('/', '-', $ajuan->no_registrasi);
+            $filename = $safeNoReg . '_berkas_persyaratan.' . $ext;
 
-                $template = $checklistAjuan->templateChecklist;
-                $urutan = str_pad($template->urutan, 2, '0', STR_PAD_LEFT);
-                $ext = $file->extension();
-                $safeNoReg = str_replace('/', '-', $ajuan->no_registrasi);
-                $filename = $safeNoReg . '_' . $urutan . '_' . Str::slug($template->nama_dokumen) . '.' . $ext;
-
-                if ($checklistAjuan->file_path && Storage::disk('public')->exists($checklistAjuan->file_path)) {
-                    Storage::disk('public')->delete($checklistAjuan->file_path);
-                }
-
-                $path = $file->storeAs(
-                    $ajuan->folder_path,
-                    $filename,
-                    'public'
-                );
-
-                $checklistAjuan->update([
-                    'file_path' => $path,
-                    'status' => 'pending',
-                ]);
+            if ($ajuan->berkas_zip && Storage::disk('public')->exists($ajuan->berkas_zip)) {
+                Storage::disk('public')->delete($ajuan->berkas_zip);
             }
+
+            $path = $file->storeAs(
+                $ajuan->folder_path,
+                $filename,
+                'public'
+            );
+
+            $ajuan->update([
+                'berkas_zip' => $path,
+            ]);
         }
 
         if ($isSubmit) {

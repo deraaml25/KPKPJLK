@@ -39,18 +39,54 @@ class PjKadesController extends Controller
         $checklist = ChecklistPjKades::where('pj_kades_id', $pjkades->id)->findOrFail($checklistId);
 
         $request->validate([
-            'status_verifikasi' => ['required', 'in:disetujui,ditolak'],
-            'catatan_revisi' => ['nullable', 'string', 'max:500'],
+            'status_verifikasi' => ['required', 'in:valid,tidak_sesuai'],
         ]);
 
         $checklist->update([
             'status_verifikasi' => $request->status_verifikasi,
-            'catatan_revisi' => $request->status_verifikasi === 'ditolak' ? $request->catatan_revisi : null,
+            'catatan_revisi' => null, // We use global admin notes now
         ]);
 
-        $statusText = $request->status_verifikasi === 'disetujui' ? 'disetujui' : 'ditolak (minta revisi)';
+        $statusText = $request->status_verifikasi === 'valid' ? 'Valid' : 'Tidak Sesuai';
 
-        return back()->with('success', "Dokumen {$checklist->nama_dokumen} berhasil {$statusText}.");
+        return back()->with('success', "Dokumen {$checklist->nama_dokumen} ditandai sebagai {$statusText}.");
+    }
+
+    public function updateCatatanAdmin(Request $request, $id)
+    {
+        $pjkades = PjKades::withoutGlobalScopes()->findOrFail($id);
+
+        $request->validate([
+            'catatan_admin' => 'nullable|string',
+        ]);
+
+        // Jika metode online, otomatis direvisi jika ada catatan
+        $status = $pjkades->status;
+        if ($pjkades->metode === 'online' && $request->filled('catatan_admin') && in_array($pjkades->status, ['submitted', 'direvisi'])) {
+            $status = 'direvisi';
+        }
+
+        $pjkades->update([
+            'catatan_admin' => $request->catatan_admin,
+            'status' => $status,
+        ]);
+
+        return back()->with('success', 'Catatan evaluasi kelengkapan berhasil disimpan.');
+    }
+
+    public function updateDisposisi(Request $request, $id)
+    {
+        $pjkades = PjKades::withoutGlobalScopes()->findOrFail($id);
+
+        $request->validate([
+            'posisi_surat' => 'required|string',
+        ]);
+
+        $pjkades->update([
+            'posisi_surat' => $request->posisi_surat,
+        ]);
+
+        return back()->with('success', "Posisi surat berhasil diperbarui ke: {$request->posisi_surat}");
     }
 
     /**
