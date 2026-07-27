@@ -17,13 +17,16 @@ class MasterDataSeeder extends Seeder
         $rotasi = \App\Models\JenisLayanan::create(['nama' => 'Rotasi']);
         $pemberhentian = \App\Models\JenisLayanan::create(['nama' => 'Pemberhentian']);
 
-        // 2. Alasan Pemberhentian
+        // 2. Alasan Pemberhentian (Termasuk untuk Kades & Perangkat Desa)
         $alasan = [
             'Purna Tugas', 'Mengundurkan Diri', 'Meninggal Dunia',
-            'Berhalangan Tetap', 'Tindak Pidana', 'Pelanggaran Disiplin'
+            'Berhalangan Tetap', 'Tindak Pidana', 'Pelanggaran Disiplin',
+            'Permintaan Sendiri', 'Diberhentikan Dengan Tidak Hormat',
+            'Pemberhentian Sementara', 'Cuti Sakit', 'Cuti Umroh / Haji',
+            'Cuti Tahunan', 'Cuti Bersalin', 'Cuti Alasan Penting'
         ];
         foreach ($alasan as $a) {
-            \App\Models\AlasanPemberhentian::create(['nama' => $a]);
+            \App\Models\AlasanPemberhentian::firstOrCreate(['nama' => $a]);
         }
 
         // 3. Dummy Data (Kecamatan, Desa, User, Perangkat)
