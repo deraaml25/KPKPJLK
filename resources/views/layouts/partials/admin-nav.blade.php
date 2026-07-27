@@ -5,6 +5,7 @@
         ['route' => 'admin.pengajuan-pembinaan.index', 'icon' => 'history_edu', 'text' => 'Pembinaan', 'active' => request()->routeIs('admin.pengajuan-pembinaan.*') || request()->routeIs('admin.bimtek-informasi.*') || request()->routeIs('admin.bimtek.*')],
         ['route' => 'admin.ajuan.index', 'icon' => 'approval', 'text' => 'e-Rekomendasi', 'active' => request()->routeIs('admin.ajuan.*')],
         ['route' => 'admin.pjkades.index', 'icon' => 'admin_panel_settings', 'text' => 'SK Kades', 'active' => request()->routeIs('admin.pjkades.*')],
+        ['route' => 'admin.rencana-p3d.index', 'icon' => 'assignment', 'text' => 'Rencana P3D', 'active' => request()->routeIs('admin.rencana-p3d.*')],
         ['route' => 'admin.drive.index', 'icon' => 'cloud_circle', 'text' => 'Drive Dokumen', 'active' => request()->routeIs('admin.drive.*')],
         ['route' => 'admin.arsip.index', 'icon' => 'archive', 'text' => 'Arsip Rekomendasi', 'active' => request()->routeIs('admin.arsip.*')],
         ['route' => 'admin.perangkat.index', 'icon' => 'badge', 'text' => 'Data Perangkat Desa', 'active' => request()->routeIs('admin.perangkat.*')],

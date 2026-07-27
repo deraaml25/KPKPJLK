@@ -3,69 +3,100 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\PjKades;
+use App\Models\ChecklistPjKades;
 use App\Models\PerangkatDesa;
-use Illuminate\Http\Request;
+use App\Models\PjKades;
 use Carbon\Carbon;
+use Illuminate\Http\Request;
 
 class PjKadesController extends Controller
 {
     public function index()
     {
-        $pjkades = PjKades::withoutGlobalScopes()->with('desa')->latest()->paginate(15);
+        $pjkades = PjKades::withoutGlobalScopes()
+            ->with(['desa', 'alasanPemberhentian', 'checklists'])
+            ->latest()
+            ->paginate(15);
+
         return view('admin.pjkades.index', compact('pjkades'));
     }
 
     public function show($id)
     {
-        $pjkades = PjKades::withoutGlobalScopes()->with('desa')->findOrFail($id);
+        $pjkades = PjKades::withoutGlobalScopes()
+            ->with(['desa.kecamatan', 'alasanPemberhentian', 'checklists'])
+            ->findOrFail($id);
+
         return view('admin.pjkades.show', compact('pjkades'));
     }
 
     /**
-     * Tahap 3: Verifikasi Rekam Jejak — Setujui atau Tolak
-     * Tahap 4: Penerbitan SK Bupati — Upload SK + Input Masa Berlaku
+     * Verifikasi dokumen checklist individual oleh Admin Dinpermasdes
+     */
+    public function verifyChecklist(Request $request, $id, $checklistId)
+    {
+        $pjkades = PjKades::withoutGlobalScopes()->findOrFail($id);
+        $checklist = ChecklistPjKades::where('pj_kades_id', $pjkades->id)->findOrFail($checklistId);
+
+        $request->validate([
+            'status_verifikasi' => ['required', 'in:disetujui,ditolak'],
+            'catatan_revisi' => ['nullable', 'string', 'max:500'],
+        ]);
+
+        $checklist->update([
+            'status_verifikasi' => $request->status_verifikasi,
+            'catatan_revisi' => $request->status_verifikasi === 'ditolak' ? $request->catatan_revisi : null,
+        ]);
+
+        $statusText = $request->status_verifikasi === 'disetujui' ? 'disetujui' : 'ditolak (minta revisi)';
+
+        return back()->with('success', "Dokumen {$checklist->nama_dokumen} berhasil {$statusText}.");
+    }
+
+    /**
+     * Penerbitan SK Bupati / Camat & Finalisasi Usulan
      */
     public function generateSk(Request $request, $id)
     {
         $pjkades = PjKades::withoutGlobalScopes()->findOrFail($id);
 
-        $request->validate([
-            'status_bebas_hukdis' => 'required|in:clean,has_issues',
-        ]);
-
-        // ── Tahap 3: Jika PNS bermasalah → Tolak ──
-        if ($request->status_bebas_hukdis === 'has_issues') {
-            $pjkades->update([
-                'status_bebas_hukdis' => 'has_issues',
-                'status' => 'rejected',
+        if ($pjkades->kategori === 'pj_kades') {
+            $request->validate([
+                'status_bebas_hukdis' => 'required|in:clean,has_issues',
             ]);
-            return redirect()->route('admin.pjkades.show', $pjkades)
-                ->with('error', 'PNS sedang menjalani hukuman disiplin. Usulan ditolak, dikembalikan ke Camat.');
+
+            if ($request->status_bebas_hukdis === 'has_issues') {
+                $pjkades->update([
+                    'status_bebas_hukdis' => 'has_issues',
+                    'status' => 'rejected',
+                ]);
+
+                return redirect()->route('admin.pjkades.show', $pjkades)
+                    ->with('error', 'PNS sedang menjalani hukuman disiplin. Usulan Pj Kades ditolak.');
+            }
         }
 
-        // ── Tahap 4: PNS bersih → Validasi SK Bupati + Masa Berlaku ──
         $request->validate([
             'sk_bupati' => 'required|file|mimes:pdf|max:10240',
             'tgl_mulai' => 'required|date',
             'tgl_selesai' => 'required|date|after:tgl_mulai',
         ]);
 
-        // Kunci: Masa jabatan max 1 tahun
         $tglMulai = Carbon::parse($request->tgl_mulai);
         $tglSelesai = Carbon::parse($request->tgl_selesai);
         $maxSelesai = $tglMulai->copy()->addYear();
 
         if ($tglSelesai->greaterThan($maxSelesai)) {
             return back()->withErrors([
-                'tgl_selesai' => 'Masa jabatan Pj Kades tidak boleh lebih dari 1 (satu) tahun sejak tanggal mulai berlaku SK.'
+                'tgl_selesai' => 'Masa berlaku SK tidak boleh lebih dari 1 (satu) tahun sejak tanggal mulai berlaku.',
             ])->withInput();
         }
 
         $skPath = $request->file('sk_bupati')->store('pjkades/sk_bupati', 'public');
+        $isPj = $pjkades->kategori === 'pj_kades';
 
         $pjkades->update([
-            'status_bebas_hukdis' => 'clean',
+            'status_bebas_hukdis' => $isPj ? 'clean' : 'clean',
             'sk_bupati_path' => $skPath,
             'tgl_mulai' => $request->tgl_mulai,
             'tgl_selesai' => $request->tgl_selesai,
@@ -73,23 +104,35 @@ class PjKadesController extends Controller
         ]);
 
         // ── Integrasi Data Master: Sinkronisasi ke perangkat_desas ──
-        // 1. Non-aktifkan Kades lama di desa ini
-        PerangkatDesa::where('desa_id', $pjkades->desa_id)
-            ->where('jabatan', 'Kepala Desa')
-            ->update(['status_aktif' => false]);
+        if ($isPj) {
+            // Non-aktifkan Kades lama di desa ini
+            PerangkatDesa::where('desa_id', $pjkades->desa_id)
+                ->where('jabatan', 'Kepala Desa')
+                ->update(['status_aktif' => false]);
 
-        // 2. Buat/perbarui record Pj Kades sebagai "Kepala Desa" aktif
-        PerangkatDesa::updateOrCreate(
-            ['desa_id' => $pjkades->desa_id, 'jabatan' => 'Kepala Desa'],
-            [
-                'nama' => $pjkades->nama_pns . ' (Pj)',
-                'status_aktif' => true,
-                'tgl_mulai_jabatan' => $request->tgl_mulai,
-                'no_sk_terakhir' => 'SK Bupati Pj Kades #' . $pjkades->id,
-            ]
-        );
+            // Set Pj Kades sebagai Kepala Desa (Pj)
+            PerangkatDesa::updateOrCreate(
+                ['desa_id' => $pjkades->desa_id, 'jabatan' => 'Kepala Desa'],
+                [
+                    'nama' => $pjkades->nama_pns.' (Pj)',
+                    'status_aktif' => true,
+                    'tgl_mulai_jabatan' => $request->tgl_mulai,
+                    'no_sk_terakhir' => 'SK Bupati Pj Kades #'.$pjkades->id,
+                ]
+            );
+        } else {
+            // Plt Kades: update keterangan Plt pada Kades/Sekdes
+            $namaPlt = $pjkades->nama_plt ?? 'Sekdes (Plt)';
+            PerangkatDesa::where('desa_id', $pjkades->desa_id)
+                ->where('jabatan', 'LIKE', '%Sekretaris Desa%')
+                ->update([
+                    'no_sk_terakhir' => 'SK Plt Kades #'.$pjkades->id,
+                ]);
+        }
+
+        $labelSK = $isPj ? 'SK Bupati Pj Kades' : 'SK Bupati/Camat Plt Kades';
 
         return redirect()->route('admin.pjkades.show', $pjkades)
-            ->with('success', 'SK Bupati Pj Kades berhasil diterbitkan. Profil Kepala Desa telah diperbarui di data master.');
+            ->with('success', "{$labelSK} berhasil diterbitkan. Status usulan resmi disetujui.");
     }
 }

@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Models\Scopes\TenantDesaScope;
 use Illuminate\Database\Eloquent\Attributes\ScopedBy;
 use Illuminate\Database\Eloquent\Model;
-use Carbon\Carbon;
 
 #[ScopedBy(TenantDesaScope::class)]
 class PjKades extends Model
@@ -14,20 +13,30 @@ class PjKades extends Model
 
     protected $fillable = [
         'desa_id',
+        'kategori',
+        'alasan_pemberhentian_id',
+        'alasan_nama',
+        'no_registrasi',
         'nama_pns',
         'nip',
         'pangkat',
+        'nama_plt',
+        'nip_plt',
+        'pangkat_plt',
         'surat_camat_path',
         'riwayat_hidup_path',
         'sk_pangkat_path',
         'status_bebas_hukdis',
         'sk_bupati_path',
+        'folder_path',
+        'tgl_diajukan',
         'tgl_mulai',
         'tgl_selesai',
         'status',
     ];
 
     protected $casts = [
+        'tgl_diajukan' => 'date',
         'tgl_mulai' => 'date',
         'tgl_selesai' => 'date',
     ];
@@ -37,13 +46,25 @@ class PjKades extends Model
         return $this->belongsTo(Desa::class);
     }
 
+    public function alasanPemberhentian()
+    {
+        return $this->belongsTo(AlasanPemberhentian::class, 'alasan_pemberhentian_id');
+    }
+
+    public function checklists()
+    {
+        return $this->hasMany(ChecklistPjKades::class, 'pj_kades_id')->orderBy('urutan');
+    }
+
     /**
      * Hitung sisa hari masa jabatan.
      */
     public function getSisaHariAttribute(): ?int
     {
-        if (!$this->tgl_selesai)
+        if (! $this->tgl_selesai) {
             return null;
+        }
+
         return (int) now()->startOfDay()->diffInDays($this->tgl_selesai, false);
     }
 
