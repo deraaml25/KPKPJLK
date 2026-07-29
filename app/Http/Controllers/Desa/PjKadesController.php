@@ -40,29 +40,31 @@ class PjKadesController extends Controller
         $alasanPj = AlasanPemberhentian::whereIn('nama', [
             'Meninggal Dunia',
             'Permintaan Sendiri',
-            'Diberhentikan Dengan Tidak Hormat',
+            'Diberhentikan',
         ])->get();
 
         // Alasan Plt Kades (Sementara / Cuti)
         $alasanPlt = AlasanPemberhentian::whereIn('nama', [
             'Cuti Sakit',
-            'Cuti Umroh / Haji',
+            'Cuti Umroh/Haji',
             'Cuti Tahunan',
             'Cuti Bersalin',
             'Cuti Alasan Penting',
+            'Pemberhentian Sementara (Hukum/Disiplin)',
         ])->get();
 
-        // List Perangkat Desa untuk Opsi Sekdes (Plt)
-        $perangkatDesas = PerangkatDesa::where('desa_id', $desaId)
+        // Ambil data Sekretaris Desa aktif
+        $sekdes = PerangkatDesa::where('desa_id', $desaId)
             ->where('status_aktif', true)
-            ->get();
+            ->where('jabatan', 'Sekretaris Desa')
+            ->first();
 
         return view('desa.pjkades.create', compact(
             'layananPj',
             'layananPlt',
             'alasanPj',
             'alasanPlt',
-            'perangkatDesas'
+            'sekdes'
         ));
     }
 
@@ -72,6 +74,7 @@ class PjKadesController extends Controller
             'metode' => ['required', 'in:online,offline'],
             'kategori' => ['required', 'in:pj_kades,plt_kades'],
             'alasan_pemberhentian_id' => ['required', 'exists:alasan_pemberhentians,id'],
+            'keterangan_cuti' => ['nullable', 'string', 'max:255'],
 
             // Pj Kades Validation
             'nama_pns' => ['required_if:kategori,pj_kades', 'nullable', 'string', 'max:255'],
@@ -108,6 +111,7 @@ class PjKadesController extends Controller
             'kategori' => $kategori,
             'alasan_pemberhentian_id' => $alasan->id,
             'alasan_nama' => $alasan->nama,
+            'keterangan_cuti' => $kategori === 'plt_kades' && $alasan->nama === 'Cuti Alasan Penting' ? $request->keterangan_cuti : null,
             'no_registrasi' => $noRegistrasi,
             'nama_pns' => $kategori === 'pj_kades' ? $request->nama_pns : null,
             'nip' => $kategori === 'pj_kades' ? $request->nip : null,
@@ -199,7 +203,7 @@ class PjKadesController extends Controller
         $isSubmit = $request->has('submit_ajuan');
 
         $request->validate([
-            'berkas_zip' => ['nullable', 'file', 'mimes:zip,rar,pdf,doc,docx', 'max:51200'], // max 50MB
+            'berkas_zip' => ['nullable', 'file', 'mimes:zip,rar,pdf', 'max:51200'], // max 50MB
         ]);
 
         if (!in_array($pjKades->status, ['draft', 'rejected'])) {

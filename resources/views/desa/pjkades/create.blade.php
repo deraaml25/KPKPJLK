@@ -34,8 +34,8 @@
                         :class="metode === 'online' ? 'border-primary bg-primary/5 shadow-sm' : 'border-border hover:border-gray-300'">
                         <input type="radio" name="metode" value="online" x-model="metode" class="text-primary focus:ring-primary w-4 h-4 mr-3">
                         <div>
-                            <span class="block text-sm font-bold text-ink">Online (Unggah ZIP)</span>
-                            <span class="block text-xs text-muted mt-0.5">Unggah seluruh syarat dalam 1 file ZIP di web.</span>
+                            <span class="block text-sm font-bold text-ink">Online</span>
+                            <span class="block text-xs text-muted mt-0.5">Unggah seluruh syarat dokumen di web.</span>
                         </div>
                     </label>
                     <label class="relative flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all"
@@ -66,10 +66,10 @@
                             </span>
                             <input type="radio" name="kategori" value="pj_kades" x-model="kategori" class="text-primary focus:ring-primary">
                         </div>
-                        <p class="text-xs text-muted mb-2">Pemberhentian Kades secara permanen (Meninggal Dunia, Permintaan Sendiri, atau Diberhentikan Tidak Hormat).</p>
+
                         <div class="mt-auto pt-2 border-t border-gray-200/60">
                             <span class="text-[11px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">
-                                Pengganti: Penjabat (Pj) Kades — Unsur PNS
+                                Pengganti: Penjabat (Pj) Kades — Unsur ASN
                             </span>
                         </div>
                     </label>
@@ -86,7 +86,7 @@
                             </span>
                             <input type="radio" name="kategori" value="plt_kades" x-model="kategori" class="text-amber-600 focus:ring-amber-500">
                         </div>
-                        <p class="text-xs text-muted mb-2">Pemberhentian Kades bersifat sementara atau dalam masa cuti (Hukdis, Sakit, Umroh/Haji, Tahunan, Bersalin, Alasan Penting).</p>
+
                         <div class="mt-auto pt-2 border-t border-gray-200/60">
                             <span class="text-[11px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">
                                 Pengganti: Pelaksana Tugas (Plt) Kades — Sekdes
@@ -108,19 +108,31 @@
                                 <option value="{{ $alasan->id }}">{{ $alasan->nama }}</option>
                             @endforeach
                         </select>
-                        <p class="text-xs text-muted mt-2">Daftar checklist berkas otomatis mencakup: <strong>Dokumen Pemberhentian Kades (sesuai alasan) + 14 Dokumen Persyaratan Pj Kades PNS</strong>.</p>
+                        <p class="text-xs text-muted mt-2">Daftar checklist berkas otomatis mencakup: <strong>Dokumen Pemberhentian Kades (sesuai alasan) + 14 Dokumen Persyaratan Pj Kades ASN</strong>.</p>
                     </div>
                 </template>
 
                 {{-- Alasan untuk Pemberhentian Sementara / Cuti (Plt Kades) --}}
                 <template x-if="kategori === 'plt_kades'">
                     <div>
-                        <select name="alasan_pemberhentian_id" class="w-full text-sm rounded-md border-border text-ink bg-white focus:border-amber-500 focus:ring-amber-500 shadow-sm" required>
+                        @php
+                            $idAlasanPenting = $alasanPlt->where('nama', 'Cuti Alasan Penting')->first()->id ?? null;
+                        @endphp
+                        <select name="alasan_pemberhentian_id" x-model="alasanPltId" class="w-full text-sm rounded-md border-border text-ink bg-white focus:border-amber-500 focus:ring-amber-500 shadow-sm" required>
                             @foreach ($alasanPlt as $alasan)
                                 <option value="{{ $alasan->id }}">{{ $alasan->nama }}</option>
                             @endforeach
                         </select>
                         <p class="text-xs text-muted mt-2">Daftar checklist berkas otomatis mencakup: <strong>Dokumen Khusus Alasan Cuti/Sementara + 6 Dokumen Pendukung Plt Sekdes</strong>.</p>
+                        
+                        <template x-if="alasanPltId == '{{ $idAlasanPenting }}'">
+                            <div class="mt-4">
+                                <label for="keterangan_cuti" class="block text-sm font-bold text-ink mb-1">Keterangan Alasan Penting <span class="text-red-500">*</span></label>
+                                <input type="text" name="keterangan_cuti" id="keterangan_cuti" required
+                                    class="w-full text-sm rounded-md border-border text-ink bg-white focus:border-amber-500 focus:ring-amber-500 shadow-sm"
+                                    placeholder="Contoh: Ada keluarga meninggal, berangkat Umroh/Haji, dll.">
+                            </div>
+                        </template>
                     </div>
                 </template>
             </div>
@@ -128,7 +140,7 @@
             {{-- STEP 3: Data Pengganti (Pj Kades PNS vs Plt Kades Sekdes) --}}
             <div class="mb-6">
                 <h3 class="text-sm font-bold text-ink uppercase tracking-wider mb-3 border-t border-border pt-4">
-                    3. Data Pengganti Kades (<span x-text="kategori === 'pj_kades' ? 'Penjabat Pj Kades - PNS' : 'Pelaksana Tugas Plt Kades - Sekdes'"></span>)
+                    3. Data Pengganti Kades (<span x-text="kategori === 'pj_kades' ? 'Penjabat Pj Kades - ASN' : 'Pelaksana Tugas Plt Kades - Sekdes'"></span>)
                 </h3>
 
                 {{-- Data Pj Kades (PNS) --}}
@@ -136,13 +148,13 @@
                     <div class="space-y-4">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label for="nama_pns" class="block text-sm font-medium text-ink mb-1">Nama Lengkap PNS Calon Pj Kades <span class="text-red-500">*</span></label>
+                                <label for="nama_pns" class="block text-sm font-medium text-ink mb-1">Nama Lengkap ASN Calon Pj Kades <span class="text-red-500">*</span></label>
                                 <input type="text" name="nama_pns" id="nama_pns" required value="{{ old('nama_pns') }}"
                                     class="w-full text-sm rounded-md border-border text-ink bg-white focus:border-primary focus:ring-primary shadow-sm"
                                     placeholder="Nama beserta Gelar">
                             </div>
                             <div>
-                                <label for="nip" class="block text-sm font-medium text-ink mb-1">NIP PNS <span class="text-red-500">*</span></label>
+                                <label for="nip" class="block text-sm font-medium text-ink mb-1">NIP ASN <span class="text-red-500">*</span></label>
                                 <input type="text" name="nip" id="nip" required value="{{ old('nip') }}"
                                     class="w-full text-sm rounded-md border-border text-ink bg-white focus:border-primary focus:ring-primary shadow-sm"
                                     placeholder="1980xxxxxxxxxxxxxx">
@@ -162,28 +174,16 @@
                 <template x-if="kategori === 'plt_kades'">
                     <div class="space-y-4">
                         <div>
-                            <label for="nama_plt" class="block text-sm font-medium text-ink mb-1">Nama Sekretaris Desa (Calon Plt Kades) <span class="text-red-500">*</span></label>
-                            <select name="nama_plt" id="nama_plt" class="w-full text-sm rounded-md border-border text-ink bg-white focus:border-amber-500 focus:ring-amber-500 shadow-sm" required>
-                                <option value="">-- Pilih Sekretaris Desa --</option>
-                                @foreach($perangkatDesas as $p)
-                                    <option value="{{ $p->nama }}">{{ $p->nama }} ({{ $p->jabatan }})</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label for="nip_plt" class="block text-sm font-medium text-ink mb-1">NIP / NIPD Sekdes (Opsional)</label>
-                                <input type="text" name="nip_plt" id="nip_plt" value="{{ old('nip_plt') }}"
-                                    class="w-full text-sm rounded-md border-border text-ink bg-white focus:border-amber-500 focus:ring-amber-500 shadow-sm"
-                                    placeholder="Nomor Induk Perangkat Desa">
-                            </div>
-                            <div>
-                                <label for="pangkat_plt" class="block text-sm font-medium text-ink mb-1">Jabatan (Opsional)</label>
-                                <input type="text" name="pangkat_plt" id="pangkat_plt" value="{{ old('pangkat_plt') }}"
-                                    class="w-full text-sm rounded-md border-border text-ink bg-white focus:border-amber-500 focus:ring-amber-500 shadow-sm"
-                                    placeholder="Sekretaris Desa">
-                            </div>
+                            <label for="nama_plt" class="block text-sm font-bold text-ink mb-1">Nama Sekretaris Desa (Calon Plt Kades) <span class="text-red-500">*</span></label>
+                            @if($sekdes)
+                                <input type="text" name="nama_plt" id="nama_plt" value="{{ $sekdes->nama }}" readonly
+                                    class="w-full text-sm rounded-md border-border bg-gray-100 text-gray-500 cursor-not-allowed focus:border-amber-500 focus:ring-amber-500 shadow-sm">
+                                <p class="text-xs text-muted mt-2">Sistem otomatis mengambil nama Sekretaris Desa aktif.</p>
+                            @else
+                                <div class="p-3 bg-red-50 text-red-600 rounded-md border border-red-200 text-sm">
+                                    Data Sekretaris Desa belum terdaftar atau tidak aktif di menu Data Perangkat Desa.
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </template>

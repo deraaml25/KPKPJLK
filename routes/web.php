@@ -210,6 +210,10 @@ Route::middleware(['auth', 'role:desa'])->prefix('desa')->name('desa.')->group(f
     Route::put('/bpd/{bpd}', [BpdController::class, 'update'])->name('bpd.update');
     Route::delete('/bpd/{bpd}', [BpdController::class, 'destroy'])->name('bpd.destroy');
     Route::patch('/bpd/{bpd}/activate', [BpdController::class, 'activate'])->name('bpd.activate');
+
+    Route::resource('ajuan-bpd', \App\Http\Controllers\Desa\AjuanBpdController::class);
+    Route::post('ajuan-bpd/{ajuanBpd}/upload/{checklist}', [\App\Http\Controllers\Desa\AjuanBpdController::class, 'uploadDokumen'])->name('ajuan-bpd.upload');
+    Route::post('ajuan-bpd/{ajuanBpd}/bulk-upload', [\App\Http\Controllers\Desa\AjuanBpdController::class, 'bulkUpload'])->name('ajuan-bpd.bulkUpload');
 });
 
 // Admin Dinpermasdes Routes
@@ -223,8 +227,22 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
     Route::post('/ajuan/{ajuan}/update-catatan', [AdminAjuanController::class, 'updateCatatanAdmin'])->name('ajuan.update-catatan');
     Route::post('/ajuan/{ajuan}/disposisi', [AdminAjuanController::class, 'updateDisposisi'])->name('ajuan.disposisi');
 
-    Route::get('/perangkat', [PerangkatController::class, 'index'])->name('perangkat.index');
-    Route::get('/bpd', [App\Http\Controllers\Admin\BpdController::class, 'index'])->name('bpd.index');
+    // Modul Data Master (Admin Verification)
+    Route::get('/perangkat', [App\Http\Controllers\Admin\VerifikasiPerangkatController::class, 'index'])->name('perangkat.index');
+    Route::post('/perangkat/{id}/approve', [App\Http\Controllers\Admin\VerifikasiPerangkatController::class, 'approve'])->name('perangkat.approve');
+    Route::post('/perangkat/{id}/reject', [App\Http\Controllers\Admin\VerifikasiPerangkatController::class, 'reject'])->name('perangkat.reject');
+
+    Route::get('/bpd', [App\Http\Controllers\Admin\VerifikasiBpdController::class, 'index'])->name('bpd.index');
+    Route::post('/bpd/{id}/approve', [App\Http\Controllers\Admin\VerifikasiBpdController::class, 'approve'])->name('bpd.approve');
+    Route::post('/bpd/{id}/reject', [App\Http\Controllers\Admin\VerifikasiBpdController::class, 'reject'])->name('bpd.reject');
+    
+    // Ajuan BPD
+    Route::get('/ajuan-bpd', [App\Http\Controllers\Admin\AjuanBpdController::class, 'index'])->name('ajuan-bpd.index');
+    Route::get('/ajuan-bpd/{ajuanBpd}', [App\Http\Controllers\Admin\AjuanBpdController::class, 'show'])->name('ajuan-bpd.show');
+    Route::post('/ajuan-bpd/{ajuanBpd}/verify-checklist/{checklist}', [App\Http\Controllers\Admin\AjuanBpdController::class, 'verifyChecklist'])->name('ajuan-bpd.verify-checklist');
+    Route::post('/ajuan-bpd/{ajuanBpd}/catatan', [App\Http\Controllers\Admin\AjuanBpdController::class, 'updateCatatanAdmin'])->name('ajuan-bpd.catatan');
+    Route::post('/ajuan-bpd/{ajuanBpd}/disposisi', [App\Http\Controllers\Admin\AjuanBpdController::class, 'updateDisposisi'])->name('ajuan-bpd.disposisi');
+
     Route::get('/penataan', [PenataanController::class, 'index'])->name('penataan.index');
 });
 

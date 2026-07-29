@@ -9,8 +9,9 @@
         // ['route' => 'desa.drive.index', 'icon' => 'cloud_circle', 'text' => 'Drive Dokumen', 'active' => request()->routeIs('desa.drive.*')],
         ['route' => 'desa.arsip.index', 'icon' => 'archive', 'text' => 'Arsip Rekomendasi', 'active' => request()->routeIs('desa.arsip.*')],
 
-        ['route' => 'desa.perangkat.index', 'icon' => 'badge', 'text' => 'Data Perangkat Desa', 'active' => request()->routeIs('desa.perangkat.*')],
+        ['route' => 'desa.perangkat.index', 'icon' => 'badge', 'text' => 'Data Kepala dan Perangkat Desa', 'active' => request()->routeIs('desa.perangkat.*')],
         ['route' => 'desa.bpd.index', 'icon' => 'groups', 'text' => 'Data BPD', 'active' => request()->routeIs('desa.bpd.*')],
+        ['route' => 'desa.ajuan-bpd.index', 'icon' => 'post_add', 'text' => 'Ajuan BPD', 'active' => request()->routeIs('desa.ajuan-bpd.*')],
 
     ];
 @endphp

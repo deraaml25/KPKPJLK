@@ -10,9 +10,7 @@
 
         <div class="relative z-10">
             <h2 class="text-2xl font-display font-bold mb-2">Selamat Datang, {{ auth()->user()->name }}!</h2>
-            <p class="text-primary-soft mb-6 max-w-2xl">Kelola data perangkat desa dan pantau status ajuan rekomendasi
-                penerbitan SK Kepala Desa secara real-time. Anda tidak perlu lagi datang atau menelepon untuk menanyakan
-                progres.</p>
+            <p class="text-primary-soft mb-6 max-w-2xl">Kelola data desa dan pantau status ajuan rekomendasi penerbitan SK secara real-time.</p>
 
             <a href="{{ route('desa.ajuan.create') }}"
                 class="inline-flex items-center px-6 py-3 bg-white text-primary font-medium rounded-btn hover:bg-gray-50 transition-colors shadow-sm">

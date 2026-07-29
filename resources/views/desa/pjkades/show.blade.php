@@ -150,8 +150,8 @@
 
                         @if($pjkades->metode === 'online' && in_array($pjkades->status, ['draft', 'rejected']))
                         <div class="px-6 py-6 bg-white border-t border-border">
-                            <label class="block text-sm font-medium text-ink mb-2">Unggah Keseluruhan Persyaratan (.ZIP / .RAR / .PDF / .DOC / .DOCX)</label>
-                            <input type="file" name="berkas_zip" accept=".zip,.rar,.pdf,.doc,.docx" 
+                            <label class="block text-sm font-medium text-ink mb-2">Unggah Keseluruhan Persyaratan (.ZIP / .RAR / .PDF)</label>
+                            <input type="file" name="berkas_zip" accept=".zip,.rar,.pdf" 
                                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary-light file:cursor-pointer cursor-pointer focus:outline-none border border-border rounded-md p-2">
                             @if($pjkades->berkas_zip)
                                 <div class="mt-3 text-sm text-success flex items-center">

@@ -48,12 +48,13 @@ class PerangkatController extends Controller
 
         // Mencegah manipulasi desa_id, dipaksa sesuai auth desa
         $validated['desa_id'] = auth()->user()->desa_id;
-        $validated['status_aktif'] = true;
+        $validated['status_aktif'] = false;
+        $validated['status_verifikasi'] = 'pending_tambah';
 
         PerangkatDesa::create($validated);
 
         return redirect()->route('desa.perangkat.index')
-            ->with('success', 'Data perangkat desa berhasil ditambahkan.');
+            ->with('success', 'Usulan penambahan perangkat desa berhasil dikirim dan menunggu verifikasi admin.');
     }
 
     public function edit(PerangkatDesa $perangkat)
@@ -70,31 +71,38 @@ class PerangkatController extends Controller
         // Hanya update field administratif.
         // Kita tidak memperbarui desa_id atau id
         $perangkat->update([
-            'nama' => $validated['nama'],
-            'jabatan' => $validated['jabatan'],
-            'no_sk_terakhir' => $validated['no_sk_terakhir'],
-            'tgl_mulai_jabatan' => $validated['tgl_mulai_jabatan'],
+            'status_verifikasi' => 'pending_ubah',
+            'draft_perubahan' => [
+                'nama' => $validated['nama'],
+                'jabatan' => $validated['jabatan'],
+                'no_sk_terakhir' => $validated['no_sk_terakhir'],
+                'tgl_mulai_jabatan' => $validated['tgl_mulai_jabatan'],
+            ]
         ]);
 
         return redirect()->route('desa.perangkat.index')
-            ->with('success', 'Data perangkat desa berhasil diperbarui.');
+            ->with('success', 'Usulan perubahan data perangkat desa berhasil dikirim dan menunggu verifikasi admin.');
     }
 
     public function destroy(PerangkatDesa $perangkat)
     {
         // Alih-alih hard delete, kita lakukan soft delete flag.
         // Ini menjaga integritas data riwayat jika digunakan untuk pendaftaran dsb.
-        $perangkat->update(['status_aktif' => false]);
+        $perangkat->update([
+            'status_verifikasi' => 'pending_nonaktif'
+        ]);
 
         return redirect()->route('desa.perangkat.index')
-            ->with('success', 'Perangkat desa berhasil dinonaktifkan.');
+            ->with('success', 'Usulan penonaktifan perangkat desa berhasil dikirim dan menunggu verifikasi admin.');
     }
 
     public function activate(PerangkatDesa $perangkat)
     {
-        $perangkat->update(['status_aktif' => true]);
+        $perangkat->update([
+            'status_verifikasi' => 'pending_aktif'
+        ]);
 
         return redirect()->route('desa.perangkat.index')
-            ->with('success', 'Perangkat desa berhasil diaktifkan kembali.');
+            ->with('success', 'Usulan pengaktifan kembali perangkat desa berhasil dikirim dan menunggu verifikasi admin.');
     }
 }

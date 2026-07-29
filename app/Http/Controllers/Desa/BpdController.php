@@ -40,12 +40,13 @@ class BpdController extends Controller
     {
         $validated = $request->validated();
         $validated['desa_id'] = auth()->user()->desa_id;
-        $validated['status_aktif'] = true;
+        $validated['status_aktif'] = false;
+        $validated['status_verifikasi'] = 'pending_tambah';
 
         Bpd::create($validated);
 
         return redirect()->route('desa.bpd.index')
-            ->with('success', 'Data BPD berhasil ditambahkan.');
+            ->with('success', 'Usulan penambahan data BPD berhasil dikirim dan menunggu verifikasi admin.');
     }
 
     public function edit(Bpd $bpd)
@@ -57,28 +58,35 @@ class BpdController extends Controller
     {
         $validated = $request->validated();
         $bpd->update([
-            'nama' => $validated['nama'],
-            'jabatan' => $validated['jabatan'],
-            'no_sk_terakhir' => $validated['no_sk_terakhir'],
-            'tgl_mulai_jabatan' => $validated['tgl_mulai_jabatan'],
+            'status_verifikasi' => 'pending_ubah',
+            'draft_perubahan' => [
+                'nama' => $validated['nama'],
+                'jabatan' => $validated['jabatan'],
+                'no_sk_terakhir' => $validated['no_sk_terakhir'],
+                'tgl_mulai_jabatan' => $validated['tgl_mulai_jabatan'],
+            ]
         ]);
 
         return redirect()->route('desa.bpd.index')
-            ->with('success', 'Data BPD berhasil diperbarui.');
+            ->with('success', 'Usulan perubahan data BPD berhasil dikirim dan menunggu verifikasi admin.');
     }
 
     public function destroy(Bpd $bpd)
     {
-        $bpd->update(['status_aktif' => false]);
+        $bpd->update([
+            'status_verifikasi' => 'pending_nonaktif'
+        ]);
         return redirect()->route('desa.bpd.index')
-            ->with('success', 'Bpd desa berhasil dinonaktifkan.');
+            ->with('success', 'Usulan penonaktifan BPD berhasil dikirim dan menunggu verifikasi admin.');
     }
 
     public function activate(Bpd $bpd)
     {
-        $bpd->update(['status_aktif' => true]);
+        $bpd->update([
+            'status_verifikasi' => 'pending_aktif'
+        ]);
 
         return redirect()->route('desa.bpd.index')
-            ->with('success', 'BPD berhasil diaktifkan kembali.');
+            ->with('success', 'Usulan pengaktifan kembali BPD berhasil dikirim dan menunggu verifikasi admin.');
     }
 }

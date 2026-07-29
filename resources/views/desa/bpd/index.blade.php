@@ -48,15 +48,23 @@
                         <div class="w-[72px] h-[72px] rounded-full bg-slate-200 flex flex-shrink-0 items-center justify-center overflow-hidden">
                             <svg class="w-12 h-12 text-slate-400 mt-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
                         </div>
-                        @if($row->status_aktif)
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-50 text-green-600 border border-green-200/80">
-                                <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-2"></span> Aktif
-                            </span>
-                        @else
-                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-600 border border-red-200/80">
-                                <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-2"></span> Nonaktif
-                            </span>
-                        @endif
+                        <div class="flex flex-col items-end gap-1">
+                            @if($row->status_aktif)
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-50 text-green-600 border border-green-200/80">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-2"></span> Aktif
+                                </span>
+                            @else
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-600 border border-red-200/80">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-2"></span> Nonaktif
+                                </span>
+                            @endif
+
+                            @if(str_starts_with($row->status_verifikasi, 'pending'))
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200 uppercase">
+                                    Menunggu Verifikasi
+                                </span>
+                            @endif
+                        </div>
                     </div>
                     
                     <div class="flex-1 flex flex-col justify-end">

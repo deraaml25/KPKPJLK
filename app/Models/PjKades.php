@@ -17,6 +17,7 @@ class PjKades extends Model
         'alasan_pemberhentian_id',
         'alasan_nama',
         'no_registrasi',
+        'keterangan_cuti',
         'nama_pns',
         'nip',
         'pangkat',

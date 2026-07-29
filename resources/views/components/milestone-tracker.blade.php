@@ -66,15 +66,29 @@
                             Berjalan</span>
                     @endif
 
-                    @if($milestoneData && $milestoneData['tgl_selesai'])
-                        <div class="mt-1 text-xs text-muted flex items-center">
-                            <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                </path>
-                            </svg>
-                            {{ \Carbon\Carbon::parse($milestoneData['tgl_selesai'])->format('d M Y') }}
-                        </div>
+                    @if($milestoneData)
+                        @if($milestoneData['tgl_selesai'])
+                            <div class="mt-1 text-xs text-muted flex items-center">
+                                <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                                {{ \Carbon\Carbon::parse($milestoneData['tgl_selesai'])->format('d M Y') }}
+                            </div>
+                        @elseif($milestoneData['tgl_mulai'] || isset($milestoneData['created_at']))
+                            @php
+                                $dateToDisplay = $milestoneData['tgl_mulai'] ?? $milestoneData['created_at'];
+                            @endphp
+                            <div class="mt-1 text-xs text-muted flex items-center">
+                                <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                    </path>
+                                </svg>
+                                Mulai: {{ \Carbon\Carbon::parse($dateToDisplay)->format('d M Y') }}
+                            </div>
+                        @endif
                     @endif
 
                     @if($milestoneData && $milestoneData['catatan'])

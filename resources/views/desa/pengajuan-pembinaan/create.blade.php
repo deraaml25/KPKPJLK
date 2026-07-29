@@ -13,7 +13,7 @@
                 </a>
                 <h2 class="text-xl font-display font-bold text-ink">Ajukan Permohonan Pembinaan</h2>
                 <p class="text-muted text-sm mt-1">
-                    Kirim permohonan pembinaan / narasumber ke Dinpermasdes. Upload surat permohonan dan surat undangan sebagai persyaratan.
+                    Kirim permohonan pembinaan / narasumber ke Dinpermasdes. Upload surat permohonan atau surat undangan sebagai persyaratan.
                 </p>
             </div>
 
@@ -69,10 +69,10 @@
                         <div>
                             <label for="file_surat_permohonan" class="block text-sm font-medium text-ink mb-1">
                                 Surat Permohonan / Undangan Narasumber
-                                <span class="text-xs text-muted font-normal">(PDF/DOC, maks 10MB)</span>
+                                <span class="text-xs text-muted font-normal">(PDF, maks 10MB)</span>
                             </label>
                             <input type="file" name="file_surat_permohonan" id="file_surat_permohonan"
-                                accept=".pdf,.doc,.docx"
+                                accept=".pdf"
                                 class="w-full rounded-md border-border bg-white text-ink text-sm p-1.5" required>
                             <p class="text-xs text-blue-600 mt-1">
                                 Surat resmi dari Kepala Desa yang ditujukan kepada Kepala Dinpermasdes.

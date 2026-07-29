@@ -12,7 +12,9 @@ class PerangkatDesa extends Model
         'jabatan',
         'no_sk_terakhir',
         'tgl_mulai_jabatan',
-        'status_aktif'
+        'status_aktif',
+        'status_verifikasi',
+        'draft_perubahan',
     ];
 
     protected static function booted()
@@ -23,6 +25,7 @@ class PerangkatDesa extends Model
     protected $casts = [
         'status_aktif' => 'boolean',
         'tgl_mulai_jabatan' => 'date',
+        'draft_perubahan' => 'array',
     ];
 
     public function desa()

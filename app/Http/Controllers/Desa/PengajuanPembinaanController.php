@@ -31,8 +31,8 @@ class PengajuanPembinaanController extends Controller
             'judul_kegiatan' => 'required|string|max:255',
             'deskripsi' => 'nullable|string',
             'tanggal_diajukan' => 'required|date',
-            'file_surat_permohonan' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
-            'file_undangan' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
+            'file_surat_permohonan' => 'nullable|file|mimes:pdf|max:10240',
+            'file_undangan' => 'nullable|file|mimes:pdf|max:10240',
         ]);
 
         $data = [

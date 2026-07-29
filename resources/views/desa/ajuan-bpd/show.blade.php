@@ -1,18 +1,11 @@
 <x-app-layout>
-    @section('title', 'Detail Ajuan: ' . $ajuan->no_registrasi)
+    @section('title', 'Detail Ajuan BPD: ' . $ajuanBpd->no_registrasi)
 
     <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
-        <a href="{{ route('desa.ajuan.index') }}" class="inline-flex items-center text-sm font-medium text-muted hover:text-ink">
+        <a href="{{ route('desa.ajuan-bpd.index') }}" class="inline-flex items-center text-sm font-medium text-muted hover:text-ink">
             <svg class="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
             Kembali ke Daftar Ajuan
         </a>
-        @if($ajuan->status === 'selesai' && $ajuan->arsipRekom)
-            <a href="{{ Storage::disk('public')->url($ajuan->arsipRekom->file_path) }}" target="_blank"
-               class="inline-flex items-center px-4 py-2 bg-success text-white text-sm font-medium rounded-btn hover:bg-green-700 transition-colors shadow-sm">
-                <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                Unduh Surat Rekomendasi
-            </a>
-        @endif
     </div>
 
     @if(session('success'))
@@ -34,13 +27,12 @@
 
             {{-- Header Card --}}
             @php
-                $statusBadge = match($ajuan->status) {
-                    'submitted' => ['label' => 'Menunggu Verifikasi', 'css' => 'bg-blue-500 text-white'],
-                    'direvisi'  => ['label' => 'Perlu Perbaikan Dokumen', 'css' => 'bg-red-500 text-white'],
-                    'diproses'  => ['label' => 'Sedang Diproses', 'css' => 'bg-yellow-400 text-yellow-900'],
-                    'selesai'   => ['label' => 'Selesai - Rekomendasi Terbit', 'css' => 'bg-green-500 text-white'],
+                $statusBadge = match($ajuanBpd->status) {
                     'draft'     => ['label' => 'Draft', 'css' => 'bg-gray-400 text-white'],
-                    default     => ['label' => $ajuan->status, 'css' => 'bg-gray-400 text-white'],
+                    'revisi'    => ['label' => 'Perlu Perbaikan', 'css' => 'bg-red-500 text-white'],
+                    'diproses'  => ['label' => 'Sedang Diproses', 'css' => 'bg-yellow-400 text-yellow-900'],
+                    'selesai'   => ['label' => 'Selesai', 'css' => 'bg-green-500 text-white'],
+                    default     => ['label' => $ajuanBpd->status, 'css' => 'bg-gray-400 text-white'],
                 };
             @endphp
 
@@ -48,13 +40,11 @@
                 <div class="absolute -top-10 -right-10 w-40 h-40 bg-white opacity-5 rounded-full blur-xl"></div>
                 <div class="flex flex-wrap justify-between items-start gap-3 mb-5">
                     <div>
-                        <p class="text-xs font-mono text-primary-soft tracking-widest mb-1">{{ $ajuan->no_registrasi }} &bull; Metode: <span class="font-bold uppercase">{{ $ajuan->metode }}</span></p>
-                        <h2 class="text-xl font-display font-bold">Ajuan {{ $ajuan->jenisLayanan->nama }}</h2>
+                        <p class="text-xs font-mono text-primary-soft tracking-widest mb-1">{{ $ajuanBpd->no_registrasi }} &bull; Metode: <span class="font-bold uppercase">{{ $ajuanBpd->metode }}</span></p>
+                        <h2 class="text-xl font-display font-bold">Ajuan BPD: {{ ucfirst($ajuanBpd->jenis_ajuan) }}</h2>
                         <div class="mt-2 text-sm text-primary-soft space-y-1 max-h-32 overflow-y-auto custom-scrollbar pr-2">
-                            @foreach($ajuan->pesertas as $index => $peserta)
-                                <p>{{ $index + 1 }}. {{ $peserta->perangkatDesa->nama }} ({{ $peserta->perangkatDesa->jabatan }}) 
-                                   @if($peserta->jabatan_baru) <br><span class="opacity-80 text-xs ml-3 font-semibold text-white">↳ Rotasi ke: {{ $peserta->jabatan_baru }}</span> @endif
-                                </p>
+                            @foreach($ajuanBpd->pesertas as $index => $peserta)
+                                <p>{{ $index + 1 }}. {{ $peserta->bpd->nama }} ({{ $peserta->bpd->jabatan }})</p>
                             @endforeach
                         </div>
                     </div>
@@ -62,53 +52,49 @@
                         {{ $statusBadge['label'] }}
                     </span>
                 </div>
-                <div class="grid grid-cols-2 md:grid-cols-3 gap-3 bg-black/10 rounded-xl p-4 border border-white/10">
+                <div class="grid grid-cols-2 md:grid-cols-2 gap-3 bg-black/10 rounded-xl p-4 border border-white/10">
                     <div>
                         <p class="text-xs text-primary-soft mb-0.5">Tgl Diajukan</p>
-                        <p class="font-semibold text-sm">{{ $ajuan->tgl_diajukan ? $ajuan->tgl_diajukan->format('d M Y') : '-' }}</p>
+                        <p class="font-semibold text-sm">{{ $ajuanBpd->created_at ? $ajuanBpd->created_at->format('d M Y') : '-' }}</p>
                     </div>
-                    <div>
-                        <p class="text-xs text-primary-soft mb-0.5">Target SLA (20 HK)</p>
-                        <p class="font-semibold text-sm">{{ $ajuan->tgl_sla_batas ? $ajuan->tgl_sla_batas->format('d M Y') : '-' }}</p>
-                    </div>
-                    @if($ajuan->alasanPemberhentian)
+                    @if($ajuanBpd->alasanPemberhentian)
                     <div>
                         <p class="text-xs text-primary-soft mb-0.5">Alasan</p>
-                        <p class="font-semibold text-sm">{{ $ajuan->alasanPemberhentian->nama }}</p>
+                        <p class="font-semibold text-sm">{{ $ajuanBpd->alasanPemberhentian->nama }}</p>
                     </div>
                     @endif
                 </div>
             </div>
 
             {{-- Dokumen Persyaratan --}}
-            <div class="bg-surface rounded-card border border-border shadow-sm overflow-hidden" x-data="{ isSubmitting: false }">
-                <form method="POST" action="{{ route('desa.ajuan.bulk-upload', $ajuan) }}" enctype="multipart/form-data" @submit="isSubmitting = true">
+            <div class="bg-surface rounded-card border border-border shadow-sm overflow-hidden mt-6" x-data="{ isSubmitting: false }">
+                <form method="POST" action="{{ route('desa.ajuan-bpd.bulkUpload', $ajuanBpd->id) }}" enctype="multipart/form-data" @submit="isSubmitting = true">
                     @csrf
                     <div class="px-6 py-4 border-b border-border bg-gray-50 flex flex-wrap justify-between items-center gap-3">
                         <div>
-                            <h3 class="text-base font-display font-semibold text-ink">Checklist Berkas Persyaratan ({{ $ajuan->checklistAjuans->count() }} item)</h3>
+                            <h3 class="text-base font-display font-semibold text-ink">Daftar Dokumen Persyaratan & Checklist</h3>
                             <p class="text-xs text-muted mt-0.5">Unggah dokumen sesuai persyaratan.</p>
                         </div>
                     </div>
 
                     <div class="divide-y divide-border">
-                        @forelse($ajuan->checklistAjuans->sortBy('templateChecklist.urutan') as $item)
+                        @forelse($ajuanBpd->checklists->sortBy('templateChecklist.urutan') as $item)
                             <div class="px-6 py-4 flex flex-col lg:flex-row lg:items-center justify-between hover:bg-gray-50 transition-colors gap-4">
                                 <div class="flex items-start lg:items-center gap-3 flex-1 pr-4">
                                     <span class="font-medium text-ink flex-shrink-0">{{ $item->templateChecklist->urutan }}.</span>
-                                    <span class="text-sm text-ink">{{ $item->templateChecklist->nama_dokumen }}</span>
-                                    @if($item->templateChecklist->wajib && !in_array(strtolower($ajuan->jenisLayanan->nama), ['rotasi', 'pengangkatan']))
-                                        <span class="text-danger text-xs font-bold flex-shrink-0">*</span>
+                                    <span class="text-sm text-ink font-bold">{{ $item->templateChecklist->nama_dokumen }}</span>
+                                    @if($item->templateChecklist->wajib)
+                                        <span class="text-danger text-xs font-bold flex-shrink-0">*WAJIB</span>
                                     @endif
                                 </div>
                                 
                                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 lg:gap-4 flex-shrink-0">
-                                    @if($item->status === 'lengkap' || $item->status === 'valid')
+                                    @if($item->status == 'terverifikasi')
                                         <div class="flex items-center text-success text-sm font-medium whitespace-nowrap">
                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                             Memenuhi
                                         </div>
-                                    @elseif(in_array($item->status, ['kurang', 'tidak_sesuai']))
+                                    @elseif($item->status == 'ditolak')
                                         <div class="flex items-center text-danger text-sm font-medium whitespace-nowrap">
                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                                             Tidak Memenuhi
@@ -119,7 +105,7 @@
                                 </div>
                             </div>
 
-                            @if($item->catatan && in_array($item->status, ['kurang', 'tidak_sesuai']))
+                            @if($item->catatan && $item->status == 'ditolak')
                                 <div class="px-6 py-2 bg-red-50 text-xs text-red-800 border-b border-border">
                                     <strong class="font-semibold">Catatan Perbaikan:</strong> {{ $item->catatan }}
                                 </div>
@@ -129,28 +115,28 @@
                         @endforelse
                     </div>
 
-                    @if($ajuan->metode === 'online' && auth()->user()->can('update', $ajuan))
+                    @if($ajuanBpd->metode === 'online' && in_array($ajuanBpd->status, ['draft', 'revisi']))
                     <div class="px-6 py-6 bg-white border-t border-border">
                         <label class="block text-sm font-medium text-ink mb-2">Unggah Keseluruhan Persyaratan (.ZIP / .RAR / .PDF)</label>
                         <input type="file" name="berkas_zip" accept=".zip,.rar,.pdf" 
                                class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary-light file:cursor-pointer cursor-pointer focus:outline-none border border-border rounded-md p-2">
-                        @if($ajuan->berkas_zip)
+                        @if($ajuanBpd->berkas_zip)
                             <div class="mt-3 text-sm text-success flex items-center">
                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                Berkas telah diunggah. <a href="{{ Storage::disk('public')->url($ajuan->berkas_zip) }}" target="_blank" class="ml-2 underline text-primary">Unduh / Lihat</a>
+                                Berkas telah diunggah. <a href="{{ Storage::disk('public')->url($ajuanBpd->berkas_zip) }}" target="_blank" class="ml-2 underline text-primary">Unduh / Lihat</a>
                             </div>
                         @endif
                     </div>
                     @endif
 
-                    @if($ajuan->catatan_admin)
+                    @if($ajuanBpd->catatan_admin)
                     <div class="px-6 py-5 bg-yellow-50 border-t border-yellow-200 text-yellow-900 text-sm">
                         <strong class="block mb-1 font-bold">Catatan dari Admin:</strong>
-                        <p class="whitespace-pre-line">{{ $ajuan->catatan_admin }}</p>
+                        <p class="whitespace-pre-line">{{ $ajuanBpd->catatan_admin }}</p>
                     </div>
                     @endif
 
-                    @can('update', $ajuan)
+                    @if(in_array($ajuanBpd->status, ['draft', 'revisi']))
                     <div class="px-6 py-5 bg-gray-50 border-t border-border flex flex-wrap items-center justify-end gap-3">
                         <button type="submit" name="simpan_draft" value="1" 
                                 :disabled="isSubmitting"
@@ -171,18 +157,36 @@
                             <span x-show="isSubmitting">Mengunggah...</span>
                         </button>
                     </div>
-                    @endcan
+                    @endif
                 </form>
             </div>
         </div>
 
         {{-- ===== KANAN: Milestone Tracker ===== --}}
         <div>
-            <div class="bg-surface rounded-card border border-border shadow-sm p-5 sticky top-6">
+            <div class="bg-surface rounded-card border border-border shadow-sm p-6 sticky top-6">
                 <h3 class="text-base font-display font-semibold text-ink mb-1">Status Proses</h3>
                 <p class="text-xs text-muted mb-4 pb-4 border-b border-border">Pantau tahapan perjalanan ajuan Anda secara real-time.</p>
-                <x-milestone-tracker :tahapAktif="$tahapAktif" :milestones="$ajuan->milestoneTrackings" />
+                
+                <x-pjkades-tracker :posisiAktif="$ajuanBpd->posisi_surat ?? 'Berkas Diterima'" :status="$ajuanBpd->status" />
             </div>
         </div>
     </div>
+
+    @push('scripts')
+    <style>
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background-color: #cbd5e1;
+            border-radius: 20px;
+        }
+    </style>
+    @endpush
 </x-app-layout>

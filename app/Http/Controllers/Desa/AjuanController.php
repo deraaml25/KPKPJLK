@@ -222,7 +222,7 @@ class AjuanController extends Controller
         $isSubmit = $request->has('submit_ajuan');
 
         $request->validate([
-            'berkas_zip' => ['nullable', 'file', 'mimes:zip,rar,pdf,doc,docx', 'max:51200'], // max 50MB
+            'berkas_zip' => ['nullable', 'file', 'mimes:zip,rar,pdf', 'max:51200'], // max 50MB
         ]);
 
         // Enforcement: Rule Immutable status

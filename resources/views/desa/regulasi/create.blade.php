@@ -4,7 +4,7 @@
     <div class="max-w-3xl mx-auto bg-white rounded-card shadow-sm border border-border p-8 mb-8">
         <h2 class="text-xl font-display font-bold text-ink mb-2">Ajukan Regulasi Baru</h2>
         <p class="text-muted text-sm mb-6">Ajukan draf atau rancangan perdes, perkades, atau SK kades untuk dievaluasi
-            oleh Tim Legal drafting Dinpermasdes.</p>
+            oleh Dinpermasdes.</p>
 
         <form action="{{ route('desa.regulasi.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
