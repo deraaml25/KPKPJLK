@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Desa;
 
 use App\Http\Controllers\Controller;
 use App\Models\Ajuan;
+use App\Models\AjuanPeserta;
+use App\Models\AlasanPemberhentian;
 use App\Models\ChecklistAjuan;
 use App\Models\JenisLayanan;
-use App\Models\AlasanPemberhentian;
+use App\Models\MilestoneTracking;
 use App\Models\PerangkatDesa;
 use App\Models\TemplateChecklist;
 use Carbon\Carbon;
@@ -50,7 +52,7 @@ class AjuanController extends Controller
             'alasan_pemberhentian_id' => ['nullable', 'exists:alasan_pemberhentians,id'],
             'pesertas' => ['required', 'array', 'min:1'],
             'pesertas.*.perangkat_desa_id' => ['required', 'exists:perangkat_desas,id'],
-            'pesertas.*.jabatan_baru' => ['nullable', 'required_if:jenis_layanan_id,' . ($rotasiLayanan->id ?? 0), 'string', 'max:255'],
+            'pesertas.*.jabatan_baru' => ['nullable', 'required_if:jenis_layanan_id,'.($rotasiLayanan->id ?? 0), 'string', 'max:255'],
         ], [
             'pesertas.*.jabatan_baru.required_if' => 'Jabatan tujuan harus diisi untuk layanan Rotasi.',
             'pesertas.min' => 'Minimal 1 (satu) orang perangkat desa harus didaftarkan.',
@@ -66,7 +68,7 @@ class AjuanController extends Controller
             'Pemberhentian' => 'PBRH',
             default => 'AJU',
         };
-        $noRegistrasi = $prefix . '/' . now()->format('Y') . '/' . now()->format('m') . '/' . str_pad(Ajuan::count() + 1, 4, '0', STR_PAD_LEFT);
+        $noRegistrasi = $prefix.'/'.now()->format('Y').'/'.now()->format('m').'/'.str_pad(Ajuan::count() + 1, 4, '0', STR_PAD_LEFT);
 
         // Hitung SLA batas (20 hari kerja dari hari ini)
         $tglBatas = $this->hitungHariKerja(now(), 20);
@@ -93,7 +95,7 @@ class AjuanController extends Controller
 
         // Simpan Bulk Pesertas (Kolektif)
         foreach ($request->pesertas as $peserta) {
-            \App\Models\AjuanPeserta::create([
+            AjuanPeserta::create([
                 'ajuan_id' => $ajuan->id,
                 'perangkat_desa_id' => $peserta['perangkat_desa_id'],
                 'jabatan_baru' => $jenisLayanan->nama === 'Rotasi' ? ($peserta['jabatan_baru'] ?? null) : null,
@@ -123,7 +125,7 @@ class AjuanController extends Controller
         }
 
         return redirect()->route('desa.ajuan.show', $ajuan)
-            ->with('success', 'Ajuan berhasil disubmit! No. Registrasi: ' . $noRegistrasi . '. Silakan lengkapi dan unggah dokumen persyaratan di bawah.');
+            ->with('success', 'Ajuan berhasil disubmit! No. Registrasi: '.$noRegistrasi.'. Silakan lengkapi dan unggah dokumen persyaratan di bawah.');
     }
 
     public function show(Ajuan $ajuan)
@@ -153,7 +155,7 @@ class AjuanController extends Controller
         $existingTemplateIds = $ajuan->checklistAjuans->pluck('template_checklist_id')->filter()->all();
 
         foreach ($templates as $template) {
-            if (!in_array($template->id, $existingTemplateIds, true)) {
+            if (! in_array($template->id, $existingTemplateIds, true)) {
                 $ajuan->checklistAjuans()->create([
                     'template_checklist_id' => $template->id,
                     'status' => 'belum_diunggah',
@@ -176,11 +178,17 @@ class AjuanController extends Controller
         }
 
         $request->validate([
-            'dokumen' => ['required', 'file', 'mimes:pdf', 'max:10240'],
+            'dokumen' => ['required', 'file', 'max:10240'],
         ]);
 
+        // Manual extension check - bypass PHP MIME detection bug
+        $docExt = strtolower($request->file('dokumen')->getClientOriginalExtension());
+        if ($docExt !== 'pdf') {
+            return back()->withErrors(['dokumen' => 'Dokumen harus berformat PDF.']);
+        }
+
         // Enforcement: Rule Immutable status
-        if (!in_array($ajuan->status, ['draft', 'direvisi'])) {
+        if (! in_array($ajuan->status, ['draft', 'direvisi'])) {
             return back()->with('error', 'Dokumen tidak dapat diubah karena ajuan sedang diproses oleh dinas.');
         }
 
@@ -191,7 +199,7 @@ class AjuanController extends Controller
         $urutan = str_pad($template->urutan, 2, '0', STR_PAD_LEFT);
         $ext = $request->file('dokumen')->extension();
         $safeNoReg = str_replace('/', '-', $ajuan->no_registrasi);
-        $filename = $safeNoReg . '_' . $urutan . '_' . Str::slug($template->nama_dokumen) . '.' . $ext;
+        $filename = $safeNoReg.'_'.$urutan.'_'.Str::slug($template->nama_dokumen).'.'.$ext;
 
         // Jika ada file lama, hapus dulu
         if ($checklistAjuan->file_path && Storage::disk('public')->exists($checklistAjuan->file_path)) {
@@ -210,7 +218,7 @@ class AjuanController extends Controller
             'versi' => $checklistAjuan->versi,
         ]);
 
-        return back()->with('success', 'Dokumen "' . $template->nama_dokumen . '" berhasil diunggah. Menunggu verifikasi Dinpermasdes.');
+        return back()->with('success', 'Dokumen "'.$template->nama_dokumen.'" berhasil diunggah. Menunggu verifikasi Dinpermasdes.');
     }
 
     public function bulkUpload(Request $request, Ajuan $ajuan)
@@ -219,14 +227,20 @@ class AjuanController extends Controller
             abort(403);
         }
 
-        $isSubmit = $request->has('submit_ajuan');
+        $isSubmit = $request->input('submit_ajuan') == '1';
 
-        $request->validate([
-            'berkas_zip' => ['nullable', 'file', 'mimes:zip,rar,pdf', 'max:51200'], // max 50MB
-        ]);
+        // Validate file if uploaded - bypass PHP MIME detection bug with manual check
+        if ($request->hasFile('berkas_zip')) {
+            $request->validate(['berkas_zip' => ['file', 'max:51200']]);
+            $allowedExt = ['zip', 'rar', 'pdf'];
+            $fileExt = strtolower($request->file('berkas_zip')->getClientOriginalExtension());
+            if (! in_array($fileExt, $allowedExt)) {
+                return back()->withErrors(['berkas_zip' => 'File harus berformat ZIP, RAR, atau PDF.'])->withInput();
+            }
+        }
 
         // Enforcement: Rule Immutable status
-        if (!in_array($ajuan->status, ['draft', 'direvisi'])) {
+        if (! in_array($ajuan->status, ['draft', 'direvisi'])) {
             return back()->with('error', 'Dokumen tidak dapat diubah karena ajuan sedang diproses oleh dinas.');
         }
 
@@ -236,7 +250,7 @@ class AjuanController extends Controller
             $file = $request->file('berkas_zip');
             $ext = $file->extension();
             $safeNoReg = str_replace('/', '-', $ajuan->no_registrasi);
-            $filename = $safeNoReg . '_berkas_persyaratan.' . $ext;
+            $filename = $safeNoReg.'_berkas_persyaratan.'.$ext;
 
             if ($ajuan->berkas_zip && Storage::disk('public')->exists($ajuan->berkas_zip)) {
                 Storage::disk('public')->delete($ajuan->berkas_zip);
@@ -256,11 +270,11 @@ class AjuanController extends Controller
         if ($isSubmit) {
             $ajuan->update([
                 'status' => 'submitted',
-                'posisi_surat' => 'Front Office (FO)'
+                'posisi_surat' => 'Front Office (FO)',
             ]);
 
             // Milestone 1: Berkas Diterima (Selesai)
-            \App\Models\MilestoneTracking::create([
+            MilestoneTracking::create([
                 'ajuan_id' => $ajuan->id,
                 'tahap' => 1,
                 'tgl_mulai' => now(),
@@ -270,7 +284,7 @@ class AjuanController extends Controller
             ]);
 
             // Milestone 2: Front Office (Aktif)
-            \App\Models\MilestoneTracking::create([
+            MilestoneTracking::create([
                 'ajuan_id' => $ajuan->id,
                 'tahap' => 2,
                 'tgl_mulai' => now(),
@@ -310,7 +324,7 @@ class AjuanController extends Controller
         $hitung = 0;
         while ($hitung < $jumlahHari) {
             $tanggal->addDay();
-            if (!$tanggal->isWeekend()) {
+            if (! $tanggal->isWeekend()) {
                 $hitung++;
             }
         }

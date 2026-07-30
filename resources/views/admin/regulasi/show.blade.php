@@ -28,11 +28,7 @@
                 @endif
             </div>
 
-            <!-- Tombol Komentar Pintar -->
-            <button id="add-comment-btn" class="hidden absolute z-50 bg-primary text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg hover:bg-primary-dark transition-all transform scale-95 items-center gap-1">
-                <span class="material-symbols-outlined text-[14px]">format_quote</span>
-                Kutip ke Catatan
-            </button>
+
 
             <div class="flex-1 overflow-y-auto p-4 md:p-8 bg-slate-100/50 relative" id="viewer-wrapper" style="display: flex; flex-direction: column;">
                 @if($regulasi->file_path)
@@ -40,14 +36,24 @@
                         $ext = pathinfo($regulasi->file_path, PATHINFO_EXTENSION);
                     @endphp
                     @if(in_array(strtolower($ext), ['doc', 'docx']))
-                        <div id="document-container" class="bg-white p-8 md:p-12 shadow-sm border border-slate-200 mx-auto rounded-md prose prose-slate max-w-none text-sm relative selection:bg-yellow-200 selection:text-slate-900" style="flex-grow: 1; min-height: 100%; width: 100%;">
-                            <div class="flex flex-col items-center justify-center h-64 text-slate-400">
-                                <svg class="animate-spin h-8 w-8 text-primary mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        {{-- DOCX: tampilkan download card, tidak bisa di-preview langsung di browser --}}
+                        <div class="flex flex-col items-center justify-center h-full text-slate-500 gap-6 py-12">
+                            <div class="w-24 h-24 rounded-2xl bg-blue-50 border-2 border-blue-200 flex items-center justify-center">
+                                <svg viewBox="0 0 48 48" class="w-14 h-14" fill="none">
+                                    <rect width="48" height="48" rx="8" fill="#2B579A"/>
+                                    <text x="50%" y="62%" dominant-baseline="middle" text-anchor="middle" fill="white" font-size="16" font-weight="bold" font-family="Arial">W</text>
                                 </svg>
-                                Memuat dokumen...
                             </div>
+                            <div class="text-center">
+                                <p class="font-semibold text-slate-700 text-base">Dokumen Word (.docx)</p>
+                                <p class="text-sm text-slate-400 mt-1">File Word tidak bisa ditampilkan langsung di browser.<br>Unduh untuk membuka dengan Microsoft Word.</p>
+                            </div>
+                            <a href="{{ asset('storage/' . $regulasi->file_path) }}" download
+                                class="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm text-white transition-all shadow-md hover:shadow-lg"
+                                style="background-color: #2B579A;">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                Unduh Dokumen Word
+                            </a>
                         </div>
                     @elseif(strtolower($ext) == 'pdf')
                         <iframe src="{{ asset('storage/' . $regulasi->file_path) }}" class="w-full h-full rounded-md shadow-sm border border-slate-200"></iframe>
@@ -145,98 +151,10 @@
     </div>
 
     @push('scripts')
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            @if($regulasi->file_path && in_array(strtolower(pathinfo($regulasi->file_path, PATHINFO_EXTENSION)), ['doc', 'docx']))
-                const docUrl = "{{ asset('storage/' . $regulasi->file_path) }}";
-                
-                fetch(docUrl)
-                    .then(response => {
-                        if(!response.ok) throw new Error('Network response was not ok');
-                        return response.arrayBuffer();
-                    })
-                    .then(arrayBuffer => mammoth.convertToHtml({arrayBuffer: arrayBuffer}))
-                    .then(result => {
-                        document.getElementById('document-container').innerHTML = result.value;
-                        initSmartComment();
-                    })
-                    .catch(err => {
-                        console.error('Error rendering DOCX:', err);
-                        document.getElementById('document-container').innerHTML = `
-                            <div class="flex flex-col items-center justify-center h-64 text-red-400">
-                                <span class="material-symbols-outlined text-4xl mb-2">error</span>
-                                <p>Gagal memuat dokumen. Harap unduh secara manual.</p>
-                                <a href="${docUrl}" class="text-primary hover:underline mt-2">Unduh file</a>
-                            </div>
-                        `;
-                    });
-            @endif
-
-            function initSmartComment() {
-                const wrapper = document.getElementById('viewer-wrapper');
-                const btn = document.getElementById('add-comment-btn');
-                const catatanInput = document.getElementById('catatan');
-                let selectedText = '';
-
-                wrapper.addEventListener('mouseup', function(e) {
-                    const selection = window.getSelection();
-                    selectedText = selection.toString().trim();
-                    
-                    if (selectedText.length > 0 && selection.anchorNode && wrapper.contains(selection.anchorNode)) {
-                        // Position button near cursor
-                        const rect = selection.getRangeAt(0).getBoundingClientRect();
-                        const wrapperRect = wrapper.getBoundingClientRect();
-                        
-                        btn.style.top = (rect.top - wrapperRect.top + wrapper.scrollTop - 40) + 'px';
-                        btn.style.left = (rect.left - wrapperRect.left + (rect.width / 2) - (btn.offsetWidth / 2)) + 'px';
-                        
-                        btn.classList.remove('hidden');
-                        btn.classList.add('flex');
-                    } else {
-                        setTimeout(() => {
-                            btn.classList.add('hidden');
-                            btn.classList.remove('flex');
-                        }, 100);
-                    }
-                });
-
-                btn.addEventListener('mousedown', function(e) {
-                    e.preventDefault(); // Prevent text un-selection
-                });
-
-                btn.addEventListener('click', function(e) {
-                    if (selectedText) {
-                        const quote = `> "${selectedText}"\n\n`;
-                        if (catatanInput.value) {
-                            catatanInput.value += `\n\n${quote}`;
-                        } else {
-                            catatanInput.value = quote;
-                        }
-                        catatanInput.focus();
-                        
-                        // Hide button
-                        btn.classList.add('hidden');
-                        btn.classList.remove('flex');
-                        window.getSelection().removeAllRanges();
-                    }
-                });
-            }
-        });
-    </script>
     <style>
         .custom-scrollbar::-webkit-scrollbar { width: 6px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
-        /* Style untuk hasil render mammoth agar mirip dokumen */
-        #document-container {
-            font-family: 'Times New Roman', Times, serif;
-            line-height: 1.5;
-        }
-        #document-container p { margin-bottom: 1em; }
-        #document-container h1, #document-container h2, #document-container h3 { font-weight: bold; margin-top: 1.5em; margin-bottom: 0.5em; }
-        #document-container table { width: 100%; border-collapse: collapse; margin-bottom: 1em; }
-        #document-container th, #document-container td { border: 1px solid #cbd5e1; padding: 0.5em; }
     </style>
     @endpush
 </x-app-layout>

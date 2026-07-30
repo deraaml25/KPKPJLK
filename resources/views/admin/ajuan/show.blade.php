@@ -48,14 +48,18 @@
             </div>
             <div class="flex-1 bg-gray-200 relative p-2" id="pdf-container">
                 <!-- PDF Viewer / Empty State -->
-                <div id="pdf-empty-state" class="absolute inset-0 flex flex-col items-center justify-center text-muted">
+                @php
+                    $isPdfZip = $ajuan->berkas_zip && str_ends_with(strtolower($ajuan->berkas_zip), '.pdf');
+                    $pdfZipUrl = $isPdfZip ? Storage::disk('public')->url($ajuan->berkas_zip) : '';
+                @endphp
+                <div id="pdf-empty-state" class="absolute inset-0 flex flex-col items-center justify-center text-muted {{ $isPdfZip ? 'hidden' : '' }}">
                     <svg class="w-16 h-16 mb-4 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
                     <p class="font-medium">Klik tombol "Lihat" pada tabel di kanan</p>
                 </div>
-                <iframe id="pdf-iframe" src="" class="w-full h-full rounded shadow-sm border border-gray-300 hidden"
+                <iframe id="pdf-iframe" src="{{ $pdfZipUrl }}" class="w-full h-full rounded shadow-sm border border-gray-300 {{ $isPdfZip ? '' : 'hidden' }}"
                     frameborder="0"></iframe>
             </div>
         </div>
@@ -149,14 +153,22 @@
                 <div class="px-5 py-4 border-b border-border bg-gray-50 flex justify-between items-center">
                     <h3 class="font-display font-semibold text-ink">Keseluruhan Persyaratan & Catatan</h3>
                     @if($ajuan->metode === 'online' && $ajuan->berkas_zip)
-                        <a href="{{ Storage::disk('public')->url($ajuan->berkas_zip) }}" target="_blank" class="inline-flex items-center text-xs px-3 py-1 bg-primary text-white hover:bg-primary-light rounded font-medium transition-colors shadow-sm">
-                            <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                            Unduh Berkas ZIP
-                        </a>
+                        <div class="flex gap-2">
+                            @if(str_ends_with(strtolower($ajuan->berkas_zip), '.pdf'))
+                                <button type="button" onclick="previewPdf('{{ Storage::disk('public')->url($ajuan->berkas_zip) }}', 'Berkas Keseluruhan')" class="inline-flex items-center text-xs px-3 py-1 bg-white border border-primary text-primary hover:bg-primary-soft/10 rounded font-medium transition-colors shadow-sm">
+                                    <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                    Tinjau Berkas Utama
+                                </button>
+                            @endif
+                            <a href="{{ Storage::disk('public')->url($ajuan->berkas_zip) }}" target="_blank" class="inline-flex items-center text-xs px-3 py-1 bg-primary text-white hover:bg-primary-light rounded font-medium transition-colors shadow-sm">
+                                <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                                Unduh
+                            </a>
+                        </div>
                     @elseif($ajuan->metode === 'offline')
                         <span class="text-xs font-semibold px-2 py-1 bg-gray-200 text-gray-700 rounded">Metode: Offline</span>
                     @else
-                        <span class="text-xs font-semibold px-2 py-1 bg-red-100 text-red-700 rounded">Berkas ZIP belum diunggah</span>
+                        <span class="text-xs font-semibold px-2 py-1 bg-red-100 text-red-700 rounded">Berkas ZIP/PDF belum diunggah</span>
                     @endif
                 </div>
                 <form action="{{ route('admin.ajuan.update-catatan', $ajuan) }}" method="POST" class="p-5">

@@ -39,13 +39,7 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
-    /**
-     * The attribute used for authentication (username instead of email).
-     */
-    public function getAuthIdentifierName(): string
-    {
-        return 'username';
-    }
+
 
     protected function casts(): array
     {

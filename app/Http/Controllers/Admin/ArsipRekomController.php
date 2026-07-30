@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\ArsipRekom;
 use App\Models\Ajuan;
+use App\Models\ArsipRekom;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -31,8 +31,14 @@ class ArsipRekomController extends Controller
     {
         $request->validate([
             'no_surat_rekom' => ['required', 'string', 'max:100'],
-            'file_rekom' => ['required', 'file', 'mimes:pdf', 'max:20480'],
+            'file_rekom' => ['required', 'file', 'max:20480'],
         ]);
+
+        // Manual extension check - bypass PHP MIME detection bug
+        $fileExt = strtolower($request->file('file_rekom')->getClientOriginalExtension());
+        if ($fileExt !== 'pdf') {
+            return back()->withErrors(['file_rekom' => 'File rekomendasi harus berformat PDF.']);
+        }
 
         // Pastikan folder ada
         Storage::disk('public')->makeDirectory($ajuan->folder_path);
@@ -40,7 +46,7 @@ class ArsipRekomController extends Controller
         $safeNoReg = str_replace('/', '-', $ajuan->no_registrasi);
         $path = $request->file('file_rekom')->storeAs(
             $ajuan->folder_path,
-            $safeNoReg . '_REKOM.pdf',
+            $safeNoReg.'_REKOM.pdf',
             'public'
         );
 
@@ -61,7 +67,7 @@ class ArsipRekomController extends Controller
 
     public function download(ArsipRekom $arsipRekom)
     {
-        if (!Storage::disk('public')->exists($arsipRekom->file_path)) {
+        if (! Storage::disk('public')->exists($arsipRekom->file_path)) {
             return back()->with('error', 'File tidak ditemukan di server.');
         }
 

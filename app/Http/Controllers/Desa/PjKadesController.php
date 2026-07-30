@@ -169,12 +169,17 @@ class PjKadesController extends Controller
             ->findOrFail($checklistId);
 
         $request->validate([
-            'file_dokumen' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:10240'],
+            'file_dokumen' => ['required', 'file', 'max:10240'],
         ], [
             'file_dokumen.required' => 'File dokumen wajib dipilih.',
-            'file_dokumen.mimes' => 'Format file harus berupa PDF atau Gambar (JPG/PNG).',
             'file_dokumen.max' => 'Ukuran file tidak boleh melebihi 10MB.',
         ]);
+
+        // Manual extension check - bypass PHP MIME detection bug
+        $fileExt = strtolower($request->file('file_dokumen')->getClientOriginalExtension());
+        if (! in_array($fileExt, ['pdf', 'jpg', 'jpeg', 'png'])) {
+            return back()->withErrors(['file_dokumen' => 'Format file harus berupa PDF atau Gambar (JPG/PNG).']);
+        }
 
         if ($checklist->file_path && Storage::disk('public')->exists($checklist->file_path)) {
             Storage::disk('public')->delete($checklist->file_path);
@@ -200,13 +205,18 @@ class PjKadesController extends Controller
             ->where('desa_id', $desaId)
             ->findOrFail($id);
 
-        $isSubmit = $request->has('submit_ajuan');
+        $isSubmit = $request->input('submit_ajuan') == '1';
 
-        $request->validate([
-            'berkas_zip' => ['nullable', 'file', 'mimes:zip,rar,pdf', 'max:51200'], // max 50MB
-        ]);
+        // Validate file if uploaded - bypass PHP MIME detection bug with manual check
+        if ($request->hasFile('berkas_zip')) {
+            $request->validate(['berkas_zip' => ['file', 'max:51200']]);
+            $fileExt = strtolower($request->file('berkas_zip')->getClientOriginalExtension());
+            if (! in_array($fileExt, ['zip', 'rar', 'pdf'])) {
+                return back()->withErrors(['berkas_zip' => 'File harus berformat ZIP, RAR, atau PDF.'])->withInput();
+            }
+        }
 
-        if (!in_array($pjKades->status, ['draft', 'rejected'])) {
+        if (! in_array($pjKades->status, ['draft', 'rejected'])) {
             return back()->with('error', 'Dokumen tidak dapat diubah karena usulan sedang diproses oleh dinas.');
         }
 
@@ -216,7 +226,7 @@ class PjKadesController extends Controller
             $file = $request->file('berkas_zip');
             $ext = $file->extension();
             $safeNoReg = str_replace('/', '-', $pjKades->no_registrasi);
-            $filename = $safeNoReg . '_berkas_persyaratan.' . $ext;
+            $filename = $safeNoReg.'_berkas_persyaratan.'.$ext;
 
             if ($pjKades->berkas_zip && Storage::disk('public')->exists($pjKades->berkas_zip)) {
                 Storage::disk('public')->delete($pjKades->berkas_zip);
@@ -233,10 +243,11 @@ class PjKadesController extends Controller
 
         if ($isSubmit) {
             // Validasi jika belum unggah file zip (hanya jika online)
-            if ($pjKades->metode === 'online' && !$pjKades->berkas_zip) {
+            if ($pjKades->metode === 'online' && ! $pjKades->berkas_zip) {
                 return back()->with('error', 'Gagal mengirim. Anda belum mengunggah file ZIP persyaratan.');
             }
             $pjKades->update(['status' => 'submitted']);
+
             return redirect()->route('desa.pjkades.index')->with('success', 'Usulan SK Kades berhasil dikirim ke Dinpermasdes.');
         }
 
@@ -251,7 +262,7 @@ class PjKadesController extends Controller
             ->findOrFail($id);
 
         if ($pjKades->metode === 'online') {
-            if (!$pjKades->berkas_zip) {
+            if (! $pjKades->berkas_zip) {
                 return back()->with('error', 'Gagal mengirim. Anda belum mengunggah file ZIP persyaratan.');
             }
         } else {

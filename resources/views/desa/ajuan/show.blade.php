@@ -172,14 +172,17 @@
 
                     @can('update', $ajuan)
                     <div class="px-6 py-5 bg-gray-50 border-t border-border flex flex-wrap items-center justify-end gap-3">
-                        <button type="submit" name="simpan_draft" value="1" 
+                        <input type="hidden" name="submit_ajuan" id="is_submit_hidden" value="0">
+                        <button type="submit" 
+                                onclick="document.getElementById('is_submit_hidden').value='0'"
                                 :disabled="isSubmitting"
                                 :class="{'opacity-50 cursor-not-allowed': isSubmitting}"
                                 class="px-5 py-2.5 bg-white border border-border rounded-btn text-ink text-sm font-medium hover:bg-gray-50 transition-colors shadow-sm">
                             <span x-show="!isSubmitting">Simpan Draft</span>
                             <span x-show="isSubmitting">Menyimpan...</span>
                         </button>
-                        <button type="submit" name="submit_ajuan" value="1" 
+                        <button type="submit" 
+                                onclick="document.getElementById('is_submit_hidden').value='1'"
                                 :disabled="isSubmitting"
                                 :class="{'opacity-50 cursor-not-allowed': isSubmitting}"
                                 class="px-5 py-2.5 bg-success rounded-btn text-white text-sm font-medium hover:bg-green-700 transition-colors shadow-sm flex items-center">
