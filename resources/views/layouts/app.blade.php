@@ -112,30 +112,35 @@
         <div class="flex-1 flex flex-col relative z-10 overflow-hidden bg-[#f8fafc]">
             <!-- Top App Bar -->
             <div class="sticky top-0 z-40 px-6 pt-5 pb-2 bg-[#f8fafc]">
-                <header class="flex items-center justify-between px-5 py-3 bg-white rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-slate-200/60 transition-all duration-200">
-                    <div class="flex items-center gap-3">
-                        <div class="w-1 h-6 bg-[#738FB9] rounded-full"></div>
-                        <div class="flex flex-col">
-                            <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
-                                @yield('page-kicker', 'Utama')
-                            </span>
-                            <h2 class="text-lg text-[#111827] font-bold font-display tracking-tight leading-none">
-                                @yield('title', 'Dashboard')
-                            </h2>
-                            @hasSection('page-subtitle')
-                            <p class="text-[13px] text-slate-500 mt-1 font-medium">@yield('page-subtitle')</p>
-                            @endif
+                <div class="flex items-center gap-3">
+                    @hasSection('back-button')
+                        @yield('back-button')
+                    @endif
+                    <header class="flex-1 flex items-center justify-between px-5 py-3 bg-white rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.02)] border border-slate-200/60 transition-all duration-200">
+                        <div class="flex items-center gap-3">
+                            <div class="w-1 h-6 bg-[#738FB9] rounded-full"></div>
+                            <div class="flex flex-col">
+                                <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider mb-0.5">
+                                    @yield('page-kicker', 'Utama')
+                                </span>
+                                <h2 class="text-lg text-[#111827] font-bold font-display tracking-tight leading-none">
+                                    @yield('title', 'Dashboard')
+                                </h2>
+                                @hasSection('page-subtitle')
+                                <p class="text-[13px] text-slate-500 mt-1 font-medium">@yield('page-subtitle')</p>
+                                @endif
+                            </div>
                         </div>
-                    </div>
-                    <div class="flex items-center gap-4">
-                        @yield('page-actions')
-                        <div class="w-px h-6 bg-slate-200 hidden md:block"></div>
-                        <button class="w-8 h-8 rounded-full bg-slate-50 shadow-sm border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors relative">
-                            <span class="material-symbols-outlined text-[18px]">notifications</span>
-                            <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
-                        </button>
-                    </div>
-                </header>
+                        <div class="flex items-center gap-4">
+                            @yield('page-actions')
+                            <div class="w-px h-6 bg-slate-200 hidden md:block"></div>
+                            <button class="w-8 h-8 rounded-full bg-slate-50 shadow-sm border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors relative">
+                                <span class="material-symbols-outlined text-[18px]">notifications</span>
+                                <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white"></span>
+                            </button>
+                        </div>
+                    </header>
+                </div>
             </div>
 
             <main class="flex-1 overflow-y-auto px-6 pb-8 scrollbar-none mt-2">

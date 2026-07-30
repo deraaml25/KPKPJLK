@@ -13,130 +13,166 @@
         </button>
     </div>
 
-    <!-- 4 Stat Cards Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-5 mb-6">
-        <!-- Card 1 -->
-        <div class="bg-white rounded-2xl border-2 border-slate-900 p-5 shadow-sm relative overflow-hidden">
-            <div class="flex items-start justify-between">
-                <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-[#111827]">
-                    <span class="material-symbols-outlined text-[20px]">description</span>
-                </div>
-                <span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-1 rounded-md">+12%</span>
+    <!-- 8 Stat Cards Grid -->
+    <div class="grid gap-4 mb-6" style="grid-template-columns: repeat(4, minmax(0, 1fr));">
+        <!-- Card 1: Regulasi -->
+        <a href="{{ route('admin.regulasi.index') }}" class="bg-white rounded-xl border border-slate-200 hover:border-slate-900 p-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all hover:shadow-md flex items-center gap-4 relative overflow-hidden group">
+            <div class="w-12 h-12 bg-slate-100 group-hover:bg-[#111827] group-hover:text-white rounded-lg flex flex-shrink-0 items-center justify-center text-slate-500 transition-colors">
+                <span class="material-symbols-outlined text-[22px]">gavel</span>
             </div>
-            <div class="mt-4">
-                <p class="text-xs font-bold text-slate-900 mb-0.5">Draft Regulasi</p>
-                <h3 class="text-3xl font-bold text-slate-900 font-display">245</h3>
+            <div class="flex-grow">
+                <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Draft Regulasi</p>
+                <h3 class="text-2xl font-bold text-slate-900 font-display leading-none">{{ number_format($counts['regulasi'] ?? 0) }}</h3>
             </div>
-        </div>
+            <div class="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0 duration-300">
+                <span class="material-symbols-outlined text-slate-300">chevron_right</span>
+            </div>
+        </a>
 
-        <!-- Card 2 -->
-        <div class="bg-white rounded-2xl border-2 border-slate-300 hover:border-slate-400 p-5 shadow-sm transition-colors relative overflow-hidden">
-            <div class="flex items-start justify-between">
-                <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400">
-                    <span class="material-symbols-outlined text-[20px]">group</span>
-                </div>
-                <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-md">Aktif</span>
+        <!-- Card 2: Pembinaan -->
+        <a href="{{ route('admin.pengajuan-pembinaan.index') }}" class="bg-white rounded-xl border border-slate-200 hover:border-slate-900 p-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all hover:shadow-md flex items-center gap-4 relative overflow-hidden group">
+            <div class="w-12 h-12 bg-slate-100 group-hover:bg-[#111827] group-hover:text-white rounded-lg flex flex-shrink-0 items-center justify-center text-slate-500 transition-colors">
+                <span class="material-symbols-outlined text-[22px]">school</span>
             </div>
-            <div class="mt-4">
-                <p class="text-xs font-bold text-slate-900 mb-0.5">Perangkat Desa</p>
-                <h3 class="text-3xl font-bold text-slate-900 font-display">42</h3>
+            <div class="flex-grow">
+                <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Pembinaan</p>
+                <h3 class="text-2xl font-bold text-slate-900 font-display leading-none">{{ number_format($counts['pembinaan'] ?? 0) }}</h3>
             </div>
-        </div>
+            <div class="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0 duration-300">
+                <span class="material-symbols-outlined text-slate-300">chevron_right</span>
+            </div>
+        </a>
 
-        <!-- Card 3 -->
-        <div class="bg-white rounded-2xl border-2 border-slate-900 p-5 shadow-sm relative overflow-hidden">
-            <div class="flex items-start justify-between">
-                <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400">
-                    <span class="material-symbols-outlined text-[20px]">approval</span>
-                </div>
-                <span class="bg-blue-100 text-blue-700 text-[10px] font-bold px-2 py-1 rounded-md">8 Pending</span>
+        <!-- Card 3: e-Rekomendasi -->
+        <a href="{{ route('admin.ajuan.index') }}" class="bg-white rounded-xl border border-slate-200 hover:border-slate-900 p-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all hover:shadow-md flex items-center gap-4 relative overflow-hidden group">
+            <div class="w-12 h-12 bg-slate-100 group-hover:bg-[#111827] group-hover:text-white rounded-lg flex flex-shrink-0 items-center justify-center text-slate-500 transition-colors">
+                <span class="material-symbols-outlined text-[22px]">approval</span>
             </div>
-            <div class="mt-4">
-                <p class="text-xs font-bold text-slate-900 mb-0.5">e-Rekomendasi</p>
-                <h3 class="text-3xl font-bold text-slate-900 font-display">1,084</h3>
+            <div class="flex-grow">
+                <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">e-Rekomendasi</p>
+                <h3 class="text-2xl font-bold text-slate-900 font-display leading-none">{{ number_format($counts['ajuan'] ?? 0) }}</h3>
             </div>
-        </div>
+            <div class="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0 duration-300">
+                <span class="material-symbols-outlined text-slate-300">chevron_right</span>
+            </div>
+        </a>
 
-        <!-- Card 4 -->
-        <div class="bg-white rounded-2xl border-2 border-slate-300 hover:border-slate-400 p-5 shadow-sm transition-colors relative overflow-hidden">
-            <div class="flex items-start justify-between">
-                <div class="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center text-slate-400">
-                    <span class="material-symbols-outlined text-[20px]">archive</span>
-                </div>
-                <span class="bg-slate-200 text-slate-700 text-[10px] font-bold px-2 py-1 rounded-md">Total</span>
+        <!-- Card 4: SK Kades -->
+        <a href="{{ route('admin.pjkades.index') }}" class="bg-white rounded-xl border border-slate-200 hover:border-slate-900 p-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all hover:shadow-md flex items-center gap-4 relative overflow-hidden group">
+            <div class="w-12 h-12 bg-slate-100 group-hover:bg-[#111827] group-hover:text-white rounded-lg flex flex-shrink-0 items-center justify-center text-slate-500 transition-colors">
+                <span class="material-symbols-outlined text-[22px]">person</span>
             </div>
-            <div class="mt-4">
-                <p class="text-xs font-bold text-slate-900 mb-0.5">Arsip Terdata</p>
-                <h3 class="text-3xl font-bold text-slate-900 font-display">5,201</h3>
+            <div class="flex-grow">
+                <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">SK Kades</p>
+                <h3 class="text-2xl font-bold text-slate-900 font-display leading-none">{{ number_format($counts['pjkades'] ?? 0) }}</h3>
             </div>
-        </div>
+            <div class="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0 duration-300">
+                <span class="material-symbols-outlined text-slate-300">chevron_right</span>
+            </div>
+        </a>
+
+        <!-- Card 5: Rencana P3D -->
+        <a href="{{ route('admin.rencana-p3d.index') }}" class="bg-white rounded-xl border border-slate-200 hover:border-slate-900 p-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all hover:shadow-md flex items-center gap-4 relative overflow-hidden group">
+            <div class="w-12 h-12 bg-slate-100 group-hover:bg-[#111827] group-hover:text-white rounded-lg flex flex-shrink-0 items-center justify-center text-slate-500 transition-colors">
+                <span class="material-symbols-outlined text-[22px]">event_note</span>
+            </div>
+            <div class="flex-grow">
+                <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Rencana P3D</p>
+                <h3 class="text-2xl font-bold text-slate-900 font-display leading-none">{{ number_format($counts['rencana_p3d'] ?? 0) }}</h3>
+            </div>
+            <div class="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0 duration-300">
+                <span class="material-symbols-outlined text-slate-300">chevron_right</span>
+            </div>
+        </a>
+
+        <!-- Card 6: Perangkat Desa -->
+        <a href="{{ route('admin.perangkat.index') }}" class="bg-white rounded-xl border border-slate-200 hover:border-slate-900 p-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all hover:shadow-md flex items-center gap-4 relative overflow-hidden group">
+            <div class="w-12 h-12 bg-slate-100 group-hover:bg-[#111827] group-hover:text-white rounded-lg flex flex-shrink-0 items-center justify-center text-slate-500 transition-colors">
+                <span class="material-symbols-outlined text-[22px]">group</span>
+            </div>
+            <div class="flex-grow">
+                <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Perangkat Desa</p>
+                <h3 class="text-2xl font-bold text-slate-900 font-display leading-none">{{ number_format($counts['perangkat_desa'] ?? 0) }}</h3>
+            </div>
+            <div class="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0 duration-300">
+                <span class="material-symbols-outlined text-slate-300">chevron_right</span>
+            </div>
+        </a>
+
+        <!-- Card 7: Data BPD -->
+        <a href="{{ route('admin.bpd.index') }}" class="bg-white rounded-xl border border-slate-200 hover:border-slate-900 p-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all hover:shadow-md flex items-center gap-4 relative overflow-hidden group">
+            <div class="w-12 h-12 bg-slate-100 group-hover:bg-[#111827] group-hover:text-white rounded-lg flex flex-shrink-0 items-center justify-center text-slate-500 transition-colors">
+                <span class="material-symbols-outlined text-[22px]">account_balance</span>
+            </div>
+            <div class="flex-grow">
+                <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Data BPD</p>
+                <h3 class="text-2xl font-bold text-slate-900 font-display leading-none">{{ number_format($counts['bpd'] ?? 0) }}</h3>
+            </div>
+            <div class="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0 duration-300">
+                <span class="material-symbols-outlined text-slate-300">chevron_right</span>
+            </div>
+        </a>
+
+        <!-- Card 8: Ajuan BPD -->
+        <a href="{{ route('admin.ajuan-bpd.index') }}" class="bg-white rounded-xl border border-slate-200 hover:border-slate-900 p-4 shadow-[0_2px_10px_rgba(0,0,0,0.02)] transition-all hover:shadow-md flex items-center gap-4 relative overflow-hidden group">
+            <div class="w-12 h-12 bg-slate-100 group-hover:bg-[#111827] group-hover:text-white rounded-lg flex flex-shrink-0 items-center justify-center text-slate-500 transition-colors">
+                <span class="material-symbols-outlined text-[22px]">how_to_reg</span>
+            </div>
+            <div class="flex-grow">
+                <p class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Ajuan BPD</p>
+                <h3 class="text-2xl font-bold text-slate-900 font-display leading-none">{{ number_format($counts['ajuan_bpd'] ?? 0) }}</h3>
+            </div>
+            <div class="absolute right-4 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity translate-x-2 group-hover:translate-x-0 duration-300">
+                <span class="material-symbols-outlined text-slate-300">chevron_right</span>
+            </div>
+        </a>
     </div>
 
     <!-- Main Content Area -->
-    <div class="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-8 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
         <!-- Aktivitas Terkini -->
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden md:col-span-2">
             <div class="px-6 py-5 border-b border-slate-100 flex justify-between items-center">
                 <h3 class="text-lg font-bold text-slate-900">Aktivitas Terkini</h3>
-                <a href="#" class="text-sm font-semibold text-slate-500 hover:text-slate-700">Lihat Semua</a>
             </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse">
                     <thead>
                         <tr>
-                            <th class="px-6 py-4 text-xs font-bold text-slate-500 bg-slate-50">Dokumen</th>
-                            <th class="px-6 py-4 text-xs font-bold text-slate-500 bg-slate-50">Status</th>
-                            <th class="px-6 py-4 text-xs font-bold text-slate-500 bg-slate-50">Admin</th>
-                            <th class="px-6 py-4 text-xs font-bold text-slate-500 bg-slate-50">Tanggal</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 bg-slate-50 text-center">Dokumen</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 bg-slate-50 text-center">Status</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 bg-slate-50 text-center">Asal Desa</th>
+                            <th class="px-6 py-4 text-xs font-bold text-slate-500 bg-slate-50 text-center">Tanggal Update</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
+                        @forelse($aktivitas as $act)
                         <tr>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center gap-3">
-                                    <span class="material-symbols-outlined text-slate-400">description</span>
-                                    <span class="text-sm font-semibold text-slate-700">Draft SK Kades No.<br>24/2023</span>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center justify-center">
+                                    <span class="text-sm font-semibold text-slate-700">{{ $act->title }}</span>
                                 </div>
                             </td>
-                            <td class="px-6 py-4">
-                                <span class="bg-yellow-100 text-yellow-800 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Review</span>
+                            <td class="px-6 py-4 text-center">
+                                <span class="bg-slate-100 text-slate-800 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                                    {{ str_replace('_', ' ', $act->status) }}
+                                </span>
                             </td>
-                            <td class="px-6 py-4 text-sm text-slate-600">Siska<br>Amelia</td>
-                            <td class="px-6 py-4 text-sm text-slate-600">Hari ini,<br>10:24</td>
+                            <td class="px-6 py-4 text-sm text-slate-600 text-center">{{ ucwords(strtolower($act->admin)) }}</td>
+                            <td class="px-6 py-4 text-sm text-slate-600 text-center">{{ \Carbon\Carbon::parse($act->date)->diffForHumans() }}</td>
                         </tr>
+                        @empty
                         <tr>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center gap-3">
-                                    <span class="material-symbols-outlined text-slate-400">approval</span>
-                                    <span class="text-sm font-semibold text-slate-700">Rekomendasi Penataan<br>Lahan</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <span class="bg-green-100 text-green-800 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Selesai</span>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-slate-600">Budi<br>Santoso</td>
-                            <td class="px-6 py-4 text-sm text-slate-600">Kemarin,<br>14:55</td>
+                            <td colspan="4" class="px-6 py-8 text-center text-slate-500 text-sm">Belum ada aktivitas.</td>
                         </tr>
-                        <tr>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center gap-3">
-                                    <span class="material-symbols-outlined text-slate-400">history_edu</span>
-                                    <span class="text-sm font-semibold text-slate-700">Pembinaan<br>Kesejahteraan Desa</span>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4">
-                                <span class="bg-slate-200 text-slate-700 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Draft</span>
-                            </td>
-                            <td class="px-6 py-4 text-sm text-slate-600">Admin<br>Unsoed</td>
-                            <td class="px-6 py-4 text-sm text-slate-600">12 Okt 2023</td>
-                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
         </div>
 
         <!-- Right Column Widgets -->
-        <div class="flex flex-col gap-6">
+        <div class="flex flex-col gap-6 md:col-span-1">
             <!-- Widget 1: Informasi Wilayah -->
             <div class="rounded-2xl overflow-hidden relative shadow-sm" style="background-image: url('https://images.unsplash.com/photo-1542224566-6e85f2e6772f?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'); background-size: cover; background-position: center;">
                 <div class="absolute inset-0 bg-black/40"></div>

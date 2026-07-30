@@ -1,18 +1,7 @@
 <x-app-layout>
     @section('title', 'Pembinaan')
     @section('page-description', 'Daftar permohonan narasumber dan pembinaan yang diajukan oleh desa-desa.')
-    @section('page-actions')
-        <div class="flex items-center gap-3">
-            <div class="bg-yellow-50 border border-yellow-200 px-3 py-2 rounded-lg text-center">
-                <p class="text-xs text-muted">Menunggu</p>
-                <p class="text-xl font-bold text-yellow-700">{{ $totalMenunggu }}</p>
-            </div>
-            <div class="bg-blue-50 border border-blue-200 px-3 py-2 rounded-lg text-center">
-                <p class="text-xs text-muted">Disetujui</p>
-                <p class="text-xl font-bold text-blue-700">{{ $totalDisetujui }}</p>
-            </div>
-        </div>
-    @endsection
+
 
     <!-- Tabs Nav -->
     <div class="border-b border-border mb-6">

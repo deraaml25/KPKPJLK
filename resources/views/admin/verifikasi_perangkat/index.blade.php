@@ -1,18 +1,91 @@
 <x-app-layout>
-    @section('title', 'Verifikasi Data Kepala dan Perangkat Desa')
-
-    <div class="bg-white rounded-card p-6 shadow-sm border border-border mb-6">
-        <h2 class="text-xl font-display font-bold text-ink">Verifikasi Perubahan Data Kepala dan Perangkat Desa</h2>
-        <p class="text-muted text-sm mt-1">Daftar usulan penambahan, pengubahan, dan penonaktifan data kepala dan perangkat desa.</p>
-    </div>
-
-    @if(session('success'))
-        <div class="mb-4 p-4 bg-green-50 text-green-800 rounded-lg border border-green-200 text-sm font-medium">
-            {{ session('success') }}
+    @section('title', 'Data Kepala dan Perangkat Desa')
+    <div x-data="{ tab: '{{ request()->has('pending_page') ? 'verifikasi' : 'data' }}' }">
+        <!-- Tabs Nav -->
+        <div class="border-b border-border mb-6">
+            <nav class="flex space-x-8" aria-label="Tabs">
+                <button @click="tab = 'data'" 
+                        :class="tab === 'data' ? 'border-primary text-primary' : 'border-transparent text-muted hover:text-ink hover:border-gray-300'"
+                        class="border-b-2 py-4 px-1 text-sm font-semibold transition-colors">
+                    Semua Data
+                </button>
+                <button @click="tab = 'verifikasi'" 
+                        :class="tab === 'verifikasi' ? 'border-primary text-primary' : 'border-transparent text-muted hover:text-ink hover:border-gray-300'"
+                        class="border-b-2 py-4 px-1 text-sm font-semibold transition-colors relative flex items-center">
+                    Verifikasi Usulan
+                    @if($pending->total() > 0)
+                        <span class="relative flex h-2.5 w-2.5 ml-2">
+                          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                          <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500"></span>
+                        </span>
+                    @endif
+                </button>
+            </nav>
         </div>
-    @endif
 
-    <div class="bg-white rounded-card shadow-sm border border-border overflow-hidden">
+        @if(session('success'))
+            <div class="mb-4 p-4 bg-green-50 text-green-800 rounded-lg border border-green-200 text-sm font-medium">
+                {{ session('success') }}
+            </div>
+        @endif
+
+        <!-- Tab Content: Data Perangkat -->
+        <div x-show="tab === 'data'" style="display: none;" x-transition>
+            <div class="mb-6 flex justify-end">
+                <form action="{{ route('admin.perangkat.index') }}" method="GET" class="w-full md:w-72">
+                    <div class="relative rounded-md shadow-sm">
+                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <span class="material-symbols-outlined text-gray-400 text-[20px]">search</span>
+                        </div>
+                        <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama, jabatan, desa..."
+                            class="block w-full rounded-md border-0 py-2 pl-10 pr-3 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6">
+                    </div>
+                </form>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                @forelse($perangkats as $p)
+                    <div class="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-6 flex flex-col hover:shadow-[0_8px_25px_-5px_rgba(0,0,0,0.08)] transition-shadow border border-slate-100">
+                        <div class="flex justify-between items-start mb-8">
+                            <div class="w-[72px] h-[72px] rounded-full bg-slate-200 flex flex-shrink-0 items-center justify-center overflow-hidden">
+                                <span class="material-symbols-outlined text-slate-400 text-[36px]">person</span>
+                            </div>
+                            @if($p->status_aktif)
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-50 text-green-600 border border-green-200/80">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-green-500 mr-2"></span> Aktif
+                                </span>
+                            @else
+                                <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-50 text-red-600 border border-red-200/80">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-2"></span> Nonaktif
+                                </span>
+                            @endif
+                        </div>
+                        
+                        <div class="flex-1 flex flex-col justify-end">
+                            <h3 class="text-[17px] font-black text-slate-800 leading-snug uppercase mb-1.5">{{ $p->nama }}</h3>
+                            <p class="text-[14px] text-slate-600">{{ $p->jabatan }}</p>
+                            <p class="text-[14px] text-slate-600">{{ $p->desa->nama_desa ?? 'Desa' }}, {{ $p->desa->kecamatan->nama_kecamatan ?? 'Kecamatan' }}</p>
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-span-full">
+                        <div class="bg-white rounded-card shadow-sm border border-border p-8 text-center">
+                            <span class="material-symbols-outlined text-slate-300 text-5xl mb-3 block">group_off</span>
+                            <h3 class="text-lg font-bold text-slate-900 mb-1">Data Perangkat Kosong</h3>
+                            <p class="text-slate-500">Belum ada perangkat desa yang terdaftar.</p>
+                        </div>
+                    </div>
+                @endforelse
+            </div>
+
+            <div class="mt-6">
+                {{ $perangkats->links() }}
+            </div>
+        </div>
+
+        <!-- Tab Content: Verifikasi Usulan -->
+        <div x-show="tab === 'verifikasi'" style="display: none;" x-transition>
+            <div class="bg-white rounded-card shadow-sm border border-border overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-sm whitespace-nowrap">
                 <thead class="bg-gray-50 border-b border-border">
@@ -90,10 +163,11 @@
                 </tbody>
             </table>
         </div>
-        @if($pending->hasPages())
-            <div class="p-4 border-t border-border bg-gray-50">
-                {{ $pending->links() }}
-            </div>
-        @endif
+            @if($pending->hasPages())
+                <div class="p-4 border-t border-border bg-gray-50">
+                    {{ $pending->links() }}
+                </div>
+            @endif
+        </div>
     </div>
 </x-app-layout>

@@ -83,52 +83,51 @@ class RencanaP3dController extends Controller
 
         $rencanas = $query->latest()->get();
 
-        $fileName = 'rencana_p3d_' . date('Y_m_d_H_i_s') . '.csv';
+        $fileName = 'rencana_p3d_' . date('Y_m_d_H_i_s') . '.xls';
 
         $headers = [
-            "Content-type"        => "text/csv",
+            "Content-type"        => "application/vnd.ms-excel",
             "Content-Disposition" => "attachment; filename=$fileName",
             "Pragma"              => "no-cache",
             "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
             "Expires"             => "0"
         ];
 
-        $columns = [
-            'No', 
-            'Kecamatan', 
-            'Desa', 
-            'Tahun', 
-            'Jumlah Formasi Kosong', 
-            'Jabatan Kosong', 
-            'Rencana Pelaksanaan', 
-            'Rencana Anggaran', 
-            'Keterangan', 
-            'Status', 
-            'Tanggal Dibuat'
-        ];
-
-        $callback = function() use($rencanas, $columns) {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, $columns);
-
+        $callback = function() use($rencanas) {
+            echo '<table border="1" style="border-collapse: collapse; text-align: left;">';
+            echo '<thead>';
+            echo '<tr style="background-color: #f3f4f6;">';
+            echo '<th style="padding: 8px; font-weight: bold; border: 1px solid #000;">No</th>';
+            echo '<th style="padding: 8px; font-weight: bold; border: 1px solid #000;">Kecamatan</th>';
+            echo '<th style="padding: 8px; font-weight: bold; border: 1px solid #000;">Desa</th>';
+            echo '<th style="padding: 8px; font-weight: bold; border: 1px solid #000;">Tahun</th>';
+            echo '<th style="padding: 8px; font-weight: bold; border: 1px solid #000;">Jumlah Formasi Kosong</th>';
+            echo '<th style="padding: 8px; font-weight: bold; border: 1px solid #000;">Jabatan Kosong</th>';
+            echo '<th style="padding: 8px; font-weight: bold; border: 1px solid #000;">Rencana Pelaksanaan</th>';
+            echo '<th style="padding: 8px; font-weight: bold; border: 1px solid #000;">Rencana Anggaran</th>';
+            echo '<th style="padding: 8px; font-weight: bold; border: 1px solid #000;">Keterangan</th>';
+            echo '<th style="padding: 8px; font-weight: bold; border: 1px solid #000;">Status</th>';
+            echo '<th style="padding: 8px; font-weight: bold; border: 1px solid #000;">Tanggal Dibuat</th>';
+            echo '</tr>';
+            echo '</thead>';
+            echo '<tbody>';
             foreach ($rencanas as $index => $item) {
-                $row = [
-                    $index + 1,
-                    $item->kecamatan->nama_kecamatan ?? '-',
-                    $item->desa->nama_desa ?? '-',
-                    $item->tahun ?? '-',
-                    $item->jumlah_formasi_kosong,
-                    $item->jabatan_kosong,
-                    $item->rencana_pelaksanaan ? $item->rencana_pelaksanaan->format('Y-m-d') : '-',
-                    $item->rencana_anggaran,
-                    $item->keterangan,
-                    $item->status,
-                    $item->created_at->format('Y-m-d H:i:s'),
-                ];
-                fputcsv($file, $row);
+                echo '<tr>';
+                echo '<td style="padding: 8px; border: 1px solid #000;">' . ($index + 1) . '</td>';
+                echo '<td style="padding: 8px; border: 1px solid #000;">' . ($item->kecamatan->nama_kecamatan ?? '-') . '</td>';
+                echo '<td style="padding: 8px; border: 1px solid #000;">' . ($item->desa->nama_desa ?? '-') . '</td>';
+                echo '<td style="padding: 8px; border: 1px solid #000;">' . ($item->tahun ?? '-') . '</td>';
+                echo '<td style="padding: 8px; border: 1px solid #000; text-align: center;">' . $item->jumlah_formasi_kosong . '</td>';
+                echo '<td style="padding: 8px; border: 1px solid #000;">' . $item->jabatan_kosong . '</td>';
+                echo '<td style="padding: 8px; border: 1px solid #000;">' . ($item->rencana_pelaksanaan ? $item->rencana_pelaksanaan->format('d/m/Y') : '-') . '</td>';
+                echo '<td style="padding: 8px; border: 1px solid #000;">Rp ' . number_format($item->rencana_anggaran, 0, ',', '.') . '</td>';
+                echo '<td style="padding: 8px; border: 1px solid #000;">' . $item->keterangan . '</td>';
+                echo '<td style="padding: 8px; border: 1px solid #000;">' . ucfirst($item->status) . '</td>';
+                echo '<td style="padding: 8px; border: 1px solid #000;">' . $item->created_at->format('d/m/Y H:i') . '</td>';
+                echo '</tr>';
             }
-
-            fclose($file);
+            echo '</tbody>';
+            echo '</table>';
         };
 
         return response()->stream($callback, 200, $headers);

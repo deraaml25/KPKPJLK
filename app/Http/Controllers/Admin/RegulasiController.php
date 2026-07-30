@@ -23,9 +23,16 @@ class RegulasiController extends Controller
     public function kembalikanUntukRevisi(Request $request, Regulasi $regulasi)
     {
         $request->validate([
-            'file_catatan_dinas' => 'nullable|file|mimes:doc,docx,pdf|max:10240',
+            'file_catatan_dinas' => 'nullable|file|max:10240',
             'catatan' => 'required|string',
         ]);
+
+        if ($request->hasFile('file_catatan_dinas')) {
+            $ext = strtolower($request->file('file_catatan_dinas')->getClientOriginalExtension());
+            if (!in_array($ext, ['doc', 'docx', 'pdf'])) {
+                return back()->withErrors(['file_catatan_dinas' => 'File harus berupa dokumen Word atau PDF.']);
+            }
+        }
 
         $updateData = [
             'status' => 'perlu_revisi',
@@ -45,8 +52,15 @@ class RegulasiController extends Controller
     {
         $request->validate([
             'no_regulasi' => 'required|string|unique:regulasis,no_regulasi',
-            'file_final' => 'nullable|file|mimes:pdf|max:10240',
+            'file_final' => 'nullable|file|max:10240',
         ]);
+
+        if ($request->hasFile('file_final')) {
+            $ext = strtolower($request->file('file_final')->getClientOriginalExtension());
+            if ($ext !== 'pdf') {
+                return back()->withErrors(['file_final' => 'File final harus berupa PDF.']);
+            }
+        }
 
         $updateData = [
             'status' => 'disahkan',

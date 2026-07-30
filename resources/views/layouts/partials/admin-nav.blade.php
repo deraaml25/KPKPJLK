@@ -6,7 +6,7 @@
         ['route' => 'admin.ajuan.index', 'icon' => 'approval', 'text' => 'e-Rekomendasi', 'active' => request()->routeIs('admin.ajuan.*')],
         ['route' => 'admin.pjkades.index', 'icon' => 'admin_panel_settings', 'text' => 'SK Kades', 'active' => request()->routeIs('admin.pjkades.*')],
         ['route' => 'admin.rencana-p3d.index', 'icon' => 'assignment', 'text' => 'Rencana P3D', 'active' => request()->routeIs('admin.rencana-p3d.*')],
-        ['route' => 'admin.drive.index', 'icon' => 'cloud_circle', 'text' => 'Drive Dokumen', 'active' => request()->routeIs('admin.drive.*')],
+        ['route' => 'admin.drive.index', 'icon' => 'cloud_circle', 'text' => 'Arsip Dokumen', 'active' => request()->routeIs('admin.drive.*')],
 
         ['route' => 'admin.perangkat.index', 'icon' => 'badge', 'text' => 'Data Kepala dan Perangkat Desa', 'active' => request()->routeIs('admin.perangkat.*')],
         ['route' => 'admin.bpd.index', 'icon' => 'groups', 'text' => 'Data BPD', 'active' => request()->routeIs('admin.bpd.*')],

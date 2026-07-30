@@ -100,6 +100,16 @@
 
                         <hr class="border-red-200 my-5">
 
+                        @if($errors->any())
+                            <div class="mb-4 p-3 rounded-card bg-red-50 border border-red-200 text-red-800 text-xs">
+                                <ul class="list-disc list-inside">
+                                    @foreach($errors->all() as $e)
+                                        <li>{{ $e }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
                         <form action="{{ route('desa.regulasi.kirim-revisi', $regulasi) }}" method="POST"
                             enctype="multipart/form-data">
                             @csrf

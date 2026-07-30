@@ -8,15 +8,32 @@ use Illuminate\Http\Request;
 
 class VerifikasiBpdController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         // Get all pending requests
         $pending = Bpd::with('desa')
             ->whereIn('status_verifikasi', ['pending_tambah', 'pending_ubah', 'pending_nonaktif', 'pending_aktif'])
             ->latest()
-            ->paginate(15);
+            ->paginate(10, ['*'], 'pending_page');
 
-        return view('admin.verifikasi_bpd.index', compact('pending'));
+        // Get all approved BPD (data master)
+        $query = Bpd::with('desa.kecamatan');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('nama', 'like', "%{$search}%")
+                ->orWhere('jabatan', 'like', "%{$search}%")
+                ->orWhereHas('desa', function ($q) use ($search) {
+                    $q->where('nama_desa', 'like', "%{$search}%");
+                });
+        }
+
+        $bpds = $query->whereNotIn('status_verifikasi', ['pending_tambah'])
+            ->orderBy('desa_id')
+            ->orderByRaw("CASE WHEN jabatan = 'Ketua BPD' THEN 0 ELSE 1 END")
+            ->paginate(15, ['*'], 'bpd_page');
+
+        return view('admin.verifikasi_bpd.index', compact('pending', 'bpds'));
     }
 
     public function approve(Request $request, $id)

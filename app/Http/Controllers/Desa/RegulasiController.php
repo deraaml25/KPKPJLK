@@ -26,13 +26,31 @@ class RegulasiController extends Controller
         $request->validate([
             'judul' => 'required|string|max:255',
             'tipe' => 'required|in:perdes,perkades,sk_kades',
-            'file' => 'required|file|mimes:doc,docx|max:10240'
         ]);
 
-        $desaId = Auth::user()->desa_id;
-        $path = $request->file('file')->store('regulasi/draft_desa', 'public');
+        if (!$request->hasFile('file') || !$request->file('file')) {
+            // Try getting it from allFiles directly
+            $files = $request->allFiles();
+            if (!isset($files['file'])) {
+                return back()->withErrors(['file' => 'File dokumen wajib diunggah.'])->withInput();
+            }
+        }
 
-        Regulasi::create([
+        $uploadedFile = $request->file('file') ?? $request->allFiles()['file'];
+        $ext = strtolower($uploadedFile->getClientOriginalExtension());
+
+        \Log::info('REGULASI FILE EXT', ['ext' => $ext, 'original_name' => $uploadedFile->getClientOriginalName(), 'error' => $uploadedFile->getError()]);
+
+        if (!in_array($ext, ['doc', 'docx'])) {
+            return back()->withErrors(['file' => 'File harus berupa dokumen Word (.doc atau .docx). Format lain tidak diterima.'])->withInput();
+        }
+
+        $desaId = Auth::user()->desa_id;
+        $path = $uploadedFile->store('regulasi/draft_desa', 'public');
+
+        \Log::info('REGULASI FILE STORED', ['path' => $path]);
+
+        $reg = Regulasi::create([
             'judul' => $request->judul,
             'deskripsi' => $request->deskripsi,
             'tipe' => $request->tipe,
@@ -42,6 +60,8 @@ class RegulasiController extends Controller
             'tgl_diajukan' => now(),
             'no_regulasi' => null,
         ]);
+
+        \Log::info('REGULASI CREATED', ['id' => $reg->id]);
 
         return redirect()->route('desa.regulasi.index')->with('success', 'Draf aturan berhasil dikirim. Menunggu evaluasi Dinpermasdes.');
     }
@@ -61,9 +81,14 @@ class RegulasiController extends Controller
         }
 
         $request->validate([
-            'file_revisi' => 'required|file|mimes:doc,docx|max:10240',
+            'file_revisi' => 'required|file|max:10240',
             'file_pdf_sah' => 'nullable|file|mimes:pdf|max:10240',
         ]);
+
+        $extRevisi = strtolower($request->file('file_revisi')->getClientOriginalExtension());
+        if (!in_array($extRevisi, ['doc', 'docx'])) {
+            return back()->withErrors(['file_revisi' => 'File harus berupa dokumen Word (.doc atau .docx).']);
+        }
 
         $updateData = [
             'file_path' => $request->file('file_revisi')->store('regulasi/draft_desa', 'public'),

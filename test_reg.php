@@ -1,0 +1,1 @@
+<?php require 'vendor/autoload.php'; require 'bootstrap/app.php'; $app = app(); $app->make('Illuminate\Contracts\Console\Kernel')->bootstrap(); $reg = \App\Models\Regulasi::create(['judul' => 'Test', 'tipe' => 'perdes', 'file_path' => 'dummy', 'status' => 'menunggu_evaluasi', 'desa_id' => 179, 'tgl_diajukan' => now(), 'no_regulasi' => null]); echo 'Created ID: ' . $reg->id;

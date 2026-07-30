@@ -82,8 +82,6 @@
 
             {{-- Dokumen Persyaratan --}}
             <div class="bg-surface rounded-card border border-border shadow-sm overflow-hidden" x-data="{ isSubmitting: false }">
-                <form method="POST" action="{{ route('desa.ajuan.bulk-upload', $ajuan) }}" enctype="multipart/form-data" @submit="isSubmitting = true">
-                    @csrf
                     <div class="px-6 py-4 border-b border-border bg-gray-50 flex flex-wrap justify-between items-center gap-3">
                         <div>
                             <h3 class="text-base font-display font-semibold text-ink">Checklist Berkas Persyaratan ({{ $ajuan->checklistAjuans->count() }} item)</h3>
@@ -149,6 +147,8 @@
                         @endforelse
                     </div>
 
+                <form method="POST" action="{{ route('desa.ajuan.bulk-upload', $ajuan) }}" enctype="multipart/form-data" @submit="isSubmitting = true">
+                    @csrf
                     @if($ajuan->metode === 'online' && auth()->user()->can('update', $ajuan))
                     <div class="px-6 py-6 bg-white border-t border-border">
                         <label class="block text-sm font-medium text-ink mb-2">Unggah Keseluruhan Persyaratan (.ZIP / .RAR / .PDF)</label>

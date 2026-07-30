@@ -1,6 +1,5 @@
 <x-app-layout>
     @section('title', 'Draft Regulasi')
-    @section('page-subtitle', 'Daftar rancangan produk hukum desa Kabupaten Banyumas')
 
     <!-- List -->
     <div class="bg-white rounded-card shadow-sm border border-border overflow-hidden">

@@ -1,10 +1,7 @@
 <x-app-layout>
-    @section('title', 'Rekapitulasi Rencana P3D')
+    @section('title', 'Rencana P3D')
 
-    <div class="bg-white rounded-card p-6 shadow-sm border border-border mb-6">
-        <h2 class="text-xl font-display font-bold text-ink">Rekapitulasi Rencana P3D (Penjaringan & Penyaringan Perangkat Desa)</h2>
-        <p class="text-muted text-sm mt-1">Pantau dan evaluasi rencana pengisian formasi jabatan perangkat desa yang kosong se-Kabupaten Banyumas.</p>
-    </div>
+
 
     @if(session('success'))
         <div class="p-4 bg-green-50 text-green-800 rounded-lg border border-green-200 text-sm mb-6 font-medium">
@@ -15,37 +12,37 @@
     {{-- Statistik Cards --}}
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         {{-- Card 1: Total Formasi Kosong --}}
-        <div class="bg-white p-6 rounded-card border border-border shadow-sm flex items-center justify-between">
-            <div>
-                <span class="text-xs font-semibold text-muted uppercase tracking-wider block">Total Formasi Kosong</span>
-                <span class="text-3xl font-extrabold text-ink block mt-2 font-display">{{ $totalFormasi }}</span>
-                <span class="text-xs text-muted block mt-1">Jabatan Perangkat Desa</span>
+        <div class="bg-white p-6 rounded-card border border-border shadow-sm flex items-center justify-between overflow-hidden">
+            <div class="min-w-0 flex-1">
+                <span class="text-xs font-semibold text-muted uppercase tracking-wider block truncate">Total Formasi Kosong</span>
+                <span class="text-xl font-extrabold text-ink block mt-2 font-display whitespace-nowrap truncate">{{ $totalFormasi }}</span>
+                <span class="text-xs text-muted block mt-1 truncate">Jabatan Perangkat Desa</span>
             </div>
-            <div class="h-12 w-12 rounded-full bg-red-50 flex items-center justify-center text-red-600">
+            <div class="h-12 w-12 rounded-full bg-red-50 flex-shrink-0 flex items-center justify-center text-red-600 ml-4">
                 <span class="material-symbols-outlined text-[28px]">assignment_late</span>
             </div>
         </div>
 
         {{-- Card 2: Total Rencana Anggaran --}}
-        <div class="bg-white p-6 rounded-card border border-border shadow-sm flex items-center justify-between">
-            <div>
-                <span class="text-xs font-semibold text-muted uppercase tracking-wider block">Total Rencana Anggaran P3D</span>
-                <span class="text-3xl font-extrabold text-ink block mt-2 font-display">Rp {{ number_format($totalAnggaran, 0, ',', '.') }}</span>
-                <span class="text-xs text-muted block mt-1">Alokasi Anggaran Terkumpul</span>
+        <div class="bg-white p-6 rounded-card border border-border shadow-sm flex items-center justify-between overflow-hidden">
+            <div class="min-w-0 flex-1">
+                <span class="text-xs font-semibold text-muted uppercase tracking-wider block truncate">Total Rencana Anggaran P3D</span>
+                <span class="text-xl font-extrabold text-ink block mt-2 font-display whitespace-nowrap truncate">Rp {{ number_format($totalAnggaran, 0, ',', '.') }}</span>
+                <span class="text-xs text-muted block mt-1 truncate">Alokasi Anggaran Terkumpul</span>
             </div>
-            <div class="h-12 w-12 rounded-full bg-emerald-50 flex items-center justify-center text-emerald-600">
+            <div class="h-12 w-12 rounded-full bg-emerald-50 flex-shrink-0 flex items-center justify-center text-emerald-600 ml-4">
                 <span class="material-symbols-outlined text-[28px]">payments</span>
             </div>
         </div>
 
         {{-- Card 3: Jumlah Desa Melapor --}}
-        <div class="bg-white p-6 rounded-card border border-border shadow-sm flex items-center justify-between">
-            <div>
-                <span class="text-xs font-semibold text-muted uppercase tracking-wider block">Desa yang Sudah Melapor</span>
-                <span class="text-3xl font-extrabold text-ink block mt-2 font-display">{{ $totalDesa }}</span>
-                <span class="text-xs text-muted block mt-1">Desa Terdata</span>
+        <div class="bg-white p-6 rounded-card border border-border shadow-sm flex items-center justify-between overflow-hidden">
+            <div class="min-w-0 flex-1">
+                <span class="text-xs font-semibold text-muted uppercase tracking-wider block truncate">Desa yang Sudah Melapor</span>
+                <span class="text-xl font-extrabold text-ink block mt-2 font-display whitespace-nowrap truncate">{{ $totalDesa }}</span>
+                <span class="text-xs text-muted block mt-1 truncate">Desa Terdata</span>
             </div>
-            <div class="h-12 w-12 rounded-full bg-indigo-50 flex items-center justify-center text-indigo-600">
+            <div class="h-12 w-12 rounded-full bg-indigo-50 flex-shrink-0 flex items-center justify-center text-indigo-600 ml-4">
                 <span class="material-symbols-outlined text-[28px]">holiday_village</span>
             </div>
         </div>
@@ -58,7 +55,7 @@
             <div>
                 <label for="kecamatan_id" class="block text-xs font-bold text-ink mb-2">Filter Kecamatan</label>
                 <select name="kecamatan_id" id="kecamatan_id" class="w-full text-sm rounded-md border-border text-ink bg-white focus:border-primary focus:ring-primary shadow-sm">
-                    <option value="">-- Semua Kecamatan --</option>
+                    <option value="">Semua Kecamatan</option>
                     @foreach($kecamatans as $kec)
                         <option value="{{ $kec->id }}" {{ request('kecamatan_id') == $kec->id ? 'selected' : '' }}>
                             {{ $kec->nama_kecamatan }}
@@ -88,7 +85,7 @@
                 @endif
                 <a href="{{ route('admin.rencana-p3d.export-csv', request()->query()) }}" class="inline-flex items-center justify-center px-4 py-2 bg-emerald-600 text-white font-medium rounded-btn hover:bg-emerald-700 transition-colors text-sm shadow-sm">
                     <span class="material-symbols-outlined mr-1.5 text-[18px]">download</span>
-                    CSV
+                    Excel
                 </a>
             </div>
         </form>
@@ -100,13 +97,13 @@
             <table class="min-w-full divide-y divide-border">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Kecamatan & Desa</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Formasi Kosong</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Jabatan yang Kosong</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Rencana Pelaksanaan</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Rencana Anggaran</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Tahun</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Kecamatan & Desa</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Formasi Kosong</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Jabatan yang Kosong</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Rencana Pelaksanaan</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Rencana Anggaran</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Tahun</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Status</th>
                         <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>

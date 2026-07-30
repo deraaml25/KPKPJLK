@@ -1,0 +1,1 @@
+<?php require 'vendor/autoload.php'; require 'bootstrap/app.php'; $app = app(); $app->make('Illuminate\Contracts\Console\Kernel')->bootstrap(); \App\Models\Regulasi::where('id', 3)->delete(); echo 'Deleted';

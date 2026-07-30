@@ -1,6 +1,5 @@
 <x-app-layout>
     @section('title', 'Verifikasi e-Rekomendasi')
-    @section('page-subtitle', 'Daftar pengajuan desa se-Kabupaten Banyumas')
 
     @if(session('success'))
         <div class="mb-5 p-4 rounded-card bg-green-50 border border-green-200 text-green-800 flex items-start gap-3">
@@ -14,22 +13,22 @@
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-gray-50 border-b border-border">
-                        <th class="px-6 py-4 text-xs font-semibold text-muted uppercase tracking-wider">No. Registrasi</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-muted uppercase tracking-wider">Desa & Pemohon</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-muted uppercase tracking-wider">Layanan</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-muted uppercase tracking-wider">Posisi Surat</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-muted uppercase tracking-wider">Status & SLA</th>
-                        <th class="px-6 py-4 text-xs font-semibold text-muted uppercase tracking-wider">Aksi</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">No. Registrasi</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Desa & Pemohon</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Layanan</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Posisi Surat</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Status & SLA</th>
+                        <th class="px-6 py-4 text-center text-xs font-semibold text-muted uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border">
                     @forelse($ajuans as $ajuan)
                         <tr class="hover:bg-gray-50 transition-colors">
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <span class="text-sm font-mono text-ink">{{ $ajuan->no_registrasi }}</span>
                                 <div class="text-xs text-muted mt-1">{{ $ajuan->tgl_diajukan ? $ajuan->tgl_diajukan->format('d M Y') : '-' }}</div>
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4 text-center">
                                 <div class="text-sm font-semibold text-ink">{{ $ajuan->desa->nama_desa }}</div>
                                 <div class="text-xs text-muted mt-0.5">
                                     {{ $ajuan->pesertas->first() ? $ajuan->pesertas->first()->perangkatDesa->nama : '-' }}
@@ -38,16 +37,16 @@
                                     @endif
                                 </div>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium {{ $ajuan->jenisLayanan->nama == 'Pengangkatan' ? 'bg-primary-soft text-primary' : ($ajuan->jenisLayanan->nama == 'Pemberhentian' ? 'bg-red-100 text-danger' : 'bg-yellow-100 text-yellow-800') }}">
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold {{ $ajuan->jenisLayanan->nama == 'Pengangkatan' ? 'bg-indigo-100 text-indigo-800' : ($ajuan->jenisLayanan->nama == 'Pemberhentian' ? 'bg-red-100 text-danger' : 'bg-yellow-100 text-yellow-800') }}">
                                     {{ $ajuan->jenisLayanan->nama }}
                                 </span>
                                 <div class="text-xs text-muted mt-1 uppercase font-bold">{{ $ajuan->metode }}</div>
                             </td>
-                            <td class="px-6 py-4">
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
                                 <span class="text-sm font-medium text-ink">{{ $ajuan->posisi_surat ?? 'Front Office (FO)' }}</span>
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
                                 @php
                                     $statusBadge = match($ajuan->status) {
                                         'submitted' => ['label' => 'Menunggu Verifikasi', 'css' => 'bg-blue-100 text-blue-800'],
@@ -71,7 +70,7 @@
                                     </div>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 font-medium text-right whitespace-nowrap">
+                            <td class="px-6 py-4 font-medium text-center whitespace-nowrap">
                                 <a href="{{ route('admin.ajuan.show', $ajuan) }}" class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded-btn bg-primary text-white hover:bg-primary-light transition-colors shadow-sm">
                                     Verifikasi Split-Screen
                                 </a>

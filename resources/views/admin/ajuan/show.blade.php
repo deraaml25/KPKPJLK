@@ -133,7 +133,7 @@
                                     <form action="{{ route('admin.ajuan.verify', [$ajuan, $item]) }}" method="POST" class="verify-form flex-shrink-0 ml-auto sm:ml-4" data-url="{{ route('admin.ajuan.verify', [$ajuan, $item]) }}">
                                         @csrf
                                         <input type="checkbox" name="status" value="valid" 
-                                               class="w-7 h-7 text-blue-400 focus:ring-blue-400 border-gray-300 rounded shadow-sm cursor-pointer transition-colors verify-checkbox" 
+                                               class="w-7 h-7 text-primary focus:ring-primary border-gray-300 rounded shadow-sm cursor-pointer transition-colors verify-checkbox" 
                                                {{ $item->status == 'valid' || $item->status == 'lengkap' ? 'checked' : '' }}
                                                title="Tandai Sesuai">
                                     </form>

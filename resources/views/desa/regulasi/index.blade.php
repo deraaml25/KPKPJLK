@@ -26,9 +26,7 @@
             <table class="min-w-full divide-y divide-border">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">No.
-                            Registrasi</th>
+
                         <th scope="col"
                             class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Judul /
                             Tipe</th>
@@ -46,9 +44,7 @@
                 <tbody class="bg-white divide-y divide-border">
                     @forelse ($regulasis as $reg)
                         <tr class="hover:bg-gray-50/50">
-                            <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-ink font-medium">
-                                {{ $reg->no_regulasi }}
-                            </td>
+
                             <td class="px-6 py-4">
                                 <div class="text-sm font-medium text-ink font-display">{{ $reg->judul }}</div>
                                 <span
@@ -80,7 +76,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="p-0">
+                            <td colspan="4" class="p-0">
                                 <x-empty-state
                                     icon="<path stroke-linecap='round' stroke-linejoin='round' d='M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z' />"
                                     title="Regulasi Kosong"

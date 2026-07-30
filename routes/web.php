@@ -60,6 +60,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
 
     // Drive Dokumen
     Route::get('/drive', [DriveController::class, 'index'])->name('drive.index');
+    Route::post('/drive/upload', [DriveController::class, 'upload'])->name('drive.upload');
     Route::get('/drive/download-zip', [DriveController::class, 'downloadZip'])->name('drive.download-zip');
 
     // Modul 1: e-Regulasi (Admin)

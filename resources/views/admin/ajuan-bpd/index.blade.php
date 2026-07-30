@@ -1,15 +1,5 @@
 <x-app-layout>
-    @section('title', 'Admin - Ajuan BPD')
-
-    <div
-        class="bg-white rounded-card p-6 shadow-sm border border-border mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-            <h2 class="text-xl font-display font-bold text-ink">Verifikasi Ajuan BPD (PAW)</h2>
-            <p class="text-muted text-sm mt-1">
-                Daftar semua ajuan dari seluruh Desa.
-            </p>
-        </div>
-    </div>
+    @section('title', 'Verifikasi Ajuan BPD (PAW)')
 
     <!-- Tabel -->
     <div>

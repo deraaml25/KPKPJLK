@@ -1,5 +1,5 @@
 <x-app-layout>
-    @section('title', 'Drive Dokumen Digital')
+    @section('title', 'Arsip Dokumen Digital')
 
     <div class="mb-4">
         <!-- Breadcrumb -->
@@ -17,20 +17,33 @@
 
         <!-- Buttons -->
         <div class="flex items-center gap-3 mb-6">
-            <button class="inline-flex items-center px-4 py-2.5 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors shadow-sm">
-                <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
-                Upload
-            </button>
-            <a href="{{ route('admin.drive.download-zip', ['path' => request('path', 'dokumen')]) }}" class="inline-flex items-center px-4 py-2.5 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors shadow-sm">
+            <form action="{{ route('admin.drive.upload') }}" method="POST" enctype="multipart/form-data" class="inline-flex">
+                @csrf
+                <input type="hidden" name="path" value="{{ request('path', 'dokumen') }}">
+                <input type="file" name="file" id="file_upload" class="hidden" onchange="this.form.submit()">
+                <button type="button" onclick="document.getElementById('file_upload').click()" class="inline-flex items-center px-4 py-2.5 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors shadow-sm">
+                    <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg>
+                    Upload
+                </button>
+            </form>
+            @php
+                $folderName = basename(request('path', 'dokumen'));
+                $label = $folderName === 'dokumen' ? 'Semua_Arsip' : 'Arsip_' . ucwords(str_replace('_', ' ', $folderName));
+            @endphp
+            <a href="{{ route('admin.drive.download-zip', ['path' => request('path', 'dokumen'), 'label' => $label]) }}" class="inline-flex items-center px-4 py-2.5 bg-blue-500 text-white text-sm font-medium rounded-lg hover:bg-blue-600 transition-colors shadow-sm">
                 <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
                 Download All
             </a>
         </div>
-
-        <p class="text-muted text-sm mb-8">Eksplorasi arsip dokumen persyaratan secara terstruktur.</p>
     </div>
 
     <!-- Alert Messages -->
+    @if(session('success'))
+        <div class="mb-6 p-4 rounded-card bg-green-50 border border-green-200 text-green-700 flex items-start">
+            <svg class="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            <div>{{ session('success') }}</div>
+        </div>
+    @endif
     @if(session('error'))
         <div class="mb-6 p-4 rounded-card bg-red-50 border border-red-200 text-red-700 flex items-start">
             <svg class="w-5 h-5 mr-3 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>

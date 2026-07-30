@@ -8,15 +8,32 @@ use Illuminate\Http\Request;
 
 class VerifikasiPerangkatController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         // Get all pending requests
         $pending = PerangkatDesa::with('desa')
             ->whereIn('status_verifikasi', ['pending_tambah', 'pending_ubah', 'pending_nonaktif', 'pending_aktif'])
             ->latest()
-            ->paginate(15);
+            ->paginate(10, ['*'], 'pending_page');
 
-        return view('admin.verifikasi_perangkat.index', compact('pending'));
+        // Get all approved devices (data master)
+        $query = PerangkatDesa::with('desa.kecamatan');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('nama', 'like', "%{$search}%")
+                ->orWhere('jabatan', 'like', "%{$search}%")
+                ->orWhereHas('desa', function ($q) use ($search) {
+                    $q->where('nama_desa', 'like', "%{$search}%");
+                });
+        }
+
+        $perangkats = $query->whereNotIn('status_verifikasi', ['pending_tambah'])
+            ->orderBy('desa_id')
+            ->orderByRaw("CASE WHEN jabatan = 'Kepala Desa' THEN 0 ELSE 1 END")
+            ->paginate(15, ['*'], 'perangkat_page');
+
+        return view('admin.verifikasi_perangkat.index', compact('pending', 'perangkats'));
     }
 
     public function approve(Request $request, $id)

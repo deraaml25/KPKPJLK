@@ -6,12 +6,23 @@
         <p class="text-muted text-sm mb-6">Ajukan draf atau rancangan perdes, perkades, atau SK kades untuk dievaluasi
             oleh Dinpermasdes.</p>
 
+        @if($errors->any())
+            <div class="mb-5 p-4 rounded-card bg-red-50 border border-red-200 text-red-800 flex items-start gap-3">
+                <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <ul class="text-sm list-disc list-inside">
+                    @foreach($errors->all() as $e)
+                        <li>{{ $e }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <form action="{{ route('desa.regulasi.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <div class="mb-4">
                 <label for="judul" class="block text-sm font-medium text-ink mb-1">Judul Regulasi</label>
-                <input type="text" name="judul" id="judul" required
+                <input type="text" name="judul" id="judul" required value="{{ old('judul') }}"
                     class="w-full rounded-md border-border text-ink bg-white focus:border-primary focus:ring-primary shadow-sm"
                     placeholder="Contoh: Peraturan Desa tentang Rencana Kerja Pemerintah Desa">
             </div>
@@ -27,8 +38,7 @@
                     </select>
                 </div>
                 <div>
-                    <label for="file" class="block text-sm font-medium text-ink mb-1">Draf Dokumen (Wajib .doc /
-                        .docx)</label>
+                    <label for="file" class="block text-sm font-medium text-ink mb-1">Draf Dokumen (Wajib .doc / .docx)</label>
                     <input type="file" name="file" id="file" required
                         accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
                         class="w-full rounded-md border-border text-ink bg-white focus:border-primary focus:ring-primary shadow-sm text-sm p-1">
@@ -36,11 +46,10 @@
             </div>
 
             <div class="mb-6">
-                <label for="deskripsi" class="block text-sm font-medium text-ink mb-1">Keterangan / Deskripsi
-                    Singkat</label>
+                <label for="deskripsi" class="block text-sm font-medium text-ink mb-1">Keterangan / Deskripsi Singkat</label>
                 <textarea name="deskripsi" id="deskripsi" rows="4"
                     class="w-full rounded-md border-border text-ink bg-white focus:border-primary focus:ring-primary shadow-sm"
-                    placeholder="Jelaskan secara singkat materi pokok regulasi ini..."></textarea>
+                    placeholder="Jelaskan secara singkat materi pokok regulasi ini...">{{ old('deskripsi') }}</textarea>
             </div>
 
             <div class="flex items-center justify-end gap-3 border-t border-border pt-6">

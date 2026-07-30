@@ -1,38 +1,11 @@
 <x-app-layout>
-    @section('title', 'Detail Rencana P3D')
+    @section('title', 'Detail Rencana P3D ' . ucwords(strtolower($rencana->desa->nama_desa)))
 
-    {{-- Breadcrumb & Header --}}
-    <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-            <div class="flex items-center text-sm text-muted mb-2">
-                <a href="{{ route('admin.rencana-p3d.index') }}" class="hover:text-primary transition-colors flex items-center">
-                    <span class="material-symbols-outlined text-[16px] mr-1">arrow_back</span>
-                    Kembali
-                </a>
-                <span class="mx-2">/</span>
-                <span class="text-ink">Detail Rencana P3D</span>
-            </div>
-            <h2 class="text-2xl font-display font-bold text-ink flex items-center gap-2">
-                Detail Rencana P3D Desa {{ $rencana->desa->nama_desa }}
-                @if($rencana->status === 'disetujui')
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 border border-green-200">
-                        <span class="w-1.5 h-1.5 bg-green-600 rounded-full mr-1.5"></span>
-                        Disetujui Admin
-                    </span>
-                @elseif($rencana->status === 'dikirim')
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 border border-blue-200">
-                        <span class="w-1.5 h-1.5 bg-blue-600 rounded-full mr-1.5"></span>
-                        Menunggu Evaluasi
-                    </span>
-                @else
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 border border-gray-200">
-                        <span class="w-1.5 h-1.5 bg-gray-600 rounded-full mr-1.5"></span>
-                        Draft
-                    </span>
-                @endif
-            </h2>
-        </div>
-    </div>
+    @section('back-button')
+        <a href="{{ route('admin.rencana-p3d.index') }}" class="flex-shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-full bg-white border border-border text-muted hover:text-primary hover:border-primary transition-colors shadow-sm" title="Kembali">
+            <span class="material-symbols-outlined text-[20px]">arrow_back</span>
+        </a>
+    @endsection
 
     @if(session('success'))
         <div class="p-4 bg-green-50 text-green-800 rounded-lg border border-green-200 text-sm mb-6 font-medium">
@@ -62,42 +35,38 @@
                         </div>
                         <div>
                             <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Desa</label>
-                            <p class="text-sm font-medium text-ink">{{ $rencana->desa->nama_desa }}</p>
+                            <p class="text-sm font-medium text-ink">{{ ucwords(strtolower($rencana->desa->nama_desa)) }}</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Tahun Anggaran</label>
+                            <p class="text-sm font-medium text-ink">{{ $rencana->tahun ?? '-' }}</p>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Jumlah Formasi Kosong</label>
-                            <div class="mt-1">
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-bold bg-rose-50 text-rose-800 border border-rose-100">
-                                    {{ $rencana->jumlah_formasi_kosong }} Formasi
-                                </span>
-                            </div>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Rencana Pelaksanaan (Bulan/Tahun)</label>
+                            <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Rencana Pelaksanaan</label>
                             <p class="text-sm font-medium text-ink flex items-center">
                                 <span class="material-symbols-outlined text-muted text-[18px] mr-1.5">calendar_month</span>
                                 {{ $rencana->rencana_pelaksanaan ? $rencana->rencana_pelaksanaan->format('F Y') : '-' }}
                             </p>
                         </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Jabatan yang Kosong</label>
-                            <div class="p-3 bg-gray-50 rounded-lg border border-gray-100 text-sm text-ink whitespace-pre-wrap">{{ $rencana->jabatan_kosong }}</div>
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Rencana Anggaran</label>
-                            <div class="text-xl font-display font-extrabold text-emerald-600 bg-emerald-50 inline-block px-4 py-2 rounded-lg border border-emerald-100">
-                                Rp {{ number_format($rencana->rencana_anggaran, 0, ',', '.') }}
-                            </div>
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Keterangan / Kondisi</label>
-                            <div class="p-4 bg-yellow-50/50 rounded-lg border border-yellow-100 text-sm text-ink leading-relaxed whitespace-pre-wrap">
-                                {{ $rencana->keterangan ?: 'Tidak ada keterangan khusus.' }}
-                            </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Jumlah Formasi Kosong</label>
+                            <p class="text-sm font-bold text-rose-600">{{ $rencana->jumlah_formasi_kosong }} Formasi</p>
                         </div>
                         <div>
-                            <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Tahun Anggaran</label>
-                            <p class="text-sm font-bold text-ink">{{ $rencana->tahun ?? '-' }}</p>
+                            <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Rencana Anggaran</label>
+                            <p class="text-sm font-bold text-emerald-600">Rp {{ number_format($rencana->rencana_anggaran, 0, ',', '.') }}</p>
+                        </div>
+
+                        <div class="md:col-span-2">
+                            <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-1">Jabatan yang Kosong</label>
+                            <div class="p-4 bg-gray-50 rounded-lg border border-border text-sm font-medium text-ink whitespace-pre-wrap">{{ $rencana->jabatan_kosong }}</div>
+                        </div>
+
+                        <div class="md:col-span-2 border-t border-border pt-6">
+                            <label class="block text-xs font-semibold text-muted uppercase tracking-wider mb-2">Keterangan / Kondisi</label>
+                            <p class="text-sm text-ink leading-relaxed whitespace-pre-wrap">{{ $rencana->keterangan ?: 'Tidak ada keterangan khusus.' }}</p>
                         </div>
                     </div>
                 </div>

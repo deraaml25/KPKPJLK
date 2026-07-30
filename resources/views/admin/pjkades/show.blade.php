@@ -137,7 +137,7 @@
                                             @csrf
                                             <input type="hidden" name="status_verifikasi" value="tidak_sesuai">
                                             <input type="checkbox" name="status_verifikasi" value="valid" 
-                                                   class="verify-checkbox w-7 h-7 text-blue-400 focus:ring-blue-400 border-gray-300 rounded shadow-sm cursor-pointer transition-colors" 
+                                                   class="verify-checkbox w-7 h-7 text-primary focus:ring-primary border-gray-300 rounded shadow-sm cursor-pointer transition-colors" 
                                                    {{ $item->status_verifikasi == 'valid' ? 'checked' : '' }}
                                                    title="Tandai Sesuai">
                                         </form>
