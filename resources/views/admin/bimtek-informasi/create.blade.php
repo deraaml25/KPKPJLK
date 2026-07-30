@@ -25,7 +25,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('admin.bimtek-informasi.store') }}" method="POST" enctype="multipart/form-data" class="space-y-5">
+            <form action="{{ route('admin.bimtek-informasi.store') }}" method="POST" enctype="multipart/form-data" class="space-y-5" onsubmit="if(window.tinymce){ tinymce.triggerSave(); }">
                 @csrf
 
                 <div>
@@ -47,7 +47,7 @@
 
                 <div>
                     <label for="konten" class="block text-sm font-medium text-ink mb-1">Konten / Isi <span class="text-red-500">*</span></label>
-                    <textarea name="konten" id="konten" rows="8" required
+                    <textarea name="konten" id="konten" rows="8"
                         class="w-full rounded-md border-border text-ink bg-white focus:border-primary focus:ring-primary shadow-sm"
                         placeholder="Tulis isi berita, deskripsi kegiatan, atau informasi pembinaan secara lengkap...">{{ old('konten') }}</textarea>
                 </div>
@@ -55,14 +55,16 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                         <label for="foto" class="block text-sm font-medium text-ink mb-1">Foto / Gambar (Opsional)</label>
-                        <input type="file" name="foto" id="foto" accept="image/*"
+                        <input type="file" name="foto[]" id="foto" accept="image/*" multiple
+                            onchange="if(this.files.length > 5){ alert('Maksimal 5 foto!'); this.value=''; return; } for(let f of this.files){ if(f.size > 20971520){ alert('Ukuran per foto maksimal 20MB!'); this.value=''; return; } }"
                             class="w-full rounded-md border-border text-ink bg-white focus:border-primary focus:ring-primary shadow-sm text-sm p-1">
-                        <p class="text-xs text-muted mt-1">Format: JPG, PNG, WebP. Maks 5MB.</p>
+                        <p class="text-xs text-muted mt-1">Format: JPG, PNG, WebP. Maks 5 foto, ukuran maks 20MB/foto.</p>
                     </div>
 
                     <div>
                         <label for="file_lampiran" class="block text-sm font-medium text-ink mb-1">File Lampiran (Opsional)</label>
                         <input type="file" name="file_lampiran" id="file_lampiran" accept=".pdf,.doc,.docx"
+                            onchange="if(this.files[0].size > 10485760){ alert('Ukuran file maksimal 10MB!'); this.value=''; }"
                             class="w-full rounded-md border-border text-ink bg-white focus:border-primary focus:ring-primary shadow-sm text-sm p-1">
                         <p class="text-xs text-muted mt-1">Format: PDF, DOC. Maks 10MB.</p>
                     </div>
@@ -86,4 +88,46 @@
             </form>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/tinymce@6/tinymce.min.js"></script>
+    <script>
+        tinymce.init({
+            selector: '#konten',
+            plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+            height: 500,
+            menubar: false,
+            images_upload_handler: function (blobInfo, progress) {
+                return new Promise((resolve, reject) => {
+                    let xhr = new XMLHttpRequest();
+                    xhr.open('POST', '{{ route('admin.bimtek-informasi.upload-image') }}');
+                    xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
+                    
+                    xhr.upload.onprogress = (e) => {
+                        progress(e.loaded / e.total * 100);
+                    };
+                    
+                    xhr.onload = () => {
+                        if (xhr.status === 403) {
+                            reject({ message: 'HTTP Error: ' + xhr.status, remove: true });
+                            return;
+                        }
+                        if (xhr.status < 200 || xhr.status >= 300) {
+                            reject('HTTP Error: ' + xhr.status);
+                            return;
+                        }
+                        let json = JSON.parse(xhr.responseText);
+                        if (!json || typeof json.location != 'string') {
+                            reject('Invalid JSON: ' + xhr.responseText);
+                            return;
+                        }
+                        resolve(json.location);
+                    };
+                    xhr.onerror = () => { reject('Image upload failed due to a XHR Transport error. Code: ' + xhr.status); };
+                    let formData = new FormData();
+                    formData.append('file', blobInfo.blob(), blobInfo.filename());
+                    xhr.send(formData);
+                });
+            }
+        });
+    </script>
 </x-app-layout>

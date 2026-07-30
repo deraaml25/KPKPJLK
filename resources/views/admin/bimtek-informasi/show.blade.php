@@ -11,8 +11,15 @@
                 Kembali ke Daftar
             </a>
 
-            @if($bimtekInformasi->foto)
-                <img src="{{ asset('storage/' . $bimtekInformasi->foto) }}" alt="{{ $bimtekInformasi->judul }}"
+            @if($bimtekInformasi->foto && is_array($bimtekInformasi->foto) && count($bimtekInformasi->foto) > 0)
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+                    @foreach($bimtekInformasi->foto as $img)
+                        <img src="{{ Storage::url($img) }}" alt="{{ $bimtekInformasi->judul }}"
+                            class="w-full h-60 object-cover rounded-lg">
+                    @endforeach
+                </div>
+            @elseif($bimtekInformasi->foto && is_string($bimtekInformasi->foto))
+                <img src="{{ Storage::url($bimtekInformasi->foto) }}" alt="{{ $bimtekInformasi->judul }}"
                     class="w-full h-60 object-cover rounded-lg mb-6">
             @endif
 
@@ -31,8 +38,8 @@
 
             <h1 class="text-2xl font-display font-bold text-ink mb-6">{{ $bimtekInformasi->judul }}</h1>
 
-            <div class="prose prose-sm max-w-none text-ink leading-relaxed whitespace-pre-line border-t border-border pt-6">
-                {!! nl2br(e($bimtekInformasi->konten)) !!}
+            <div class="prose prose-sm max-w-none text-ink leading-relaxed border-t border-border pt-6">
+                {!! $bimtekInformasi->konten !!}
             </div>
 
             @if($bimtekInformasi->file_lampiran)

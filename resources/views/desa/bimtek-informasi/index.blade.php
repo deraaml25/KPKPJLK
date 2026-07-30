@@ -1,5 +1,5 @@
 <x-app-layout>
-    @section('title', 'Informasi & Pengajuan Pembinaan')
+    @section('title', 'Berita & Informasi Pembinaan')
     @section('page-description', 'Berita, artikel, dan informasi kegiatan pembinaan dari Dinpermasdes.')
 
     <!-- Tabs Nav -->
@@ -7,23 +7,26 @@
         <nav class="flex space-x-8" aria-label="Tabs">
             <a href="{{ route('desa.bimtek-informasi.index') }}"
                class="border-b-2 py-4 px-1 text-sm font-semibold {{ request()->routeIs('desa.bimtek-informasi.*') ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300' }}">
-                📰 Berita & Informasi Pembinaan
+                Berita & Informasi Pembinaan
             </a>
             <a href="{{ route('desa.pengajuan-pembinaan.index') }}"
                class="border-b-2 py-4 px-1 text-sm font-semibold {{ request()->routeIs('desa.pengajuan-pembinaan.*') ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300' }}">
-                📨 Pengajuan Pembinaan Desa
+                Pengajuan Pembinaan Desa
             </a>
         </nav>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
         @forelse ($informasis as $info)
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col hover:shadow-md transition-shadow">
-                @if($info->foto)
-                    <img src="{{ asset('storage/' . $info->foto) }}" alt="{{ $info->judul }}"
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col hover:shadow-md transition-shadow">
+                @if($info->foto && is_array($info->foto) && count($info->foto) > 0)
+                    <img src="{{ Storage::url($info->foto[0]) }}" alt="{{ $info->judul }}"
+                        class="w-full h-48 object-cover">
+                @elseif($info->foto && is_string($info->foto))
+                    <img src="{{ Storage::url($info->foto) }}" alt="{{ $info->judul }}"
                         class="w-full h-48 object-cover">
                 @else
-                    <div class="w-full h-48 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+                    <div class="w-full h-48 bg-slate-100 flex items-center justify-center text-slate-400">
                         <span class="material-symbols-outlined text-[48px] text-blue-300">feed</span>
                     </div>
                 @endif

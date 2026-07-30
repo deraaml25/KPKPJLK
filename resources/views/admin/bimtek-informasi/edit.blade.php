@@ -25,7 +25,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('admin.bimtek-informasi.update', $bimtekInformasi) }}" method="POST" enctype="multipart/form-data" class="space-y-5">
+            <form action="{{ route('admin.bimtek-informasi.update', $bimtekInformasi) }}" method="POST" enctype="multipart/form-data" class="space-y-5" onsubmit="if(window.tinymce){ tinymce.triggerSave(); }">
                 @csrf @method('PUT')
 
                 <div>
@@ -46,7 +46,7 @@
 
                 <div>
                     <label for="konten" class="block text-sm font-medium text-ink mb-1">Konten / Isi <span class="text-red-500">*</span></label>
-                    <textarea name="konten" id="konten" rows="8" required
+                    <textarea name="konten" id="konten" rows="8"
                         class="w-full rounded-md border-border text-ink bg-white focus:border-primary focus:ring-primary shadow-sm">{{ old('konten', $bimtekInformasi->konten) }}</textarea>
                 </div>
 
@@ -59,8 +59,10 @@
                                 <p class="text-xs text-muted mt-1">Foto saat ini. Upload baru untuk mengganti.</p>
                             </div>
                         @endif
-                        <input type="file" name="foto" id="foto" accept="image/*"
-                            class="w-full rounded-md border-border text-ink bg-white text-sm p-1">
+                        <input type="file" name="foto[]" id="foto" accept="image/*" multiple
+                            onchange="if(this.files.length > 5){ alert('Maksimal 5 foto!'); this.value=''; return; } for(let f of this.files){ if(f.size > 20971520){ alert('Ukuran per foto maksimal 20MB!'); this.value=''; return; } }"
+                            class="w-full rounded-md border-border text-ink bg-white focus:border-primary focus:ring-primary shadow-sm text-sm p-1">
+                        <p class="text-xs text-muted mt-1">Format: JPG, PNG, WebP. Maks 5 foto, ukuran maks 20MB/foto. Akan menimpa foto lama.</p>
                     </div>
 
                     <div>
@@ -92,4 +94,46 @@
             </form>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/tinymce@6/tinymce.min.js"></script>
+    <script>
+        tinymce.init({
+            selector: '#konten',
+            plugins: 'anchor autolink charmap codesample emoticons image link lists media searchreplace table visualblocks wordcount',
+            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat',
+            height: 500,
+            menubar: false,
+            images_upload_handler: function (blobInfo, progress) {
+                return new Promise((resolve, reject) => {
+                    let xhr = new XMLHttpRequest();
+                    xhr.open('POST', '{{ route('admin.bimtek-informasi.upload-image') }}');
+                    xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
+                    
+                    xhr.upload.onprogress = (e) => {
+                        progress(e.loaded / e.total * 100);
+                    };
+                    
+                    xhr.onload = () => {
+                        if (xhr.status === 403) {
+                            reject({ message: 'HTTP Error: ' + xhr.status, remove: true });
+                            return;
+                        }
+                        if (xhr.status < 200 || xhr.status >= 300) {
+                            reject('HTTP Error: ' + xhr.status);
+                            return;
+                        }
+                        let json = JSON.parse(xhr.responseText);
+                        if (!json || typeof json.location != 'string') {
+                            reject('Invalid JSON: ' + xhr.responseText);
+                            return;
+                        }
+                        resolve(json.location);
+                    };
+                    xhr.onerror = () => { reject('Image upload failed due to a XHR Transport error. Code: ' + xhr.status); };
+                    let formData = new FormData();
+                    formData.append('file', blobInfo.blob(), blobInfo.filename());
+                    xhr.send(formData);
+                });
+            }
+        });
+    </script>
 </x-app-layout>

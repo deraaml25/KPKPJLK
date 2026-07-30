@@ -254,7 +254,31 @@ class AjuanController extends Controller
         }
 
         if ($isSubmit) {
-            $ajuan->update(['status' => 'submitted']);
+            $ajuan->update([
+                'status' => 'submitted',
+                'posisi_surat' => 'Front Office (FO)'
+            ]);
+
+            // Milestone 1: Berkas Diterima (Selesai)
+            \App\Models\MilestoneTracking::create([
+                'ajuan_id' => $ajuan->id,
+                'tahap' => 1,
+                'tgl_mulai' => now(),
+                'tgl_selesai' => now(),
+                'catatan' => 'Berkas pengajuan berhasil disubmit oleh Desa.',
+                'updated_by' => auth()->id(),
+            ]);
+
+            // Milestone 2: Front Office (Aktif)
+            \App\Models\MilestoneTracking::create([
+                'ajuan_id' => $ajuan->id,
+                'tahap' => 2,
+                'tgl_mulai' => now(),
+                'tgl_selesai' => null,
+                'catatan' => 'Menunggu pengecekan awal oleh Front Office (FO).',
+                'updated_by' => auth()->id(),
+            ]);
+
             return redirect()->route('desa.ajuan.index')->with('success', 'Ajuan berhasil disubmit dan diteruskan ke Dinpermasdes!');
         }
 

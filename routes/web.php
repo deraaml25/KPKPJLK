@@ -71,6 +71,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
     // Modul 2b: Informasi & Berita Pembinaan (Admin CRUD)
     Route::get('/bimtek-informasi', [BimtekInformasiController::class, 'index'])->name('bimtek-informasi.index');
     Route::get('/bimtek-informasi/create', [BimtekInformasiController::class, 'create'])->name('bimtek-informasi.create');
+    Route::post('/bimtek-informasi/upload-image', [BimtekInformasiController::class, 'uploadImage'])->name('bimtek-informasi.upload-image');
     Route::post('/bimtek-informasi', [BimtekInformasiController::class, 'store'])->name('bimtek-informasi.store');
     Route::get('/bimtek-informasi/{bimtekInformasi}', [BimtekInformasiController::class, 'show'])->name('bimtek-informasi.show');
     Route::get('/bimtek-informasi/{bimtekInformasi}/edit', [BimtekInformasiController::class, 'edit'])->name('bimtek-informasi.edit');

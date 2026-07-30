@@ -201,7 +201,7 @@
                     <h3 class="text-base font-display font-semibold text-ink mb-1">Status Proses</h3>
                     <p class="text-xs text-muted mb-4 pb-4 border-b border-border">Pantau tahapan perjalanan usulan SK Kades Anda secara real-time.</p>
                     
-                    <x-pjkades-tracker :posisiAktif="$pjkades->posisi_surat ?? 'Berkas Diterima'" :status="$pjkades->status" />
+                    <x-pjkades-tracker :posisiAktif="$pjkades->posisi_surat ?? 'Berkas Diterima'" :status="$pjkades->status" :pjkades="$pjkades" />
                 </div>
             </div>
         </div>

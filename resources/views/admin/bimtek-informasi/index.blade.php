@@ -1,16 +1,16 @@
 <x-app-layout>
-    @section('title', 'Informasi Pembinaan')
+    @section('title', 'Berita & Informasi Pembinaan')
     @section('page-description', 'Kelola artikel, dokumentasi, dan pengumuman kegiatan pembinaan Dinpermasdes.')
 
-    @section('page-actions')
-        <a href="{{ route('admin.bimtek-informasi.create') }}"
-                class="inline-flex items-center px-4 py-2 bg-primary text-white font-medium rounded-btn hover:bg-primary-light transition-colors shadow-sm text-sm">
-                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-                Tambah Informasi
-            </a>
-    @endsection
+    <!-- Floating Action Button -->
+    <a href="{{ route('admin.bimtek-informasi.create') }}"
+        style="position: fixed; bottom: 2rem; right: 2rem; z-index: 50;"
+        class="flex items-center px-5 py-3 bg-primary text-white font-bold rounded-full transition-all shadow-lg text-sm">
+        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+        </svg>
+        Tambah Informasi
+    </a>
 
 
     
@@ -21,11 +21,11 @@
 
             <a href="{{ route('admin.bimtek-informasi.index') }}"
                class="border-b-2 py-4 px-1 text-sm font-semibold {{ request()->routeIs('admin.bimtek-informasi.*') ? 'border-primary text-primary' : 'border-transparent text-muted hover:text-ink hover:border-gray-300' }}">
-                📰 Berita & Informasi Pembinaan
+                Berita & Informasi Pembinaan
             </a>
             <a href="{{ route('admin.pengajuan-pembinaan.index') }}"
                class="border-b-2 py-4 px-1 text-sm font-semibold {{ request()->routeIs('admin.pengajuan-pembinaan.*') ? 'border-primary text-primary' : 'border-transparent text-muted hover:text-ink hover:border-gray-300' }}">
-                📨 Pengajuan Pembinaan Desa
+                Pengajuan Pembinaan Desa
             </a>
         </nav>
     </div>
@@ -38,12 +38,15 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
         @forelse ($informasis as $info)
-            <div class="bg-white rounded-card shadow-sm border border-border overflow-hidden flex flex-col hover:shadow-md transition-shadow">
-                @if($info->foto)
-                    <img src="{{ asset('storage/' . $info->foto) }}" alt="{{ $info->judul }}"
-                        class="w-full h-40 object-cover">
+            <div class="bg-white rounded-xl shadow-sm border border-border overflow-hidden flex flex-col hover:shadow-md transition-shadow">
+                @if($info->foto && is_array($info->foto) && count($info->foto) > 0)
+                    <img src="{{ Storage::url($info->foto[0]) }}" alt="{{ $info->judul }}"
+                        class="w-full h-48 object-cover">
+                @elseif($info->foto && is_string($info->foto))
+                    <img src="{{ Storage::url($info->foto) }}" alt="{{ $info->judul }}"
+                        class="w-full h-48 object-cover">
                 @else
-                    <div class="w-full h-40 bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+                    <div class="w-full h-48 bg-gray-100 flex items-center justify-center text-gray-400">
                         <svg class="w-12 h-12 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                                 d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z">

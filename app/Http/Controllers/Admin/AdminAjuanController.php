@@ -38,7 +38,28 @@ class AdminAjuanController extends Controller
 
         $dokumenList = $ajuan->checklistAjuans->sortBy('templateChecklist.urutan');
 
-        return view('admin.ajuan.show', compact('ajuan', 'dokumenList'));
+        $tahapAktif = match ($ajuan->posisi_surat) {
+            'Front Office (FO)' => 2,
+            'Kabid PDPD' => 4,
+            'Sekretaris Dinas' => 5,
+            'Kepala Dinas' => 6,
+            'Asisten Setda / Sekda' => 8,
+            'Bupati' => 9,
+            'Selesai (Surat Terbit)' => 10,
+            default => 1,
+        };
+
+        $nextPosisi = match ($ajuan->posisi_surat) {
+            'Front Office (FO)' => 'Kabid PDPD',
+            'Kabid PDPD' => 'Sekretaris Dinas',
+            'Sekretaris Dinas' => 'Kepala Dinas',
+            'Kepala Dinas' => 'Asisten Setda / Sekda',
+            'Asisten Setda / Sekda' => 'Bupati',
+            'Bupati' => 'Selesai (Surat Terbit)',
+            default => 'Front Office (FO)',
+        };
+
+        return view('admin.ajuan.show', compact('ajuan', 'dokumenList', 'tahapAktif', 'nextPosisi'));
     }
 
     /**
@@ -75,28 +96,50 @@ class AdminAjuanController extends Controller
             'catatan_milestone' => 'nullable|string'
         ]);
 
+        $tahapLama = match ($ajuan->posisi_surat) {
+            'Front Office (FO)' => 2,
+            'Kabid PDPD' => 4,
+            'Sekretaris Dinas' => 5,
+            'Kepala Dinas' => 6,
+            'Asisten Setda / Sekda' => 8,
+            'Bupati' => 9,
+            'Selesai (Surat Terbit)' => 10,
+            default => 1,
+        };
+
+        // Selesaikan tahap lama (jika ada yang belum selesai)
+        MilestoneTracking::where('ajuan_id', $ajuan->id)
+            ->where('tahap', $tahapLama)
+            ->whereNull('tgl_selesai')
+            ->update([
+                'tgl_selesai' => now(),
+                'catatan' => $request->status_ajuan_baru === 'direvisi' ? 'Berkas dikembalikan ke desa.' : 'Selesai diproses dan diteruskan.',
+                'updated_by' => auth()->id(),
+            ]);
+
         $ajuan->update([
             'posisi_surat' => $request->posisi_baru,
             'status' => $request->status_ajuan_baru ?? $ajuan->status
         ]);
 
-        $tahap = match ($request->posisi_baru) {
+        $tahapBaru = match ($request->posisi_baru) {
             'Front Office (FO)' => 2,
             'Kabid PDPD' => 4,
             'Sekretaris Dinas' => 5,
-            'Kepala Dinas' => 3,
-            'Asisten Setda / Sekda' => 6,
-            'Bupati' => 8,
-            'Selesai (Surat Terbit)' => 9,
+            'Kepala Dinas' => 6,
+            'Asisten Setda / Sekda' => 8,
+            'Bupati' => 9,
+            'Selesai (Surat Terbit)' => 10,
             default => 1,
         };
 
+        // Mulai tahap baru
         MilestoneTracking::create([
             'ajuan_id' => $ajuan->id,
-            'tahap' => $tahap,
+            'tahap' => $tahapBaru,
             'tgl_mulai' => now(),
-            'tgl_selesai' => now(),
-            'catatan' => $request->catatan_milestone ?? ('Disposisi ke ' . $request->posisi_baru),
+            'tgl_selesai' => $tahapBaru == 10 ? now() : null,
+            'catatan' => $request->status_ajuan_baru === 'direvisi' ? 'Menunggu revisi dari desa.' : 'Menunggu pengecekan.',
             'updated_by' => auth()->id(),
         ]);
 

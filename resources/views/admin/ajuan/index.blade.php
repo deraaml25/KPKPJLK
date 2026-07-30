@@ -1,12 +1,6 @@
 <x-app-layout>
     @section('title', 'Verifikasi e-Rekomendasi')
-
-    <div class="mb-6 flex justify-between items-center">
-        <div>
-            <h1 class="text-2xl font-display font-bold text-ink">Verifikasi Berkas e-Rekomendasi</h1>
-            <p class="text-sm text-muted mt-1">Daftar antrean pengajuan dari seluruh desa se-Kabupaten.</p>
-        </div>
-    </div>
+    @section('page-subtitle', 'Daftar pengajuan desa se-Kabupaten Banyumas')
 
     @if(session('success'))
         <div class="mb-5 p-4 rounded-card bg-green-50 border border-green-200 text-green-800 flex items-start gap-3">

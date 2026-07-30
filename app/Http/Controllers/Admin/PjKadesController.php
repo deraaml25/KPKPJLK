@@ -80,11 +80,18 @@ class PjKadesController extends Controller
 
         $request->validate([
             'posisi_surat' => 'required|string',
+            'status_baru' => 'nullable|string'
         ]);
 
-        $pjkades->update([
+        $updateData = [
             'posisi_surat' => $request->posisi_surat,
-        ]);
+        ];
+
+        if ($request->filled('status_baru')) {
+            $updateData['status'] = $request->status_baru;
+        }
+
+        $pjkades->update($updateData);
 
         return back()->with('success', "Posisi surat berhasil diperbarui ke: {$request->posisi_surat}");
     }

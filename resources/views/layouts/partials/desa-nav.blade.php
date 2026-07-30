@@ -7,7 +7,7 @@
         ['route' => 'desa.pjkades.index', 'icon' => 'admin_panel_settings', 'text' => 'SK Kades', 'active' => request()->routeIs('desa.pjkades.*')],
         ['route' => 'desa.rencana-p3d.index', 'icon' => 'assignment', 'text' => 'Rencana P3D', 'active' => request()->routeIs('desa.rencana-p3d.*')],
         // ['route' => 'desa.drive.index', 'icon' => 'cloud_circle', 'text' => 'Drive Dokumen', 'active' => request()->routeIs('desa.drive.*')],
-        ['route' => 'desa.arsip.index', 'icon' => 'archive', 'text' => 'Arsip Rekomendasi', 'active' => request()->routeIs('desa.arsip.*')],
+
 
         ['route' => 'desa.perangkat.index', 'icon' => 'badge', 'text' => 'Data Kepala dan Perangkat Desa', 'active' => request()->routeIs('desa.perangkat.*')],
         ['route' => 'desa.bpd.index', 'icon' => 'groups', 'text' => 'Data BPD', 'active' => request()->routeIs('desa.bpd.*')],

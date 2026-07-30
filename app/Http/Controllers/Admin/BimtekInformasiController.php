@@ -20,13 +20,27 @@ class BimtekInformasiController extends Controller
         return view('admin.bimtek-informasi.create');
     }
 
+    public function uploadImage(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|image|mimes:jpg,jpeg,png,webp|max:5120',
+        ]);
+
+        $path = $request->file('file')->store('bimtek/informasi/images', 'public');
+
+        return response()->json([
+            'location' => asset('storage/' . $path)
+        ]);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
             'judul' => 'required|string|max:255',
             'konten' => 'required|string',
             'kategori' => 'required|in:informasi,dokumentasi,pengumuman',
-            'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'foto' => 'nullable|array|max:5',
+            'foto.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:20480',
             'file_lampiran' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
             'published_at' => 'nullable|date',
         ]);
@@ -34,7 +48,11 @@ class BimtekInformasiController extends Controller
         $data = $request->only(['judul', 'konten', 'kategori', 'published_at']);
 
         if ($request->hasFile('foto')) {
-            $data['foto'] = $request->file('foto')->store('bimtek/informasi/foto', 'public');
+            $fotoPaths = [];
+            foreach ($request->file('foto') as $file) {
+                $fotoPaths[] = $file->store('bimtek/informasi/foto', 'public');
+            }
+            $data['foto'] = $fotoPaths;
         }
 
         if ($request->hasFile('file_lampiran')) {
@@ -63,7 +81,8 @@ class BimtekInformasiController extends Controller
             'judul' => 'required|string|max:255',
             'konten' => 'required|string',
             'kategori' => 'required|in:informasi,dokumentasi,pengumuman',
-            'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:5120',
+            'foto' => 'nullable|array|max:5',
+            'foto.*' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:20480',
             'file_lampiran' => 'nullable|file|mimes:pdf,doc,docx|max:10240',
             'published_at' => 'nullable|date',
         ]);
@@ -71,7 +90,11 @@ class BimtekInformasiController extends Controller
         $data = $request->only(['judul', 'konten', 'kategori', 'published_at']);
 
         if ($request->hasFile('foto')) {
-            $data['foto'] = $request->file('foto')->store('bimtek/informasi/foto', 'public');
+            $fotoPaths = [];
+            foreach ($request->file('foto') as $file) {
+                $fotoPaths[] = $file->store('bimtek/informasi/foto', 'public');
+            }
+            $data['foto'] = $fotoPaths;
         }
 
         if ($request->hasFile('file_lampiran')) {

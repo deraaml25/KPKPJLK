@@ -88,14 +88,15 @@
                             </div>
                         </div>
 
-                        <div class="mb-4">
-                            <span class="text-xs text-red-700 block mb-1 font-semibold">Dokumentasi Coretan Dinas (Legal
-                                Drafting Note):</span>
-                            <a href="{{ asset('storage/' . $regulasi->file_catatan_dinas) }}" target="_blank"
-                                class="inline-flex items-center px-4 py-2 bg-white border border-red-200 text-red-700 hover:bg-red-100 font-medium rounded-btn transition-colors text-sm">
-                                📝 Unduh Dokumen Catatan (.docx)
-                            </a>
-                        </div>
+                        @if($regulasi->file_catatan_dinas)
+                            <div class="mb-4">
+                                <span class="text-xs text-red-700 block mb-1 font-semibold">Dokumentasi Coretan Dinas (Opsional):</span>
+                                <a href="{{ asset('storage/' . $regulasi->file_catatan_dinas) }}" target="_blank"
+                                    class="inline-flex items-center px-4 py-2 bg-white border border-red-200 text-red-700 hover:bg-red-100 font-medium rounded-btn transition-colors text-sm">
+                                    📝 Unduh Dokumen Catatan (.docx/.pdf)
+                                </a>
+                            </div>
+                        @endif
 
                         <hr class="border-red-200 my-5">
 

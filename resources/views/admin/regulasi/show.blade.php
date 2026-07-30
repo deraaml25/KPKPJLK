@@ -1,141 +1,242 @@
 <x-app-layout>
     @section('title', 'Tinjau Regulasi')
 
-    <div class="max-w-4xl mx-auto">
-        <div class="bg-white rounded-card p-6 shadow-sm border border-border mb-6 flex items-center justify-between">
-            <div>
-                <a href="{{ route('admin.regulasi.index') }}"
-                    class="text-sm font-medium text-primary hover:underline flex items-center gap-1">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7">
-                        </path>
-                    </svg>
-                    Kembali ke Daftar Regulasi
-                </a>
-                <h2 class="text-xl font-display font-bold text-ink mt-2">Evaluasi Hukum: {{ $regulasi->judul }}</h2>
-                <div class="flex items-center gap-2 mt-1">
-                    <span class="text-xs text-muted">Diajukan oleh: <strong
-                            class="text-ink font-medium">{{ $regulasi->desa->nama_desa }}</strong></span>
-                    <span class="text-gray-300">•</span>
-                    <span
-                        class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-primary-soft text-primary capitalize">{{ $regulasi->tipe }}</span>
+    <div class="mb-4 flex items-center justify-between">
+        <a href="{{ route('admin.regulasi.index') }}"
+            class="text-sm font-medium text-slate-500 hover:text-slate-800 flex items-center gap-1 transition-colors">
+            <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+            Kembali ke Daftar Regulasi
+        </a>
+    </div>
+
+    <div class="flex flex-col lg:flex-row gap-6 h-[calc(100vh-140px)] min-h-[600px]">
+        
+        <!-- KIRI: Layar Tinjauan Dokumen -->
+        <div class="w-full flex flex-col bg-slate-100/50 rounded-2xl border border-slate-200 overflow-hidden shadow-inner relative" style="width: 70%;">
+            <div class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between z-10 shadow-sm">
+                <div class="flex items-center gap-2 text-slate-700 font-semibold text-sm">
+                    <span class="material-symbols-outlined text-primary text-[20px]">visibility</span>
+                    Layar Tinjauan Dokumen
                 </div>
-            </div>
-            <div>
+                
                 @if($regulasi->file_path)
                     <a href="{{ asset('storage/' . $regulasi->file_path) }}" target="_blank"
-                        class="inline-flex items-center px-4 py-2 border border-border text-ink hover:bg-gray-50 font-medium rounded-btn transition-colors text-sm shadow-sm">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                            </path>
-                        </svg>
-                        Unduh Draf Dokumen
+                        class="text-xs text-primary hover:underline flex items-center gap-1 bg-primary/10 px-2.5 py-1 rounded-md transition-colors">
+                        <span class="material-symbols-outlined text-[16px]">download</span>
+                        Unduh Asli
                     </a>
+                @endif
+            </div>
+
+            <!-- Tombol Komentar Pintar -->
+            <button id="add-comment-btn" class="hidden absolute z-50 bg-primary text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg hover:bg-primary-dark transition-all transform scale-95 items-center gap-1">
+                <span class="material-symbols-outlined text-[14px]">format_quote</span>
+                Kutip ke Catatan
+            </button>
+
+            <div class="flex-1 overflow-y-auto p-4 md:p-8 bg-slate-100/50 relative" id="viewer-wrapper" style="display: flex; flex-direction: column;">
+                @if($regulasi->file_path)
+                    @php
+                        $ext = pathinfo($regulasi->file_path, PATHINFO_EXTENSION);
+                    @endphp
+                    @if(in_array(strtolower($ext), ['doc', 'docx']))
+                        <div id="document-container" class="bg-white p-8 md:p-12 shadow-sm border border-slate-200 mx-auto rounded-md prose prose-slate max-w-none text-sm relative selection:bg-yellow-200 selection:text-slate-900" style="flex-grow: 1; min-height: 100%; width: 100%;">
+                            <div class="flex flex-col items-center justify-center h-64 text-slate-400">
+                                <svg class="animate-spin h-8 w-8 text-primary mb-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                                Memuat dokumen...
+                            </div>
+                        </div>
+                    @elseif(strtolower($ext) == 'pdf')
+                        <iframe src="{{ asset('storage/' . $regulasi->file_path) }}" class="w-full h-full rounded-md shadow-sm border border-slate-200"></iframe>
+                    @else
+                        <div class="flex flex-col items-center justify-center h-full text-slate-400">
+                            <span class="material-symbols-outlined text-6xl mb-2">description</span>
+                            <p>Format file tidak dapat ditinjau langsung.</p>
+                            <a href="{{ asset('storage/' . $regulasi->file_path) }}" class="text-primary hover:underline mt-2">Unduh file</a>
+                        </div>
+                    @endif
+                @else
+                    <div class="flex flex-col items-center justify-center h-full text-slate-400">
+                        <span class="material-symbols-outlined text-6xl mb-2">description</span>
+                        <p>Draf belum diunggah.</p>
+                    </div>
                 @endif
             </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2">
-                <div class="bg-white rounded-card shadow-sm border border-border p-6 mb-6">
-                    <h3 class="text-md font-display font-bold text-ink mb-4 pb-2 border-b border-border">Detail
-                        Rancangan Regulasi</h3>
-
-                    <div class="grid grid-cols-2 gap-4 mb-4 text-sm">
-                        <div>
-                            <span class="text-muted block text-xs">No. Registrasi Usulan</span>
-                            <span class="text-ink font-mono font-bold">{{ $regulasi->no_regulasi }}</span>
-                        </div>
-                        <div>
-                            <span class="text-muted block text-xs">Tanggal Pengajuan</span>
-                            <span
-                                class="text-ink font-medium">{{ $regulasi->tgl_diajukan ? $regulasi->tgl_diajukan->format('d M Y') : '-' }}</span>
-                        </div>
+        <!-- KANAN: Panel Informasi & Form -->
+        <div class="w-full flex flex-col h-full overflow-y-auto pr-2 custom-scrollbar" style="width: 30%;">
+            
+            <!-- Info Card -->
+            <!-- Info Card -->
+            <div class="rounded-xl p-5 shadow-sm mb-5 relative overflow-hidden" style="background-color: #e0f2fe; color: #0c4a6e;">
+                <div class="absolute top-0 right-0 p-4 opacity-20">
+                    <span class="material-symbols-outlined text-8xl" style="color: #0284c7;">account_balance</span>
+                </div>
+                <div class="relative z-10">
+                    <p class="text-xs mb-1 font-mono uppercase tracking-wider" style="color: #0369a1;">{{ $regulasi->no_regulasi }}</p>
+                    <h2 class="text-xl font-bold mb-3" style="color: #082f49;">{{ strtoupper($regulasi->desa->nama_desa) }}</h2>
+                    
+                    <div class="text-sm" style="color: #0f172a;">
+                        <p class="mb-1"><span class="opacity-70">Layanan:</span> Evaluasi Hukum ({{ ucfirst($regulasi->tipe) }})</p>
+                        <p class="mb-1"><span class="opacity-70">Tanggal:</span> {{ $regulasi->tgl_diajukan ? $regulasi->tgl_diajukan->format('d M Y') : '-' }}</p>
                     </div>
 
-                    <div class="mb-4 text-sm">
-                        <span class="text-muted block text-xs">Uraian / Deskripsi Usulan</span>
-                        <p class="text-ink mt-1 font-body leading-relaxed">
-                            {{ $regulasi->deskripsi ?? 'Tidak ada deskripsi tambahan.' }}
-                        </p>
+                    <div class="mt-4 pt-4 border-t border-blue-200">
+                        <p class="text-sm font-semibold mb-1 leading-snug">{{ $regulasi->judul }}</p>
                     </div>
                 </div>
             </div>
 
-            <div class="lg:col-span-1">
-                <div class="bg-white rounded-card shadow-sm border border-border p-6">
-                    <h3 class="text-md font-display font-bold text-ink mb-4 pb-2 border-b border-border">Fasilitasi &
-                        Catatan Hukum</h3>
+            <!-- Panel Aksi -->
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 mb-6">
+                <h3 class="text-md font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100">Catatan Perbaikan Desa</h3>
 
-                    @if($regulasi->status === 'disahkan')
-                        <div class="p-4 bg-green-50 text-green-800 rounded-md text-sm mb-4">
-                            <strong>Status: Disahkan</strong>
-                            <p class="text-xs mt-1">Regulasi ini terbit di Lembaran Desa.</p>
-                            @if($regulasi->catatan_revisi)
-                                <div class="mt-3 p-3 bg-white/70 rounded border border-green-200">
-                                    <strong class="text-xs block mb-1">Catatan Akhir Sanksi/Legal Note:</strong>
-                                    <p class="text-xs">{{ $regulasi->catatan_revisi }}</p>
-                                </div>
-                            @endif
+                @if($regulasi->status === 'disahkan')
+                    <div class="p-4 bg-green-50 text-green-800 rounded-lg text-sm border border-green-100">
+                        <div class="flex items-center gap-2 mb-2 font-bold">
+                            <span class="material-symbols-outlined">check_circle</span>
+                            Status: Disahkan
                         </div>
-                    @else
-                        <!-- Form Kembalikan ke Desa (Revisi) -->
-                        <form action="{{ route('admin.regulasi.kembalikan', $regulasi) }}" method="POST"
-                            enctype="multipart/form-data" class="mb-6 pb-6 border-b border-gray-200">
-                            @csrf
-                            <h4 class="text-sm font-semibold text-red-600 mb-3 block">🔴 Opsi 1: Kembalikan untuk Revisi
-                            </h4>
-                            <div class="mb-3">
-                                <label for="file_catatan_dinas" class="block text-xs font-semibold text-ink mb-1">Unggah
-                                    Draf Coretan (.doc/.docx)</label>
-                                <input type="file" name="file_catatan_dinas" id="file_catatan_dinas"
-                                    class="w-full text-xs box-border rounded-md border-border" accept=".doc,.docx" required>
+                        <p class="text-xs">Regulasi ini telah terbit di Lembaran Desa.</p>
+                        @if($regulasi->catatan_revisi)
+                            <div class="mt-3 p-3 bg-white rounded border border-green-200">
+                                <strong class="text-xs block mb-1">Catatan Akhir Sanksi/Legal Note:</strong>
+                                <p class="text-xs">{{ $regulasi->catatan_revisi }}</p>
                             </div>
-                            <div class="mb-3">
-                                <label for="catatan" class="block text-xs font-semibold text-ink mb-1">Legal Drafting Note
-                                    Singkat</label>
-                                <textarea name="catatan" id="catatan" rows="3"
-                                    class="w-full text-sm rounded-md border-border text-ink bg-white focus:border-primary focus:ring-primary shadow-sm"
-                                    placeholder="Tulis instruksi revisi..." required></textarea>
-                            </div>
+                        @endif
+                    </div>
+                @else
+                    
+                    <!-- Form Revisi -->
+                    <form action="{{ route('admin.regulasi.kembalikan', $regulasi) }}" method="POST" enctype="multipart/form-data" class="mb-6 pb-6 border-b border-slate-100">
+                        @csrf
+                        
+                        <div class="mb-4">
+                            <label for="catatan" class="block text-xs font-bold text-slate-700 mb-1.5">Catatan Kelengkapan dari Admin untuk Desa</label>
+                            <textarea name="catatan" id="catatan" rows="5"
+                                class="w-full text-sm rounded-lg border-slate-300 text-slate-800 bg-white focus:border-slate-500 focus:ring-slate-500 shadow-sm"
+                                placeholder="Tuliskan catatan perbaikan jika ada dokumen yang kurang lengkap..." required></textarea>
+                        </div>
 
-                            <button type="submit"
-                                class="w-full inline-flex justify-center items-center px-4 py-2 bg-red-50 text-red-700 hover:bg-red-100 font-medium rounded-btn transition-colors text-sm shadow-sm border border-red-200">
-                                Kirim Revisi ke Desa
-                            </button>
-                        </form>
+                        <div class="mb-4">
+                            <label for="file_catatan_dinas" class="block text-xs font-bold text-slate-700 mb-1.5">Unggah Draf Coretan (Opsional)</label>
+                            <input type="file" name="file_catatan_dinas" id="file_catatan_dinas"
+                                class="w-full text-xs box-border rounded-lg border-slate-300 p-1.5 bg-slate-50" accept=".doc,.docx,.pdf">
+                            <p class="text-[10px] text-slate-500 mt-1">Lampirkan file bila ada coretan khusus.</p>
+                        </div>
 
-                        <!-- Form Sahkan & Terbitkan Nomor -->
-                        <form action="{{ route('admin.regulasi.sahkan', $regulasi) }}" method="POST"
-                            enctype="multipart/form-data">
-                            @csrf
-                            <h4 class="text-sm font-semibold text-green-600 mb-3 block">🟢 Opsi 2: Sahkan Menjadi Aturan
-                            </h4>
+                        <button type="submit"
+                            class="w-full inline-flex justify-center items-center px-4 py-2 font-bold rounded-lg transition-colors text-sm shadow-sm"
+                            style="background-color: #0A1A3A; color: white;">
+                            Kembalikan untuk Revisi
+                        </button>
+                    </form>
 
-                            <div class="mb-3">
-                                <label for="no_regulasi" class="block text-xs font-semibold text-ink mb-1">Nomor Registrasi
-                                    (Lembaran Desa)</label>
-                                <input type="text" name="no_regulasi" id="no_regulasi" required
-                                    class="w-full text-xs font-mono box-border rounded-md border-border shadow-sm placeholder:text-gray-300"
-                                    placeholder="Contoh: PRD/2026/08/001">
-                            </div>
 
-                            <div class="mb-4">
-                                <label for="file_final" class="block text-xs font-semibold text-ink mb-1">Unggah PDF Final
-                                    Paripurna (Opsional)</label>
-                                <input type="file" name="file_final" id="file_final"
-                                    class="w-full text-xs box-border rounded-md border-border" accept=".pdf">
-                            </div>
 
-                            <button type="submit"
-                                class="w-full inline-flex justify-center items-center px-4 py-2.5 bg-green-600 text-white font-medium rounded-btn hover:bg-green-700 transition-colors text-sm shadow-sm">
-                                Approve & Sahkan Aturan
-                            </button>
-                        </form>
-                    @endif
-                </div>
+                @endif
             </div>
+
         </div>
     </div>
+
+    @push('scripts')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if($regulasi->file_path && in_array(strtolower(pathinfo($regulasi->file_path, PATHINFO_EXTENSION)), ['doc', 'docx']))
+                const docUrl = "{{ asset('storage/' . $regulasi->file_path) }}";
+                
+                fetch(docUrl)
+                    .then(response => {
+                        if(!response.ok) throw new Error('Network response was not ok');
+                        return response.arrayBuffer();
+                    })
+                    .then(arrayBuffer => mammoth.convertToHtml({arrayBuffer: arrayBuffer}))
+                    .then(result => {
+                        document.getElementById('document-container').innerHTML = result.value;
+                        initSmartComment();
+                    })
+                    .catch(err => {
+                        console.error('Error rendering DOCX:', err);
+                        document.getElementById('document-container').innerHTML = `
+                            <div class="flex flex-col items-center justify-center h-64 text-red-400">
+                                <span class="material-symbols-outlined text-4xl mb-2">error</span>
+                                <p>Gagal memuat dokumen. Harap unduh secara manual.</p>
+                                <a href="${docUrl}" class="text-primary hover:underline mt-2">Unduh file</a>
+                            </div>
+                        `;
+                    });
+            @endif
+
+            function initSmartComment() {
+                const wrapper = document.getElementById('viewer-wrapper');
+                const btn = document.getElementById('add-comment-btn');
+                const catatanInput = document.getElementById('catatan');
+                let selectedText = '';
+
+                wrapper.addEventListener('mouseup', function(e) {
+                    const selection = window.getSelection();
+                    selectedText = selection.toString().trim();
+                    
+                    if (selectedText.length > 0 && selection.anchorNode && wrapper.contains(selection.anchorNode)) {
+                        // Position button near cursor
+                        const rect = selection.getRangeAt(0).getBoundingClientRect();
+                        const wrapperRect = wrapper.getBoundingClientRect();
+                        
+                        btn.style.top = (rect.top - wrapperRect.top + wrapper.scrollTop - 40) + 'px';
+                        btn.style.left = (rect.left - wrapperRect.left + (rect.width / 2) - (btn.offsetWidth / 2)) + 'px';
+                        
+                        btn.classList.remove('hidden');
+                        btn.classList.add('flex');
+                    } else {
+                        setTimeout(() => {
+                            btn.classList.add('hidden');
+                            btn.classList.remove('flex');
+                        }, 100);
+                    }
+                });
+
+                btn.addEventListener('mousedown', function(e) {
+                    e.preventDefault(); // Prevent text un-selection
+                });
+
+                btn.addEventListener('click', function(e) {
+                    if (selectedText) {
+                        const quote = `> "${selectedText}"\n\n`;
+                        if (catatanInput.value) {
+                            catatanInput.value += `\n\n${quote}`;
+                        } else {
+                            catatanInput.value = quote;
+                        }
+                        catatanInput.focus();
+                        
+                        // Hide button
+                        btn.classList.add('hidden');
+                        btn.classList.remove('flex');
+                        window.getSelection().removeAllRanges();
+                    }
+                });
+            }
+        });
+    </script>
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #cbd5e1; border-radius: 10px; }
+        /* Style untuk hasil render mammoth agar mirip dokumen */
+        #document-container {
+            font-family: 'Times New Roman', Times, serif;
+            line-height: 1.5;
+        }
+        #document-container p { margin-bottom: 1em; }
+        #document-container h1, #document-container h2, #document-container h3 { font-weight: bold; margin-top: 1.5em; margin-bottom: 0.5em; }
+        #document-container table { width: 100%; border-collapse: collapse; margin-bottom: 1em; }
+        #document-container th, #document-container td { border: 1px solid #cbd5e1; padding: 0.5em; }
+    </style>
+    @endpush
 </x-app-layout>

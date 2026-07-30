@@ -19,11 +19,11 @@
         <nav class="flex space-x-8" aria-label="Tabs">
             <a href="{{ route('admin.bimtek-informasi.index') }}"
                class="border-b-2 py-4 px-1 text-sm font-semibold {{ request()->routeIs('admin.bimtek-informasi.*') ? 'border-primary text-primary' : 'border-transparent text-muted hover:text-ink hover:border-gray-300' }}">
-                📰 Berita & Informasi Pembinaan
+                Berita & Informasi Pembinaan
             </a>
             <a href="{{ route('admin.pengajuan-pembinaan.index') }}"
                class="border-b-2 py-4 px-1 text-sm font-semibold {{ request()->routeIs('admin.pengajuan-pembinaan.*') ? 'border-primary text-primary' : 'border-transparent text-muted hover:text-ink hover:border-gray-300' }}">
-                📨 Pengajuan Pembinaan Desa
+                Pengajuan Pembinaan Desa
             </a>
         </nav>
     </div>

@@ -6,11 +6,11 @@
         <nav class="flex space-x-8" aria-label="Tabs">
             <a href="{{ route('desa.bimtek-informasi.index') }}"
                class="border-b-2 py-4 px-1 text-sm font-semibold {{ request()->routeIs('desa.bimtek-informasi.*') ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300' }}">
-                📰 Berita & Informasi Pembinaan
+                Berita & Informasi Pembinaan
             </a>
             <a href="{{ route('desa.pengajuan-pembinaan.index') }}"
                class="border-b-2 py-4 px-1 text-sm font-semibold {{ request()->routeIs('desa.pengajuan-pembinaan.*') ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300' }}">
-                📨 Pengajuan Pembinaan Desa
+                Pengajuan Pembinaan Desa
             </a>
         </nav>
     </div>

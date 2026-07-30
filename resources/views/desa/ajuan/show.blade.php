@@ -103,6 +103,26 @@
                                 </div>
                                 
                                 <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 lg:gap-4 flex-shrink-0">
+                                    @if($ajuan->metode === 'online')
+                                        @if($item->file_path)
+                                            <a href="{{ Storage::disk('public')->url($item->file_path) }}" target="_blank" class="flex items-center text-xs font-medium text-primary hover:text-primary-light transition-colors bg-primary-soft/10 px-3 py-1.5 rounded-full">
+                                                <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                                Lihat File
+                                            </a>
+                                        @endif
+                                        
+                                        @if(auth()->user()->can('update', $ajuan) && in_array($ajuan->status, ['draft', 'direvisi']))
+                                            <form action="{{ route('desa.ajuan.upload', [$ajuan, $item]) }}" method="POST" enctype="multipart/form-data" class="flex items-center">
+                                                @csrf
+                                                <label class="cursor-pointer flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded-full border border-primary text-primary hover:bg-primary hover:text-white transition-colors">
+                                                    <svg class="w-3.5 h-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
+                                                    {{ $item->file_path ? 'Ubah File' : 'Unggah PDF' }}
+                                                    <input type="file" name="dokumen" accept=".pdf" class="hidden" onchange="this.form.submit()">
+                                                </label>
+                                            </form>
+                                        @endif
+                                    @endif
+
                                     @if($item->status === 'lengkap' || $item->status === 'valid')
                                         <div class="flex items-center text-success text-sm font-medium whitespace-nowrap">
                                             <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
@@ -181,7 +201,7 @@
             <div class="bg-surface rounded-card border border-border shadow-sm p-5 sticky top-6">
                 <h3 class="text-base font-display font-semibold text-ink mb-1">Status Proses</h3>
                 <p class="text-xs text-muted mb-4 pb-4 border-b border-border">Pantau tahapan perjalanan ajuan Anda secara real-time.</p>
-                <x-milestone-tracker :tahapAktif="$tahapAktif" :milestones="$ajuan->milestoneTrackings" />
+                <x-milestone-tracker :tahapAktif="$tahapAktif" :milestones="$ajuan->milestoneTrackings" :ajuan="$ajuan" />
             </div>
         </div>
     </div>

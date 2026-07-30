@@ -123,17 +123,17 @@
                                     </div>
 
                                     @if($item->file_path)
-                                    <form action="{{ route('admin.ajuan-bpd.verify-checklist', [$ajuanBpd->id, $item->id]) }}" method="POST" class="flex flex-col gap-1 mt-2 sm:mt-0 w-full sm:w-auto">
+                                    <form class="bpd-verify-form flex flex-col gap-1 mt-2 sm:mt-0 w-full sm:w-auto" data-url="{{ route('admin.ajuan-bpd.verify-checklist', [$ajuanBpd->id, $item->id]) }}">
                                         @csrf
                                         <div class="flex items-center gap-2 mb-1">
                                             <label class="flex items-center gap-1 text-[10px] cursor-pointer">
-                                                <input type="radio" name="status" value="terverifikasi" class="text-green-600 focus:ring-green-600 w-3 h-3" {{ $item->status === 'terverifikasi' ? 'checked' : '' }} onchange="this.form.submit()"> Valid
+                                                <input type="radio" name="status" value="terverifikasi" class="bpd-verify-input text-green-600 focus:ring-green-600 w-3 h-3" {{ $item->status === 'terverifikasi' ? 'checked' : '' }} data-last-status="{{ $item->status }}"> Valid
                                             </label>
                                             <label class="flex items-center gap-1 text-[10px] cursor-pointer">
-                                                <input type="radio" name="status" value="ditolak" class="text-red-600 focus:ring-red-600 w-3 h-3" {{ $item->status === 'ditolak' ? 'checked' : '' }} onchange="this.form.submit()"> Tolak
+                                                <input type="radio" name="status" value="ditolak" class="bpd-verify-input text-red-600 focus:ring-red-600 w-3 h-3" {{ $item->status === 'ditolak' ? 'checked' : '' }} data-last-status="{{ $item->status }}"> Tolak
                                             </label>
                                         </div>
-                                        <input type="text" name="catatan" value="{{ $item->catatan }}" placeholder="Catatan opsional..." class="text-[10px] rounded border-gray-300 w-full" onchange="this.form.submit()">
+                                        <input type="text" name="catatan" value="{{ $item->catatan }}" placeholder="Catatan opsional..." class="bpd-verify-input text-[10px] rounded border-gray-300 w-full">
                                     </form>
                                     @endif
                                 </div>

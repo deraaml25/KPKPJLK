@@ -108,8 +108,8 @@
                             $approvedCount = $pjkades->checklists->where('status_verifikasi', 'valid')->count();
                             $totalCount = $pjkades->checklists->count();
                         @endphp
-                        <span class="text-xs font-bold px-2.5 py-1 bg-white border border-border rounded-full text-ink shadow-sm">
-                            {{ $approvedCount }} / {{ $totalCount }} Memenuhi
+                        <span class="text-xs font-bold px-2.5 py-1 bg-white border border-border rounded-full text-ink shadow-sm" id="memenuhi-count">
+                            <span id="approved-count-val">{{ $approvedCount }}</span> / {{ $totalCount }} Memenuhi
                         </span>
                     </div>
 
@@ -133,13 +133,12 @@
                                             @endif
                                         </div>
 
-                                        <form action="{{ route('admin.pjkades.verify-checklist', [$pjkades->id, $item->id]) }}" method="POST" class="flex-shrink-0 ml-auto sm:ml-4">
+                                        <form action="{{ route('admin.pjkades.verify-checklist', [$pjkades->id, $item->id]) }}" method="POST" class="verify-form flex-shrink-0 ml-auto sm:ml-4" data-url="{{ route('admin.pjkades.verify-checklist', [$pjkades->id, $item->id]) }}">
                                             @csrf
                                             <input type="hidden" name="status_verifikasi" value="tidak_sesuai">
                                             <input type="checkbox" name="status_verifikasi" value="valid" 
-                                                   class="w-7 h-7 text-blue-400 focus:ring-blue-400 border-gray-300 rounded shadow-sm cursor-pointer transition-colors" 
+                                                   class="verify-checkbox w-7 h-7 text-blue-400 focus:ring-blue-400 border-gray-300 rounded shadow-sm cursor-pointer transition-colors" 
                                                    {{ $item->status_verifikasi == 'valid' ? 'checked' : '' }}
-                                                   onchange="this.form.submit()"
                                                    title="Tandai Sesuai">
                                         </form>
                                     </div>
@@ -175,42 +174,54 @@
                     <h3 class="text-base font-display font-semibold text-ink mb-1">Status Proses</h3>
                     <p class="text-xs text-muted mb-4 pb-4 border-b border-border">Pantau tahapan perjalanan usulan SK Kades.</p>
                     
-                    <x-pjkades-tracker :posisiAktif="$pjkades->posisi_surat ?? 'Berkas Diterima'" :status="$pjkades->status" />
+                    <x-pjkades-tracker :posisiAktif="$pjkades->posisi_surat ?? 'Berkas Diterima'" :status="$pjkades->status" :pjkades="$pjkades" />
                 </div>
 
-                <div class="bg-surface rounded-card shadow-sm border border-border p-6">
-                    <h3 class="text-base font-display font-semibold text-ink mb-4 pb-2 border-b border-border">Disposisi & Posisi Surat</h3>
-                    <form action="{{ route('admin.pjkades.disposisi', $pjkades->id) }}" method="POST">
-                        @csrf
-                        <div class="mb-4">
-                            <label class="block text-xs font-bold text-ink mb-2">Pembaruan Posisi Terkini</label>
-                            <select name="posisi_surat" required class="w-full text-sm rounded-md border-border focus:ring-primary focus:border-primary shadow-sm bg-white">
-                                @php
-                                    $posisiOptions = [
-                                        'Berkas Diterima',
-                                        'Verifikasi & Validasi Petugas',
-                                        'Penyusunan Draft Rekomendasi',
-                                        'Verifikasi & Validasi Kabid PDPD',
-                                        'Verifikasi & Validasi Sekretaris Dinas',
-                                        'Verifikasi & Validasi Kepala Dinas',
-                                        'Verifikasi & Validasi Kepala Bagian Hukum',
-                                        'Verifikasi & Validasi Asisten Pemerintahan & Kesra',
-                                        'Verifikasi & Validasi Sekda',
-                                        'Tanda Tangan Bupati',
-                                        'Penomoran TU Umum Setda & Selesai'
-                                    ];
-                                @endphp
-                                @foreach($posisiOptions as $opt)
-                                    <option value="{{ $opt }}" {{ ($pjkades->posisi_surat ?? 'Berkas Diterima') == $opt ? 'selected' : '' }}>
-                                        {{ $opt }}
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <button type="submit" class="w-full py-2 bg-white border border-border text-ink text-sm font-medium rounded-btn hover:bg-gray-50 shadow-sm transition-colors">
-                            Update Posisi
-                        </button>
-                    </form>
+                @php
+                    $posisiOptions = [
+                        'Berkas Diterima',
+                        'Verifikasi & Validasi Petugas',
+                        'Penyusunan Draft Rekomendasi',
+                        'Verifikasi & Validasi Kabid PDPD',
+                        'Verifikasi & Validasi Sekretaris Dinas',
+                        'Verifikasi & Validasi Kepala Dinas',
+                        'Verifikasi & Validasi Kepala Bagian Hukum',
+                        'Verifikasi & Validasi Asisten Pemerintahan & Kesra',
+                        'Verifikasi & Validasi Sekda',
+                        'Tanda Tangan Bupati',
+                        'Penomoran TU Umum Setda & Selesai'
+                    ];
+                    $currentIndex = array_search($pjkades->posisi_surat ?? 'Berkas Diterima', $posisiOptions);
+                    if ($currentIndex === false) $currentIndex = 0; // Default to first if unknown
+                    $nextPosisi = isset($posisiOptions[$currentIndex + 1]) ? $posisiOptions[$currentIndex + 1] : null;
+                @endphp
+
+                <div class="bg-surface rounded-card shadow-sm border border-border overflow-hidden">
+                    <div class="px-5 py-4 bg-gray-50 border-b border-border">
+                        <h3 class="text-base font-display font-semibold text-ink">Disposisi & Tindak Lanjut</h3>
+                    </div>
+                    <div class="p-5 flex flex-col gap-3">
+                        @if($nextPosisi)
+                        <form action="{{ route('admin.pjkades.disposisi', $pjkades->id) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="posisi_surat" value="{{ $nextPosisi }}">
+                            <button type="submit"
+                                class="w-full py-2.5 px-3 bg-primary rounded-btn text-white text-sm font-medium hover:bg-primary-light transition-colors flex items-center justify-center shadow-sm">
+                                Lanjutkan ke : {{ $nextPosisi }}
+                            </button>
+                        </form>
+                        @endif
+
+                        <form action="{{ route('admin.pjkades.disposisi', $pjkades->id) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="posisi_surat" value="Berkas Diterima">
+                            <input type="hidden" name="status_baru" value="direvisi">
+                            <button type="submit"
+                                class="w-full py-2.5 px-3 bg-white border border-red-300 text-red-600 rounded-btn text-sm font-medium hover:bg-red-50 transition-colors flex items-center justify-center shadow-sm" title="Kembalikan ke awal (Butuh Revisi)">
+                                Revisi
+                            </button>
+                        </form>
+                    </div>
                 </div>
 
                 <div class="bg-surface rounded-card shadow-sm border border-border p-6">
@@ -264,5 +275,55 @@
                 </div>
             </div>
         </div>
-    </div>
+    @push('scripts')
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const countEl = document.getElementById('approved-count-val');
+                
+                document.querySelectorAll('.verify-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        const form = this.closest('form');
+                        const url = form.getAttribute('data-url');
+                        const token = form.querySelector('input[name="_token"]').value;
+                        const status = this.checked ? 'valid' : 'tidak_sesuai';
+                        
+                        // Optimistic UI update
+                        const row = form.closest('.p-4');
+                        if (this.checked) {
+                            row.classList.remove('border-red-500', 'bg-red-50/40', 'border-amber-400', 'bg-amber-50/30');
+                            row.classList.add('border-green-500', 'bg-green-50/40');
+                            if (countEl) countEl.innerText = parseInt(countEl.innerText) + 1;
+                        } else {
+                            row.classList.remove('border-green-500', 'bg-green-50/40', 'border-red-500', 'bg-red-50/40');
+                            row.classList.add('border-red-500', 'bg-red-50/40'); // Or amber if that was the default
+                            if (countEl) countEl.innerText = parseInt(countEl.innerText) - 1;
+                        }
+
+                        fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': token,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({ status_verifikasi: status })
+                        }).catch(err => {
+                            console.error('Network error during verification update', err);
+                            // Revert UI on network error
+                            this.checked = !this.checked;
+                            if (this.checked) {
+                                row.classList.remove('border-red-500', 'bg-red-50/40');
+                                row.classList.add('border-green-500', 'bg-green-50/40');
+                                if (countEl) countEl.innerText = parseInt(countEl.innerText) + 1;
+                            } else {
+                                row.classList.remove('border-green-500', 'bg-green-50/40');
+                                row.classList.add('border-red-500', 'bg-red-50/40');
+                                if (countEl) countEl.innerText = parseInt(countEl.innerText) - 1;
+                            }
+                        });
+                    });
+                });
+            });
+        </script>
+    @endpush
 </x-app-layout>

@@ -9,9 +9,21 @@
     </div>
 
     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        @if($bimtekInformasi->foto)
+        @if($bimtekInformasi->foto && is_array($bimtekInformasi->foto) && count($bimtekInformasi->foto) > 0)
             <div class="w-full h-64 md:h-96 relative">
-                <img src="{{ asset('storage/' . $bimtekInformasi->foto) }}" alt="{{ $bimtekInformasi->judul }}" class="w-full h-full object-cover">
+                <img src="{{ Storage::url($bimtekInformasi->foto[0]) }}" alt="{{ $bimtekInformasi->judul }}" class="w-full h-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
+                <div class="absolute bottom-6 left-6 right-6">
+                    <span class="inline-block px-2.5 py-1 rounded-md text-xs font-bold mb-3
+                        {{ $bimtekInformasi->kategori === 'dokumentasi' ? 'bg-purple-500 text-white' : ($bimtekInformasi->kategori === 'pengumuman' ? 'bg-orange-500 text-white' : 'bg-blue-500 text-white') }}">
+                        {{ ucfirst($bimtekInformasi->kategori) }}
+                    </span>
+                    <h2 class="text-2xl md:text-3xl font-bold text-white">{{ $bimtekInformasi->judul }}</h2>
+                </div>
+            </div>
+        @elseif($bimtekInformasi->foto && is_string($bimtekInformasi->foto))
+            <div class="w-full h-64 md:h-96 relative">
+                <img src="{{ Storage::url($bimtekInformasi->foto) }}" alt="{{ $bimtekInformasi->judul }}" class="w-full h-full object-cover">
                 <div class="absolute inset-0 bg-gradient-to-t from-slate-900/60 to-transparent"></div>
                 <div class="absolute bottom-6 left-6 right-6">
                     <span class="inline-block px-2.5 py-1 rounded-md text-xs font-bold mb-3
@@ -40,9 +52,20 @@
                     </div>
                 </div>
 
-                <div class="prose prose-slate max-w-none text-slate-700">
-                    {!! nl2br(e($bimtekInformasi->konten)) !!}
+                <div class="prose prose-slate max-w-none text-slate-700 mb-8">
+                    {!! $bimtekInformasi->konten !!}
                 </div>
+
+                @if($bimtekInformasi->foto && is_array($bimtekInformasi->foto) && count($bimtekInformasi->foto) > 1)
+                    <h3 class="text-lg font-bold text-slate-900 mb-4">Galeri Foto</h3>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-8">
+                        @foreach(array_slice($bimtekInformasi->foto, 1) as $img)
+                            <a href="{{ Storage::url($img) }}" target="_blank" class="block aspect-w-1 aspect-h-1 rounded-lg overflow-hidden border border-slate-200 hover:shadow-md transition-shadow">
+                                <img src="{{ Storage::url($img) }}" alt="Galeri" class="w-full h-full object-cover">
+                            </a>
+                        @endforeach
+                    </div>
+                @endif
             </div>
 
             @if($bimtekInformasi->file_lampiran)

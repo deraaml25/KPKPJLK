@@ -168,7 +168,7 @@
                 <h3 class="text-base font-display font-semibold text-ink mb-1">Status Proses</h3>
                 <p class="text-xs text-muted mb-4 pb-4 border-b border-border">Pantau tahapan perjalanan ajuan Anda secara real-time.</p>
                 
-                <x-pjkades-tracker :posisiAktif="$ajuanBpd->posisi_surat ?? 'Berkas Diterima'" :status="$ajuanBpd->status" />
+                <x-pjkades-tracker :posisiAktif="$ajuanBpd->posisi_surat ?? 'Berkas Diterima'" :status="$ajuanBpd->status" :pjkades="$ajuanBpd" />
             </div>
         </div>
     </div>

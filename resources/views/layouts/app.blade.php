@@ -122,9 +122,14 @@
                             <h2 class="text-lg text-[#111827] font-bold font-display tracking-tight leading-none">
                                 @yield('title', 'Dashboard')
                             </h2>
+                            @hasSection('page-subtitle')
+                            <p class="text-[13px] text-slate-500 mt-1 font-medium">@yield('page-subtitle')</p>
+                            @endif
                         </div>
                     </div>
                     <div class="flex items-center gap-4">
+                        @yield('page-actions')
+                        <div class="w-px h-6 bg-slate-200 hidden md:block"></div>
                         <button class="w-8 h-8 rounded-full bg-slate-50 shadow-sm border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors relative">
                             <span class="material-symbols-outlined text-[18px]">notifications</span>
                             <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border border-white"></span>

@@ -1,4 +1,4 @@
-@props(['tahapAktif' => 1, 'milestones' => []])
+@props(['tahapAktif' => 1, 'milestones' => [], 'ajuan' => null])
 
 @php
     $tahapList = [
@@ -30,6 +30,19 @@
 
                 // Get milestone data if exists
                 $milestoneData = collect($milestones)->firstWhere('tahap', $index);
+
+                $dateToDisplay = null;
+                if ($milestoneData) {
+                    $dateToDisplay = $milestoneData['tgl_selesai'] ?? $milestoneData['tgl_mulai'] ?? $milestoneData['created_at'];
+                } elseif ($ajuan && ($status === 'selesai' || $status === 'aktif')) {
+                    if ($index === 1) {
+                        $dateToDisplay = $ajuan->tgl_diajukan ?? $ajuan->created_at;
+                    } else {
+                        // For skipped completed steps, find the next available milestone's date
+                        $nextMilestone = collect($milestones)->where('tahap', '>', $index)->sortBy('tahap')->first();
+                        $dateToDisplay = $nextMilestone ? ($nextMilestone->tgl_mulai ?? $nextMilestone->created_at) : $ajuan->updated_at;
+                    }
+                }
             @endphp
 
             <div class="flex items-start">
@@ -66,29 +79,15 @@
                             Berjalan</span>
                     @endif
 
-                    @if($milestoneData)
-                        @if($milestoneData['tgl_selesai'])
-                            <div class="mt-1 text-xs text-muted flex items-center">
-                                <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                    </path>
-                                </svg>
-                                {{ \Carbon\Carbon::parse($milestoneData['tgl_selesai'])->format('d M Y') }}
-                            </div>
-                        @elseif($milestoneData['tgl_mulai'] || isset($milestoneData['created_at']))
-                            @php
-                                $dateToDisplay = $milestoneData['tgl_mulai'] ?? $milestoneData['created_at'];
-                            @endphp
-                            <div class="mt-1 text-xs text-muted flex items-center">
-                                <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                    </path>
-                                </svg>
-                                Mulai: {{ \Carbon\Carbon::parse($dateToDisplay)->format('d M Y') }}
-                            </div>
-                        @endif
+                    @if($dateToDisplay)
+                        <div class="mt-1 text-xs text-muted flex items-center">
+                            <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                </path>
+                            </svg>
+                            {{ \Carbon\Carbon::parse($dateToDisplay)->format('d M Y') }}
+                        </div>
                     @endif
 
                     @if($milestoneData && $milestoneData['catatan'])

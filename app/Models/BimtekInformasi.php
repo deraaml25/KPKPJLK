@@ -19,6 +19,7 @@ class BimtekInformasi extends Model
 
     protected $casts = [
         'published_at' => 'datetime',
+        'foto' => 'array',
     ];
 
     /**

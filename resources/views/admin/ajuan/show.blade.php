@@ -62,8 +62,10 @@
         @endif
 
         {{-- PANEL KANAN: VERIFIKASI GRANULAR & DISPOSISI --}}
-        <div class="{{ $ajuan->metode !== 'offline' ? 'lg:col-span-5' : 'w-full' }} flex flex-col gap-6 h-full overflow-y-auto pr-2 custom-scrollbar">
+        <div class="{{ $ajuan->metode !== 'offline' ? 'lg:col-span-5 flex flex-col' : 'w-full flex flex-col lg:flex-row' }} gap-6 h-full overflow-y-auto pr-2 custom-scrollbar">
 
+            {{-- Kolom Kiri (Atas untuk online, Kiri 70% untuk offline) --}}
+            <div class="w-full flex flex-col gap-6" @if($ajuan->metode === 'offline') style="flex: 0 0 calc(70% - 12px); max-width: calc(70% - 12px);" @endif>
             {{-- IDENTITAS DESA --}}
             <div class="bg-primary text-white rounded-card shadow-sm p-5">
                 <div class="flex justify-between items-start mb-3">
@@ -128,13 +130,11 @@
                                         @endif
                                     </div>
 
-                                    <form action="{{ route('admin.ajuan.verify', [$ajuan, $item]) }}" method="POST" class="flex-shrink-0 ml-auto sm:ml-4">
+                                    <form action="{{ route('admin.ajuan.verify', [$ajuan, $item]) }}" method="POST" class="verify-form flex-shrink-0 ml-auto sm:ml-4" data-url="{{ route('admin.ajuan.verify', [$ajuan, $item]) }}">
                                         @csrf
-                                        <input type="hidden" name="status" value="kurang">
                                         <input type="checkbox" name="status" value="valid" 
-                                               class="w-7 h-7 text-blue-400 focus:ring-blue-400 border-gray-300 rounded shadow-sm cursor-pointer transition-colors" 
+                                               class="w-7 h-7 text-blue-400 focus:ring-blue-400 border-gray-300 rounded shadow-sm cursor-pointer transition-colors verify-checkbox" 
                                                {{ $item->status == 'valid' || $item->status == 'lengkap' ? 'checked' : '' }}
-                                               onchange="this.form.submit()"
                                                title="Tandai Sesuai">
                                     </form>
                                 </div>
@@ -164,65 +164,53 @@
                     <label class="block text-sm font-medium text-ink mb-2">Catatan Kelengkapan dari Admin untuk Desa</label>
                     <textarea name="catatan_admin" rows="3" class="w-full text-sm border-gray-300 rounded-md focus:border-primary focus:ring focus:ring-primary/20" placeholder="Tuliskan catatan lengkap atau tidaknya berkas keseluruhan di sini...">{{ $ajuan->catatan_admin }}</textarea>
                     <div class="mt-3 text-right">
-                        <button type="submit" class="px-4 py-2 bg-gray-800 hover:bg-black text-white text-xs font-medium rounded shadow-sm transition-colors">Simpan Catatan Admin</button>
+                        <button type="submit" class="px-4 py-2 bg-primary hover:bg-primary-light text-white text-xs font-medium rounded shadow-sm transition-colors">Simpan Catatan Admin</button>
                     </div>
                 </form>
             </div>
 
-            {{-- PANEL UPDATE DISPOSISI SURAT --}}
-            <div class="bg-surface rounded-card border border-border shadow-sm mb-10">
-                <div class="px-5 py-4 border-b border-border bg-primary-soft/10">
-                    <h3 class="font-display font-semibold text-primary">Tindak Lanjut & Disposisi</h3>
+            </div>
+
+            {{-- Kolom Kanan (Bawah untuk online, Kanan 30% untuk offline) --}}
+            <div class="w-full flex flex-col gap-6" @if($ajuan->metode === 'offline') style="flex: 0 0 calc(30% - 12px); max-width: calc(30% - 12px);" @endif>
+            {{-- PANEL MILESTONE TRACKER & ACTION BUTTONS --}}
+            <div class="bg-surface rounded-card border border-border shadow-sm mb-10 flex flex-col">
+                <div class="p-5">
+                    <h3 class="text-base font-display font-semibold text-ink mb-1">Status Proses</h3>
+                    <p class="text-xs text-muted mb-4 pb-4 border-b border-border">Pantau tahapan perjalanan ajuan ini secara real-time.</p>
+                    <x-milestone-tracker :tahapAktif="$tahapAktif" :milestones="$ajuan->milestoneTrackings" :ajuan="$ajuan" />
                 </div>
-                <form action="{{ route('admin.ajuan.disposisi', $ajuan) }}" method="POST"
-                    class="p-5 flex flex-col gap-4">
-                    @csrf
-                    <div>
-                        <label class="block text-sm font-medium text-ink mb-1">Maju ke Meja Birokrasi / Status</label>
-                        <select name="posisi_baru"
-                            class="w-full text-sm border-gray-300 rounded-md focus:border-primary focus:ring focus:ring-primary/20">
-                            <option value="Front Office (FO)" {{ $ajuan->posisi_surat == 'Front Office (FO)' ? 'selected' : '' }}>Kembalikan ke Front Office</option>
-                            <option value="Kabid PDPD" {{ $ajuan->posisi_surat == 'Kabid PDPD' ? 'selected' : '' }}>Maju
-                                ke Kabid PDPD</option>
-                            <option value="Sekretaris Dinas" {{ $ajuan->posisi_surat == 'Sekretaris Dinas' ? 'selected' : '' }}>Maju ke Sekretaris Dinas</option>
-                            <option value="Kepala Dinas" {{ $ajuan->posisi_surat == 'Kepala Dinas' ? 'selected' : '' }}>
-                                Maju ke Kepala Dinas (Rekomendasi Dinas Terbit)</option>
-                            <option value="Asisten Setda / Sekda" {{ $ajuan->posisi_surat == 'Asisten Setda / Sekda' ? 'selected' : '' }}>Maju ke Binawil / Setda</option>
-                            <option value="Bupati" {{ $ajuan->posisi_surat == 'Bupati' ? 'selected' : '' }}>Maju ke meja
-                                Bupati</option>
-                            <option value="Selesai (Surat Terbit)" {{ $ajuan->posisi_surat == 'Selesai (Surat Terbit)' ? 'selected' : '' }}>Selesai (Surat SK/Rekomendasi Terbit)</option>
-                        </select>
-                    </div>
 
-                    <div>
-                        <label class="block text-sm font-medium text-ink mb-1">Ubah Status Keseluruhan Ajuan
-                            (Opsional)</label>
-                        <select name="status_ajuan_baru" class="w-full text-sm border-gray-300 rounded-md">
-                            <option value="">-- Tetap ({{ $ajuan->status }}) --</option>
-                            <option value="diproses">Dalam Proses (Validasi Berjalan)</option>
-                            <option value="direvisi">Kembalikan ke Desa (Butuh Revisi)</option>
-                            <option value="selesai">Selesai Berhasil</option>
-                            <option value="ditolak">Ditolak Permanen</option>
-                        </select>
-                    </div>
+                {{-- ACTION BUTTONS --}}
+                <div class="px-5 py-4 bg-gray-50 border-t border-border mt-auto rounded-b-card">
+                    <h3 class="text-xs font-semibold text-muted mb-2">Tindak Lanjut Cepat</h3>
+                    <div class="flex flex-col gap-2">
+                        @if($ajuan->posisi_surat !== 'Selesai (Surat Terbit)')
+                        <form action="{{ route('admin.ajuan.disposisi', $ajuan) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="posisi_baru" value="{{ $nextPosisi }}">
+                            <button type="submit"
+                                class="w-full py-2 px-3 bg-primary rounded text-white text-xs font-medium hover:bg-primary-light transition-colors flex items-center justify-center shadow-sm">
+                                Lanjutkan ke : {{ $nextPosisi }}
+                            </button>
+                        </form>
+                        @endif
 
-                    <div>
-                        <label class="block text-sm font-medium text-ink mb-1">Catatan Disposisi (Opsional)</label>
-                        <textarea name="catatan_milestone" rows="2" class="w-full text-sm border-gray-300 rounded-md"
-                            placeholder="Contoh: Berkas sudah lengkap, mohon arahan Bapak Kadis."></textarea>
+                        <form action="{{ route('admin.ajuan.disposisi', $ajuan) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="posisi_baru" value="Front Office (FO)">
+                            <input type="hidden" name="status_ajuan_baru" value="direvisi">
+                            <button type="submit"
+                                class="w-full py-2 px-3 bg-white border border-red-300 text-red-600 rounded text-xs font-medium hover:bg-red-50 transition-colors flex items-center justify-center shadow-sm" title="Kembalikan ke Front Office (Butuh Revisi)">
+                                Revisi
+                            </button>
+                        </form>
                     </div>
-
-                    <button type="submit"
-                        class="w-full py-2.5 bg-primary rounded-btn text-white text-sm font-medium hover:bg-primary-light transition-colors flex items-center justify-center shadow-sm">
-                        <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-                        </svg>
-                        Eksekusi Disposisi
-                    </button>
-                </form>
+                </div>
             </div>
 
+        </div>
+            </div>
         </div>
     </div>
 
@@ -246,6 +234,49 @@
                 iframe.classList.remove('hidden');
                 document.getElementById('preview-title').innerText = title;
             }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('.verify-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        const form = this.closest('form');
+                        const url = form.getAttribute('data-url');
+                        const token = form.querySelector('input[name="_token"]').value;
+                        const status = this.checked ? 'valid' : 'menunggu';
+                        
+                        // Optimistic UI update
+                        const row = form.closest('.p-4');
+                        if (this.checked) {
+                            row.classList.remove('border-red-500', 'bg-red-50/40', 'border-amber-400', 'bg-amber-50/30');
+                            row.classList.add('border-green-500', 'bg-green-50/40');
+                        } else {
+                            row.classList.remove('border-green-500', 'bg-green-50/40', 'border-red-500', 'bg-red-50/40');
+                            row.classList.add('border-amber-400', 'bg-amber-50/30');
+                        }
+
+                        // Send request without requiring response handling
+                        fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': token,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({ status: status })
+                        }).catch(err => {
+                            console.error('Network error during verification update', err);
+                            // Revert UI on network error
+                            this.checked = !this.checked;
+                            if (this.checked) {
+                                row.classList.remove('border-amber-400', 'bg-amber-50/30');
+                                row.classList.add('border-green-500', 'bg-green-50/40');
+                            } else {
+                                row.classList.remove('border-green-500', 'bg-green-50/40');
+                                row.classList.add('border-amber-400', 'bg-amber-50/30');
+                            }
+                        });
+                    });
+                });
+            });
         </script>
         <style>
             .custom-scrollbar::-webkit-scrollbar {

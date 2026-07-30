@@ -1,13 +1,6 @@
 <x-app-layout>
     @section('title', 'Draft Regulasi')
-
-    <div class="bg-white rounded-card p-6 shadow-sm border border-border mb-6">
-        <div>
-            <h2 class="text-xl font-display font-bold text-ink">Draft Regulasi</h2>
-            <p class="text-muted text-sm mt-1">Daftar rancangan produk hukum desa kabupaten yang membutuhkan fasilitasi
-                dan legal drafting note.</p>
-        </div>
-    </div>
+    @section('page-subtitle', 'Daftar rancangan produk hukum desa Kabupaten Banyumas')
 
     <!-- List -->
     <div class="bg-white rounded-card shadow-sm border border-border overflow-hidden">

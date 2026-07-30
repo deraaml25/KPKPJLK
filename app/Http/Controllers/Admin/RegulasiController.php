@@ -23,17 +23,20 @@ class RegulasiController extends Controller
     public function kembalikanUntukRevisi(Request $request, Regulasi $regulasi)
     {
         $request->validate([
-            'file_catatan_dinas' => 'required|file|mimes:doc,docx,pdf|max:10240',
+            'file_catatan_dinas' => 'nullable|file|mimes:doc,docx,pdf|max:10240',
             'catatan' => 'required|string',
         ]);
 
-        $pathCatatan = $request->file('file_catatan_dinas')->store('regulasi/catatan_dinas', 'public');
-
-        $regulasi->update([
+        $updateData = [
             'status' => 'perlu_revisi',
-            'file_catatan_dinas' => $pathCatatan,
             'catatan_revisi' => $request->catatan,
-        ]);
+        ];
+
+        if ($request->hasFile('file_catatan_dinas')) {
+            $updateData['file_catatan_dinas'] = $request->file('file_catatan_dinas')->store('regulasi/catatan_dinas', 'public');
+        }
+
+        $regulasi->update($updateData);
 
         return back()->with('warning', 'Draf dikembalikan ke desa dengan status Perlu Revisi.');
     }
