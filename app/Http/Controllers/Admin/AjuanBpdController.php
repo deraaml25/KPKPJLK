@@ -94,4 +94,15 @@ class AjuanBpdController extends Controller
 
         return back()->with('success', "Status proses / Disposisi berhasil diperbarui: {$request->tahapan}");
     }
+
+    /**
+     * Print Checklist Syarat
+     */
+    public function printSyarat($id)
+    {
+        $ajuanBpd = AjuanBpd::findOrFail($id);
+        $ajuanBpd->load(['desa', 'pesertas.bpd', 'checklists.templateChecklist', 'milestones']);
+        
+        return view('admin.ajuan-bpd.print-syarat', compact('ajuanBpd'));
+    }
 }

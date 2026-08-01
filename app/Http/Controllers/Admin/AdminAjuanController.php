@@ -45,7 +45,9 @@ class AdminAjuanController extends Controller
             'Kepala Dinas' => 6,
             'Asisten Setda / Sekda' => 8,
             'Bupati' => 9,
-            'Selesai (Surat Terbit)' => 10,
+            'TU Umum Setda' => 10,
+            'Dinpermasdes' => 11,
+            'Selesai (Surat Terbit)' => 12,
             default => 1,
         };
 
@@ -55,7 +57,9 @@ class AdminAjuanController extends Controller
             'Sekretaris Dinas' => 'Kepala Dinas',
             'Kepala Dinas' => 'Asisten Setda / Sekda',
             'Asisten Setda / Sekda' => 'Bupati',
-            'Bupati' => 'Selesai (Surat Terbit)',
+            'Bupati' => 'TU Umum Setda',
+            'TU Umum Setda' => 'Dinpermasdes',
+            'Dinpermasdes' => 'Selesai (Surat Terbit)',
             default => 'Front Office (FO)',
         };
 
@@ -103,7 +107,9 @@ class AdminAjuanController extends Controller
             'Kepala Dinas' => 6,
             'Asisten Setda / Sekda' => 8,
             'Bupati' => 9,
-            'Selesai (Surat Terbit)' => 10,
+            'TU Umum Setda' => 10,
+            'Dinpermasdes' => 11,
+            'Selesai (Surat Terbit)' => 12,
             default => 1,
         };
 
@@ -129,7 +135,9 @@ class AdminAjuanController extends Controller
             'Kepala Dinas' => 6,
             'Asisten Setda / Sekda' => 8,
             'Bupati' => 9,
-            'Selesai (Surat Terbit)' => 10,
+            'TU Umum Setda' => 10,
+            'Dinpermasdes' => 11,
+            'Selesai (Surat Terbit)' => 12,
             default => 1,
         };
 
@@ -160,5 +168,16 @@ class AdminAjuanController extends Controller
         ]);
 
         return back()->with('success', 'Catatan admin berhasil disimpan!');
+    }
+
+    /**
+     * Print Checklist Syarat
+     */
+    public function printSyarat(Ajuan $ajuan)
+    {
+        $ajuan->load(['desa', 'jenisLayanan', 'pesertas.perangkatDesa', 'checklistAjuans.templateChecklist']);
+        $dokumenList = $ajuan->checklistAjuans->sortBy('templateChecklist.urutan');
+        
+        return view('admin.ajuan.print-syarat', compact('ajuan', 'dokumenList'));
     }
 }

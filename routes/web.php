@@ -92,6 +92,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
     // Modul 5: e-Pj Kades (Admin)
     Route::get('/pjkades', [PjKadesController::class, 'index'])->name('pjkades.index');
     Route::get('/pjkades/{pjkades}', [PjKadesController::class, 'show'])->name('pjkades.show');
+    Route::get('/pjkades/{pjkades}/print-syarat', [PjKadesController::class, 'printSyarat'])->name('pjkades.print-syarat');
     Route::post('/pjkades/{pjkades}/verify/{checklistPjKades}', [PjKadesController::class, 'verifyChecklist'])->name('pjkades.verify-checklist');
     Route::post('/pjkades/{pjkades}/generate-sk', [PjKadesController::class, 'generateSk'])->name('pjkades.generate-sk');
     Route::post('/pjkades/{pjkades}/update-catatan', [PjKadesController::class, 'updateCatatanAdmin'])->name('pjkades.update-catatan');
@@ -225,6 +226,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
     // Modul e-Rekomendasi (Admin Verification)
     Route::get('/ajuan', [AdminAjuanController::class, 'index'])->name('ajuan.index');
     Route::get('/ajuan/{ajuan}', [AdminAjuanController::class, 'show'])->name('ajuan.show');
+    Route::get('/ajuan/{ajuan}/print-syarat', [AdminAjuanController::class, 'printSyarat'])->name('ajuan.print-syarat');
     Route::post('/ajuan/{ajuan}/verify/{checklistAjuan}', [AdminAjuanController::class, 'verifyDokumen'])->name('ajuan.verify');
     Route::post('/ajuan/{ajuan}/update-catatan', [AdminAjuanController::class, 'updateCatatanAdmin'])->name('ajuan.update-catatan');
     Route::post('/ajuan/{ajuan}/disposisi', [AdminAjuanController::class, 'updateDisposisi'])->name('ajuan.disposisi');
@@ -241,6 +243,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
     // Ajuan BPD
     Route::get('/ajuan-bpd', [App\Http\Controllers\Admin\AjuanBpdController::class, 'index'])->name('ajuan-bpd.index');
     Route::get('/ajuan-bpd/{ajuanBpd}', [App\Http\Controllers\Admin\AjuanBpdController::class, 'show'])->name('ajuan-bpd.show');
+    Route::get('/ajuan-bpd/{ajuanBpd}/print-syarat', [App\Http\Controllers\Admin\AjuanBpdController::class, 'printSyarat'])->name('ajuan-bpd.print-syarat');
     Route::post('/ajuan-bpd/{ajuanBpd}/verify-checklist/{checklist}', [App\Http\Controllers\Admin\AjuanBpdController::class, 'verifyChecklist'])->name('ajuan-bpd.verify-checklist');
     Route::post('/ajuan-bpd/{ajuanBpd}/catatan', [App\Http\Controllers\Admin\AjuanBpdController::class, 'updateCatatanAdmin'])->name('ajuan-bpd.catatan');
     Route::post('/ajuan-bpd/{ajuanBpd}/disposisi', [App\Http\Controllers\Admin\AjuanBpdController::class, 'updateDisposisi'])->name('ajuan-bpd.disposisi');

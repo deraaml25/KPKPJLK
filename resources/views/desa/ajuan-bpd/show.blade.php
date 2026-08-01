@@ -82,9 +82,9 @@
                             <div class="px-6 py-4 flex flex-col lg:flex-row lg:items-center justify-between hover:bg-gray-50 transition-colors gap-4">
                                 <div class="flex items-start lg:items-center gap-3 flex-1 pr-4">
                                     <span class="font-medium text-ink flex-shrink-0">{{ $item->templateChecklist->urutan }}.</span>
-                                    <span class="text-sm text-ink font-bold">{{ $item->templateChecklist->nama_dokumen }}</span>
+                                    <span class="text-sm text-ink font-normal">{{ $item->templateChecklist->nama_dokumen }}</span>
                                     @if($item->templateChecklist->wajib)
-                                        <span class="text-danger text-xs font-bold flex-shrink-0">*WAJIB</span>
+
                                     @endif
                                 </div>
                                 

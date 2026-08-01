@@ -8,7 +8,7 @@
                 <p class="text-sm text-text-muted mt-1">Data sentral anggota BPD aktif seluruh desa di kabupaten.</p>
             </div>
 
-            <form action="{{ route('admin.bpd.index') }}" method="GET" class="w-full md:w-72">
+            <form action="{{ route('admin.bpd.index') }}" method="GET" class="w-full md:flex-1">
                 <div class="relative mt-2 rounded-md shadow-sm">
                     <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                         <svg class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -22,7 +22,7 @@
             </form>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             @forelse($bpds as $p)
                 <div class="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-6 flex flex-col hover:shadow-[0_8px_25px_-5px_rgba(0,0,0,0.08)] transition-shadow border border-slate-100">
                     <div class="flex justify-between items-start mb-8">

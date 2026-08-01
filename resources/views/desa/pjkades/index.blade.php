@@ -37,11 +37,11 @@
             <table class="min-w-full divide-y divide-border">
                 <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">No. Registrasi / Tanggal</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Jenis Pemberhentian & Alasan</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Pengganti (Pj / Plt Kades)</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Kelengkapan Dokumen</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Status</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">No. Registrasi / Tanggal</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Jenis Pemberhentian & Alasan</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Pengganti (Pj / Plt Kades)</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Kelengkapan Dokumen</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Status</th>
                         <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
@@ -108,7 +108,7 @@
                                     </span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 <a href="{{ route('desa.pjkades.show', $pj->id) }}"
                                     class="inline-flex items-center px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-ink text-xs font-medium rounded transition-colors">
                                     Lihat & Unggah

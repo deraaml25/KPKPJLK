@@ -51,36 +51,122 @@
                 <!-- Dokumen Persyaratan -->
                 <div class="bg-white rounded-card shadow-sm border border-border p-6">
                     <h3 class="text-md font-display font-bold text-ink mb-4 pb-2 border-b border-border">📎 Dokumen Persyaratan</h3>
-                    <div class="space-y-3">
-                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-border">
-                            <div>
-                                <p class="text-sm font-medium text-ink">Surat Permohonan Narasumber</p>
-                                <p class="text-xs text-muted">Dokumen resmi permohonan narasumber ke Dinpermasdes</p>
+                    <div class="space-y-5">
+
+                        {{-- Surat Permohonan Narasumber --}}
+                        <div class="rounded-lg border border-border overflow-hidden">
+                            <div class="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-border">
+                                <div>
+                                    <p class="text-sm font-medium text-ink">Surat Permohonan Narasumber</p>
+                                    <p class="text-xs text-muted">Dokumen resmi permohonan narasumber ke Dinpermasdes</p>
+                                </div>
+                                @if($pengajuanPembinaan->file_surat_permohonan)
+                                    <a href="{{ asset('storage/' . $pengajuanPembinaan->file_surat_permohonan) }}" target="_blank"
+                                        class="inline-flex items-center gap-1 px-3 py-1.5 bg-primary text-white text-xs font-medium rounded-btn hover:bg-primary-light transition-colors flex-shrink-0">
+                                        📥 Unduh
+                                    </a>
+                                @else
+                                    <span class="text-xs text-muted italic">Tidak dilampirkan</span>
+                                @endif
                             </div>
                             @if($pengajuanPembinaan->file_surat_permohonan)
-                                <a href="{{ asset('storage/' . $pengajuanPembinaan->file_surat_permohonan) }}" target="_blank"
-                                    class="inline-flex items-center gap-1 px-3 py-1.5 bg-primary text-white text-xs font-medium rounded-btn hover:bg-primary-light transition-colors flex-shrink-0">
-                                    📥 Unduh
-                                </a>
-                            @else
-                                <span class="text-xs text-muted italic">Tidak dilampirkan</span>
+                                @php $ext1 = strtolower(pathinfo($pengajuanPembinaan->file_surat_permohonan, PATHINFO_EXTENSION)); @endphp
+                                @if($ext1 === 'pdf')
+                                    <iframe src="{{ asset('storage/' . $pengajuanPembinaan->file_surat_permohonan) }}"
+                                        class="w-full border-0" style="height: 480px;"></iframe>
+                                @elseif(in_array($ext1, ['doc', 'docx']))
+                                    <div class="p-4 bg-white" style="min-height: 200px;">
+                                        <div id="doc-loading-1" class="flex items-center gap-2 text-slate-400 text-sm py-4">
+                                            <svg class="animate-spin w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
+                                            Memuat dokumen...
+                                        </div>
+                                        <div id="doc-content-1" class="hidden prose prose-sm max-w-none text-slate-800 leading-relaxed"></div>
+                                        <div id="doc-error-1" class="hidden text-xs text-slate-400 italic py-2">Gagal memuat pratinjau. Gunakan tombol Unduh.</div>
+                                    </div>
+                                    <script>
+                                    (function(){
+                                        var url = '{{ asset('storage/' . $pengajuanPembinaan->file_surat_permohonan) }}';
+                                        function loadMammoth(cb) {
+                                            if (window.mammoth) return cb();
+                                            var s = document.createElement('script');
+                                            s.src = 'https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js';
+                                            s.onload = cb; s.onerror = function(){ showErr('1'); };
+                                            document.head.appendChild(s);
+                                        }
+                                        function showErr(n){ document.getElementById('doc-loading-'+n).classList.add('hidden'); document.getElementById('doc-error-'+n).classList.remove('hidden'); }
+                                        loadMammoth(function(){
+                                            fetch(url).then(function(r){ return r.arrayBuffer(); })
+                                            .then(function(buf){ return mammoth.convertToHtml({arrayBuffer:buf}); })
+                                            .then(function(res){
+                                                document.getElementById('doc-loading-1').classList.add('hidden');
+                                                var el = document.getElementById('doc-content-1');
+                                                el.innerHTML = res.value;
+                                                el.classList.remove('hidden');
+                                            }).catch(function(){ showErr('1'); });
+                                        });
+                                    })();
+                                    </script>
+                                @endif
                             @endif
                         </div>
 
-                        <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-border">
-                            <div>
-                                <p class="text-sm font-medium text-ink">Surat Undangan</p>
-                                <p class="text-xs text-muted">Surat undangan resmi untuk Dinpermasdes</p>
+                        {{-- Surat Undangan --}}
+                        <div class="rounded-lg border border-border overflow-hidden">
+                            <div class="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-border">
+                                <div>
+                                    <p class="text-sm font-medium text-ink">Surat Undangan</p>
+                                    <p class="text-xs text-muted">Surat undangan resmi untuk Dinpermasdes</p>
+                                </div>
+                                @if($pengajuanPembinaan->file_undangan)
+                                    <a href="{{ asset('storage/' . $pengajuanPembinaan->file_undangan) }}" target="_blank"
+                                        class="inline-flex items-center gap-1 px-3 py-1.5 bg-primary text-white text-xs font-medium rounded-btn hover:bg-primary-light transition-colors flex-shrink-0">
+                                        📥 Unduh
+                                    </a>
+                                @else
+                                    <span class="text-xs text-muted italic">Tidak dilampirkan</span>
+                                @endif
                             </div>
                             @if($pengajuanPembinaan->file_undangan)
-                                <a href="{{ asset('storage/' . $pengajuanPembinaan->file_undangan) }}" target="_blank"
-                                    class="inline-flex items-center gap-1 px-3 py-1.5 bg-primary text-white text-xs font-medium rounded-btn hover:bg-primary-light transition-colors flex-shrink-0">
-                                    📥 Unduh
-                                </a>
-                            @else
-                                <span class="text-xs text-muted italic">Tidak dilampirkan</span>
+                                @php $ext2 = strtolower(pathinfo($pengajuanPembinaan->file_undangan, PATHINFO_EXTENSION)); @endphp
+                                @if($ext2 === 'pdf')
+                                    <iframe src="{{ asset('storage/' . $pengajuanPembinaan->file_undangan) }}"
+                                        class="w-full border-0" style="height: 480px;"></iframe>
+                                @elseif(in_array($ext2, ['doc', 'docx']))
+                                    <div class="p-4 bg-white" style="min-height: 200px;">
+                                        <div id="doc-loading-2" class="flex items-center gap-2 text-slate-400 text-sm py-4">
+                                            <svg class="animate-spin w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path></svg>
+                                            Memuat dokumen...
+                                        </div>
+                                        <div id="doc-content-2" class="hidden prose prose-sm max-w-none text-slate-800 leading-relaxed"></div>
+                                        <div id="doc-error-2" class="hidden text-xs text-slate-400 italic py-2">Gagal memuat pratinjau. Gunakan tombol Unduh.</div>
+                                    </div>
+                                    <script>
+                                    (function(){
+                                        var url = '{{ asset('storage/' . $pengajuanPembinaan->file_undangan) }}';
+                                        function loadMammoth(cb) {
+                                            if (window.mammoth) return cb();
+                                            var s = document.createElement('script');
+                                            s.src = 'https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js';
+                                            s.onload = cb; s.onerror = function(){ showErr('2'); };
+                                            document.head.appendChild(s);
+                                        }
+                                        function showErr(n){ document.getElementById('doc-loading-'+n).classList.add('hidden'); document.getElementById('doc-error-'+n).classList.remove('hidden'); }
+                                        loadMammoth(function(){
+                                            fetch(url).then(function(r){ return r.arrayBuffer(); })
+                                            .then(function(buf){ return mammoth.convertToHtml({arrayBuffer:buf}); })
+                                            .then(function(res){
+                                                document.getElementById('doc-loading-2').classList.add('hidden');
+                                                var el = document.getElementById('doc-content-2');
+                                                el.innerHTML = res.value;
+                                                el.classList.remove('hidden');
+                                            }).catch(function(){ showErr('2'); });
+                                        });
+                                    })();
+                                    </script>
+                                @endif
                             @endif
                         </div>
+
                     </div>
                 </div>
 

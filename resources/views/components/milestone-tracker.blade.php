@@ -11,8 +11,14 @@
         7 => 'Verifikasi & Validasi Asisten Pemerintahan & Kesra',
         8 => 'Verifikasi & Validasi Sekda',
         9 => 'Tanda Tangan Bupati',
-        10 => 'Penomoran TU Umum Setda & Selesai'
+        10 => 'Penomoran TU Umum Setda',
+        11 => 'Sudah di Dinpermasdes',
+        12 => 'Sudah di Desa (Nama Penerima)'
     ];
+
+    if ($ajuan && $ajuan->status === 'selesai') {
+        $tahapAktif = 999;
+    }
 @endphp
 
 <div class="relative py-4">
@@ -90,14 +96,7 @@
                         </div>
                     @endif
 
-                    @if($milestoneData && $milestoneData['catatan'])
-                        <div class="mt-2 p-3 bg-gray-50 rounded-md border border-border text-sm text-ink relative">
-                            <div
-                                class="absolute -left-1.5 top-3 w-3 h-3 bg-gray-50 border-l border-b border-border transform rotate-45">
-                            </div>
-                            {{ $milestoneData['catatan'] }}
-                        </div>
-                    @endif
+
                 </div>
             </div>
         @endforeach

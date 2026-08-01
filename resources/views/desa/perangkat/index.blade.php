@@ -18,7 +18,7 @@
 
     <!-- Toolbar / Pencarian -->
     <div class="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <form method="GET" action="{{ route('desa.perangkat.index') }}" class="w-full md:w-1/3 relative">
+        <form method="GET" action="{{ route('desa.perangkat.index') }}" class="w-full md:flex-1 relative">
             <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                 <svg class="w-5 h-5 text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -41,7 +41,7 @@
 
     <!-- Tabel -->
     <div>
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             @forelse ($perangkat as $row)
                 <div class="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-6 flex flex-col hover:shadow-[0_8px_25px_-5px_rgba(0,0,0,0.08)] transition-shadow border border-slate-100">
                     <div class="flex justify-between items-start mb-8">

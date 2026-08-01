@@ -90,10 +90,20 @@
                     </div>
 
                     <div class="divide-y divide-border">
+                        @php $inSubSection = false; $subIndex = 0; @endphp
                         @forelse($ajuan->checklistAjuans->sortBy('templateChecklist.urutan') as $item)
-                            <div class="px-6 py-4 flex flex-col lg:flex-row lg:items-center justify-between hover:bg-gray-50 transition-colors gap-4">
+                            @if(!$item->templateChecklist->wajib)
+                                @php $inSubSection = true; $subIndex = 0; @endphp
+                                {{-- Section header / label kondisional (bukan dokumen upload) --}}
+                                <div class="px-6 py-3 bg-amber-50 border-l-4 border-amber-400 flex items-start gap-3">
+                                    <span class="font-bold text-amber-700 flex-shrink-0 text-sm">{{ $item->templateChecklist->urutan }}.</span>
+                                    <span class="text-sm font-semibold text-amber-800 italic">{{ $item->templateChecklist->nama_dokumen }}</span>
+                                </div>
+                            @else
+                                @php $subIndex++; $label = $inSubSection ? chr(96 + $subIndex) . '.' : $item->templateChecklist->urutan . '.'; @endphp
+                            <div class="px-6 py-4 {{ $inSubSection ? 'pl-10' : '' }} flex flex-col lg:flex-row lg:items-center justify-between hover:bg-gray-50 transition-colors gap-4">
                                 <div class="flex items-start lg:items-center gap-3 flex-1 pr-4">
-                                    <span class="font-medium text-ink flex-shrink-0">{{ $item->templateChecklist->urutan }}.</span>
+                                    <span class="font-medium text-ink flex-shrink-0">{{ $label }}</span>
                                     <span class="text-sm text-ink">{{ $item->templateChecklist->nama_dokumen }}</span>
                                     @if($item->templateChecklist->wajib && !in_array(strtolower($ajuan->jenisLayanan->nama), ['rotasi', 'pengangkatan']))
                                         <span class="text-danger text-xs font-bold flex-shrink-0">*</span>
@@ -109,16 +119,7 @@
                                             </a>
                                         @endif
                                         
-                                        @if(auth()->user()->can('update', $ajuan) && in_array($ajuan->status, ['draft', 'direvisi']))
-                                            <form action="{{ route('desa.ajuan.upload', [$ajuan, $item]) }}" method="POST" enctype="multipart/form-data" class="flex items-center">
-                                                @csrf
-                                                <label class="cursor-pointer flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded-full border border-primary text-primary hover:bg-primary hover:text-white transition-colors">
-                                                    <svg class="w-3.5 h-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" /></svg>
-                                                    {{ $item->file_path ? 'Ubah File' : 'Unggah PDF' }}
-                                                    <input type="file" name="dokumen" accept=".pdf" class="hidden" onchange="this.form.submit()">
-                                                </label>
-                                            </form>
-                                        @endif
+
                                     @endif
 
                                     @if($item->status === 'lengkap' || $item->status === 'valid')
@@ -141,6 +142,7 @@
                                 <div class="px-6 py-2 bg-red-50 text-xs text-red-800 border-b border-border">
                                     <strong class="font-semibold">Catatan Perbaikan:</strong> {{ $item->catatan }}
                                 </div>
+                            @endif
                             @endif
                         @empty
                             <div class="py-12 text-center text-muted text-sm">Tidak ada checklist dokumen untuk ajuan ini.</div>

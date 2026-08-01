@@ -26,11 +26,11 @@
             <table class="min-w-full divide-y divide-border">
                 <thead>
                     <tr class="bg-gray-50">
-                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">No. Registrasi / Tgl</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Jenis Layanan</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Perangkat Desa</th>
-                        <th class="px-6 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Progres & Tahap</th>
-                        <th class="px-6 py-3 text-right text-xs font-medium text-muted uppercase tracking-wider">Aksi</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">No. Registrasi / Tgl</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Jenis Layanan</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Perangkat Desa</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Progres & Tahap</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border">
@@ -85,7 +85,7 @@
                                     <p class="text-xs text-success font-medium">Rekomendasi Terbit</p>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right">
+                            <td class="px-6 py-4 whitespace-nowrap">
                                 <a href="{{ route('desa.ajuan.show', $ajuan) }}" class="inline-flex items-center px-4 py-2 bg-primary-soft text-primary text-sm font-medium rounded-btn hover:bg-primary hover:text-white transition-all">
                                     Lihat & Upload Dokumen
                                 </a>

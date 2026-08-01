@@ -12,64 +12,94 @@
     <div class="flex flex-col lg:flex-row gap-6 h-[calc(100vh-140px)] min-h-[600px]">
         
         <!-- KIRI: Layar Tinjauan Dokumen -->
-        <div class="w-full flex flex-col bg-slate-100/50 rounded-2xl border border-slate-200 overflow-hidden shadow-inner relative" style="width: 70%;">
-            <div class="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between z-10 shadow-sm">
-                <div class="flex items-center gap-2 text-slate-700 font-semibold text-sm">
-                    <span class="material-symbols-outlined text-primary text-[20px]">visibility</span>
-                    Layar Tinjauan Dokumen
+        <div class="w-full flex flex-col gap-0" style="width: 70%;">
+
+            @php $ext = $regulasi->file_path ? strtolower(pathinfo($regulasi->file_path, PATHINFO_EXTENSION)) : null; @endphp
+
+            <div class="rounded-2xl border border-slate-200 overflow-hidden shadow-sm bg-white flex flex-col" style="height: 100%;">
+
+                {{-- Header kartu: nama dokumen + tombol unduh --}}
+                <div class="flex items-center justify-between px-4 py-3 bg-gray-50 border-b border-slate-200 flex-shrink-0">
+                    <div>
+                        <p class="text-sm font-medium text-ink">Draf Peraturan Desa</p>
+                        <p class="text-xs text-muted mt-0.5">
+                            {{ $regulasi->file_path ? $regulasi->judul : 'Belum ada dokumen diunggah' }}
+                        </p>
+                    </div>
+                    @if($regulasi->file_path)
+                        <a href="{{ asset('storage/' . $regulasi->file_path) }}" target="_blank"
+                            class="inline-flex items-center gap-1 px-3 py-1.5 bg-primary text-white text-xs font-medium rounded-btn hover:bg-primary-light transition-colors flex-shrink-0">
+                            📥 Unduh
+                        </a>
+                    @endif
                 </div>
-                
-                @if($regulasi->file_path)
-                    <a href="{{ asset('storage/' . $regulasi->file_path) }}" target="_blank"
-                        class="text-xs text-primary hover:underline flex items-center gap-1 bg-primary/10 px-2.5 py-1 rounded-md transition-colors">
-                        <span class="material-symbols-outlined text-[16px]">download</span>
-                        Unduh Asli
-                    </a>
-                @endif
-            </div>
 
+                {{-- Area preview dokumen --}}
+                <div class="flex-1 overflow-y-auto bg-slate-50" style="min-height: 0;">
+                    @if($regulasi->file_path)
+                        @if($ext === 'pdf')
+                            <iframe src="{{ asset('storage/' . $regulasi->file_path) }}"
+                                class="w-full h-full border-0" style="min-height: 600px;"></iframe>
 
-
-            <div class="flex-1 overflow-y-auto p-4 md:p-8 bg-slate-100/50 relative" id="viewer-wrapper" style="display: flex; flex-direction: column;">
-                @if($regulasi->file_path)
-                    @php
-                        $ext = pathinfo($regulasi->file_path, PATHINFO_EXTENSION);
-                    @endphp
-                    @if(in_array(strtolower($ext), ['doc', 'docx']))
-                        {{-- DOCX: tampilkan download card, tidak bisa di-preview langsung di browser --}}
-                        <div class="flex flex-col items-center justify-center h-full text-slate-500 gap-6 py-12">
-                            <div class="w-24 h-24 rounded-2xl bg-blue-50 border-2 border-blue-200 flex items-center justify-center">
-                                <svg viewBox="0 0 48 48" class="w-14 h-14" fill="none">
-                                    <rect width="48" height="48" rx="8" fill="#2B579A"/>
-                                    <text x="50%" y="62%" dominant-baseline="middle" text-anchor="middle" fill="white" font-size="16" font-weight="bold" font-family="Arial">W</text>
-                                </svg>
+                        @elseif(in_array($ext, ['doc', 'docx']))
+                            <div class="p-6 md:p-10">
+                                <div id="docx-loading" class="flex flex-col items-center justify-center py-16 text-slate-400 gap-3">
+                                    <svg class="animate-spin w-8 h-8 text-blue-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                                    </svg>
+                                    <p class="text-sm">Memuat dokumen...</p>
+                                </div>
+                                <div id="docx-error" class="hidden flex-col items-center justify-center py-16 text-slate-400 gap-3">
+                                    <span class="material-symbols-outlined text-5xl">description</span>
+                                    <p class="text-sm">Gagal memuat pratinjau. Gunakan tombol Unduh.</p>
+                                </div>
+                                <div id="docx-content" class="hidden prose prose-sm max-w-none text-slate-800 leading-relaxed"></div>
                             </div>
-                            <div class="text-center">
-                                <p class="font-semibold text-slate-700 text-base">Dokumen Word (.docx)</p>
-                                <p class="text-sm text-slate-400 mt-1">File Word tidak bisa ditampilkan langsung di browser.<br>Unduh untuk membuka dengan Microsoft Word.</p>
+                            <script>
+                            (function () {
+                                var fileUrl = '{{ asset('storage/' . $regulasi->file_path) }}';
+                                var loading = document.getElementById('docx-loading');
+                                var errorEl = document.getElementById('docx-error');
+                                var contentEl = document.getElementById('docx-content');
+                                function showError() {
+                                    loading.classList.add('hidden');
+                                    errorEl.classList.remove('hidden');
+                                    errorEl.style.display = 'flex';
+                                }
+                                function loadScript(src, cb) {
+                                    var s = document.createElement('script');
+                                    s.src = src; s.onload = cb;
+                                    s.onerror = function() { showError(); };
+                                    document.head.appendChild(s);
+                                }
+                                loadScript('https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.8.0/mammoth.browser.min.js', function () {
+                                    fetch(fileUrl).then(function(r) { return r.arrayBuffer(); })
+                                        .then(function(buf) { return mammoth.convertToHtml({ arrayBuffer: buf }); })
+                                        .then(function(result) {
+                                            loading.classList.add('hidden');
+                                            contentEl.innerHTML = result.value;
+                                            contentEl.classList.remove('hidden');
+                                        }).catch(function() { showError(); });
+                                });
+                            })();
+                            </script>
+
+                        @else
+                            <div class="flex flex-col items-center justify-center py-20 text-slate-400 gap-3">
+                                <span class="material-symbols-outlined text-6xl">description</span>
+                                <p class="text-sm">Format file tidak dapat ditampilkan langsung.</p>
+                                <a href="{{ asset('storage/' . $regulasi->file_path) }}" class="text-primary hover:underline text-sm">Unduh file</a>
                             </div>
-                            <a href="{{ asset('storage/' . $regulasi->file_path) }}" download
-                                class="inline-flex items-center gap-2 px-6 py-3 rounded-xl font-semibold text-sm text-white transition-all shadow-md hover:shadow-lg"
-                                style="background-color: #2B579A;">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
-                                Unduh Dokumen Word
-                            </a>
-                        </div>
-                    @elseif(strtolower($ext) == 'pdf')
-                        <iframe src="{{ asset('storage/' . $regulasi->file_path) }}" class="w-full h-full rounded-md shadow-sm border border-slate-200"></iframe>
+                        @endif
                     @else
-                        <div class="flex flex-col items-center justify-center h-full text-slate-400">
-                            <span class="material-symbols-outlined text-6xl mb-2">description</span>
-                            <p>Format file tidak dapat ditinjau langsung.</p>
-                            <a href="{{ asset('storage/' . $regulasi->file_path) }}" class="text-primary hover:underline mt-2">Unduh file</a>
+                        <div class="flex flex-col items-center justify-center py-20 text-slate-400 gap-3">
+                            <span class="material-symbols-outlined text-6xl">upload_file</span>
+                            <p class="text-sm">Draf belum diunggah oleh desa.</p>
                         </div>
                     @endif
-                @else
-                    <div class="flex flex-col items-center justify-center h-full text-slate-400">
-                        <span class="material-symbols-outlined text-6xl mb-2">description</span>
-                        <p>Draf belum diunggah.</p>
-                    </div>
-                @endif
+                </div>
+
             </div>
         </div>
 

@@ -31,8 +31,8 @@
 
         <!-- Tab Content: Data Perangkat -->
         <div x-show="tab === 'data'" style="display: none;" x-transition>
-            <div class="mb-6 flex justify-end">
-                <form action="{{ route('admin.perangkat.index') }}" method="GET" class="w-full md:w-72">
+            <div class="mb-6">
+                <form action="{{ route('admin.perangkat.index') }}" method="GET" class="w-full">
                     <div class="relative rounded-md shadow-sm">
                         <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                             <span class="material-symbols-outlined text-gray-400 text-[20px]">search</span>
@@ -43,7 +43,7 @@
                 </form>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 @forelse($perangkats as $p)
                     <div class="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-6 flex flex-col hover:shadow-[0_8px_25px_-5px_rgba(0,0,0,0.08)] transition-shadow border border-slate-100">
                         <div class="flex justify-between items-start mb-8">

@@ -32,7 +32,7 @@
         <!-- Tab Content: Data BPD -->
         <div x-show="tab === 'data'" style="display: none;" x-transition>
             <div class="mb-6 flex justify-end">
-                <form action="{{ route('admin.bpd.index') }}" method="GET" class="w-full md:w-72">
+                <form action="{{ route('admin.bpd.index') }}" method="GET" class="w-full md:flex-1">
                     <div class="relative rounded-md shadow-sm">
                         <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
                             <span class="material-symbols-outlined text-gray-400 text-[20px]">search</span>

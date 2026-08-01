@@ -33,17 +33,12 @@
         {{-- PANEL KIRI: PREVIEW PDF --}}
         <div
             class="lg:col-span-7 bg-surface rounded-card border border-border shadow-sm flex flex-col overflow-hidden h-full">
-            <div class="p-4 border-b border-border bg-gray-50 flex items-center justify-between">
-                <h3 class="font-display font-semibold text-ink flex items-center gap-2">
-                    <svg class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                    Layar Tinjauan Dokumen
-                </h3>
-                <span id="preview-title" class="text-sm font-medium text-muted truncate max-w-xs">Pilih dokumen di sebelah kanan</span>
+            <div class="px-4 py-3 border-b border-border bg-gray-50 flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-ink">Berkas Keseluruhan Persyaratan</p>
+                    <p class="text-xs text-muted">Ajuan BPD ({{ ucfirst($ajuanBpd->jenis_ajuan) }}) — {{ $ajuanBpd->desa->nama_desa }}</p>
+                </div>
+                <span id="preview-title" class="text-xs text-muted hidden"></span>
             </div>
             <div class="flex-1 bg-gray-200 relative p-2" id="pdf-container">
                 <!-- PDF Viewer / Empty State -->
@@ -64,21 +59,21 @@
         <div class="{{ $ajuanBpd->metode !== 'offline' ? 'lg:col-span-5' : 'w-full' }} flex flex-col gap-6 h-full overflow-y-auto pr-2 custom-scrollbar">
 
             {{-- IDENTITAS DESA --}}
-            <div class="bg-primary text-white rounded-card shadow-sm p-5">
-                <div class="flex justify-between items-start mb-3">
+            <div class="bg-primary text-white rounded-card shadow-sm p-4">
+                <div class="flex justify-between items-start mb-2">
                     <div>
-                        <p class="text-xs font-mono text-primary-soft">{{ $ajuanBpd->no_registrasi }}</p>
-                        <h2 class="text-xl font-display font-bold">{{ $ajuanBpd->desa->nama_desa }}</h2>
+                        <p class="text-[10px] font-mono text-primary-soft">{{ $ajuanBpd->no_registrasi }}</p>
+                        <h2 class="text-lg font-display font-bold leading-tight">{{ $ajuanBpd->desa->nama_desa }}</h2>
                     </div>
                 </div>
-                <div class="text-sm border-t border-white/20 pt-3 flex flex-col gap-1">
-                    <p><span class="text-primary-soft inline-block w-20">Layanan:</span>
+                <div class="text-xs border-t border-white/20 pt-2 flex flex-col gap-1">
+                    <p><span class="text-primary-soft inline-block w-16">Layanan:</span>
                         Ajuan BPD ({{ ucfirst($ajuanBpd->jenis_ajuan) }})</p>
 
-                    <p class="text-primary-soft font-medium mt-2">Daftar BPD ({{ $ajuanBpd->pesertas->count() }} Orang):</p>
-                    <div class="max-h-24 overflow-y-auto custom-scrollbar space-y-2 pr-1">
+                    <p class="text-primary-soft font-medium mt-1">Daftar BPD ({{ $ajuanBpd->pesertas->count() }} Orang):</p>
+                    <div class="max-h-20 overflow-y-auto custom-scrollbar space-y-1.5 pr-1">
                         @foreach($ajuanBpd->pesertas as $index => $peserta)
-                            <div class="bg-black/10 rounded p-2 border border-white/5 text-xs">
+                            <div class="bg-black/10 rounded p-1.5 border border-white/5 text-[10px]">
                                 <span class="font-bold block">{{ $index + 1 }}. {{ $peserta->bpd->nama }}</span>
                                 <span class="opacity-80 block">{{ $peserta->bpd->jabatan }}</span>
                             </div>
@@ -89,8 +84,12 @@
 
             {{-- LIST DOKUMEN CHECKLIST --}}
             <div class="bg-surface rounded-card border border-border shadow-sm flex flex-col">
-                <div class="px-5 py-4 border-b border-border bg-gray-50">
-                    <h3 class="font-display font-semibold text-ink">Verifikasi Syarat Formil</h3>
+                <div class="px-5 py-4 border-b border-border bg-gray-50 flex justify-between items-center">
+                    <h3 class="font-display font-semibold text-ink">Verifikasi Syarat</h3>
+                    <a href="{{ route('admin.ajuan-bpd.print-syarat', $ajuanBpd->id) }}" target="_blank" class="inline-flex items-center text-xs px-2 py-1 bg-white border border-gray-300 rounded font-medium text-ink hover:bg-gray-50 transition-colors shadow-sm">
+                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        Print Checklist
+                    </a>
                 </div>
 
                 <div class="divide-y divide-border">
@@ -205,9 +204,7 @@
                             <span class="absolute -left-[9px] top-1 w-4 h-4 rounded-full {{ $loop->last ? 'bg-primary ring-4 ring-white' : 'bg-gray-400 ring-4 ring-white' }}"></span>
                             <p class="font-bold text-sm {{ $loop->last ? 'text-primary' : 'text-ink' }}">{{ $ms->tahapan }}</p>
                             <p class="text-xs text-muted">{{ $ms->tgl_selesai ? \Carbon\Carbon::parse($ms->tgl_selesai)->translatedFormat('d M Y H:i') : '-' }}</p>
-                            @if($ms->catatan)
-                                <p class="text-xs mt-1 bg-slate-50 p-2 rounded border border-slate-100">{{ $ms->catatan }}</p>
-                            @endif
+
                         </div>
                     @endforeach
                 </div>

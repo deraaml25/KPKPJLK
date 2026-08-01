@@ -12,7 +12,9 @@
         8 => 'Verifikasi & Validasi Asisten Pemerintahan & Kesra',
         9 => 'Verifikasi & Validasi Sekda',
         10 => 'Tanda Tangan Bupati',
-        11 => 'Penomoran TU Umum Setda & Selesai'
+        11 => 'Penomoran TU Umum Setda',
+        12 => 'Sudah di Dinpermasdes',
+        13 => 'Sudah di Desa (Nama Penerima)'
     ];
 
     $indexAktif = 1;
@@ -24,7 +26,7 @@
     }
 
     if ($status === 'approved') {
-        $indexAktif = 12; // Selesai semua
+        $indexAktif = 14; // Selesai semua
     }
 @endphp
 

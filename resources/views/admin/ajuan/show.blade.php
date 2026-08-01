@@ -33,18 +33,20 @@
         {{-- PANEL KIRI: PREVIEW PDF --}}
         <div
             class="lg:col-span-7 bg-surface rounded-card border border-border shadow-sm flex flex-col overflow-hidden h-full">
-            <div class="p-4 border-b border-border bg-gray-50 flex items-center justify-between">
-                <h3 class="font-display font-semibold text-ink flex items-center gap-2">
-                    <svg class="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                    Layar Tinjauan Dokumen
-                </h3>
-                <span id="preview-title" class="text-sm font-medium text-muted truncate max-w-xs">Pilih dokumen di
-                    sebelah kanan</span>
+            <div class="px-4 py-3 border-b border-border bg-gray-50 flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-ink">Berkas Keseluruhan Persyaratan</p>
+                    <p class="text-xs text-muted">{{ $ajuan->jenisLayanan->nama }} — {{ $ajuan->desa->nama_desa }}</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span id="preview-title" class="hidden"></span>
+                    @if($ajuan->metode === 'online' && $ajuan->berkas_zip)
+                        <a href="{{ Storage::disk('public')->url($ajuan->berkas_zip) }}" target="_blank"
+                            class="inline-flex items-center gap-1 px-3 py-1.5 bg-primary text-white text-xs font-medium rounded-btn hover:bg-primary-light transition-colors flex-shrink-0">
+                            📥 Unduh
+                        </a>
+                    @endif
+                </div>
             </div>
             <div class="flex-1 bg-gray-200 relative p-2" id="pdf-container">
                 <!-- PDF Viewer / Empty State -->
@@ -71,26 +73,26 @@
             {{-- Kolom Kiri (Atas untuk online, Kiri 70% untuk offline) --}}
             <div class="w-full flex flex-col gap-6" @if($ajuan->metode === 'offline') style="flex: 0 0 calc(70% - 12px); max-width: calc(70% - 12px);" @endif>
             {{-- IDENTITAS DESA --}}
-            <div class="bg-primary text-white rounded-card shadow-sm p-5">
-                <div class="flex justify-between items-start mb-3">
+            <div class="bg-primary text-white rounded-card shadow-sm p-4">
+                <div class="flex justify-between items-start mb-2">
                     <div>
-                        <p class="text-xs font-mono text-primary-soft">{{ $ajuan->no_registrasi }}</p>
-                        <h2 class="text-xl font-display font-bold">{{ $ajuan->desa->nama_desa }}</h2>
+                        <p class="text-[10px] font-mono text-primary-soft">{{ $ajuan->no_registrasi }}</p>
+                        <h2 class="text-lg font-display font-bold leading-tight">{{ $ajuan->desa->nama_desa }}</h2>
                     </div>
                 </div>
-                <div class="text-sm border-t border-white/20 pt-3 flex flex-col gap-1">
-                    <p><span class="text-primary-soft inline-block w-20">Layanan:</span>
+                <div class="text-xs border-t border-white/20 pt-2 flex flex-col gap-1">
+                    <p><span class="text-primary-soft inline-block w-16">Layanan:</span>
                         {{ $ajuan->jenisLayanan->nama }}</p>
 
-                    <p class="text-primary-soft font-medium mt-2">Daftar Peserta ({{ $ajuan->pesertas->count() }}
+                    <p class="text-primary-soft font-medium mt-1">Daftar Peserta ({{ $ajuan->pesertas->count() }}
                         Orang):</p>
-                    <div class="max-h-24 overflow-y-auto custom-scrollbar space-y-2 pr-1">
+                    <div class="max-h-20 overflow-y-auto custom-scrollbar space-y-1.5 pr-1">
                         @foreach($ajuan->pesertas as $index => $peserta)
-                            <div class="bg-black/10 rounded p-2 border border-white/5 text-xs">
+                            <div class="bg-black/10 rounded p-1.5 border border-white/5 text-[10px]">
                                 <span class="font-bold block">{{ $index + 1 }}. {{ $peserta->perangkatDesa->nama }}</span>
                                 <span class="opacity-80 block">{{ $peserta->perangkatDesa->jabatan }}</span>
                                 @if($peserta->jabatan_baru)
-                                    <span class="bg-white/20 px-1.5 py-0.5 rounded text-[10px] mt-1 inline-block">M =>
+                                    <span class="bg-white/20 px-1 py-0.5 rounded text-[9px] mt-0.5 inline-block">M =>
                                         {{ $peserta->jabatan_baru }}</span>
                                 @endif
                             </div>
@@ -101,8 +103,12 @@
 
             {{-- LIST DOKUMEN CHECKLIST --}}
             <div class="bg-surface rounded-card border border-border shadow-sm flex flex-col">
-                <div class="px-5 py-4 border-b border-border bg-gray-50">
-                    <h3 class="font-display font-semibold text-ink">Verifikasi Syarat Formil</h3>
+                <div class="px-5 py-4 border-b border-border bg-gray-50 flex justify-between items-center">
+                    <h3 class="font-display font-semibold text-ink">Verifikasi Syarat</h3>
+                    <a href="{{ route('admin.ajuan.print-syarat', $ajuan) }}" target="_blank" class="inline-flex items-center text-xs px-2 py-1 bg-white border border-gray-300 rounded font-medium text-ink hover:bg-gray-50 transition-colors shadow-sm">
+                        <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path></svg>
+                        Print Checklist
+                    </a>
                 </div>
 
                 <div class="divide-y divide-border">
@@ -152,22 +158,9 @@
             <div class="bg-surface rounded-card border border-border shadow-sm flex flex-col mb-2">
                 <div class="px-5 py-4 border-b border-border bg-gray-50 flex justify-between items-center">
                     <h3 class="font-display font-semibold text-ink">Keseluruhan Persyaratan & Catatan</h3>
-                    @if($ajuan->metode === 'online' && $ajuan->berkas_zip)
-                        <div class="flex gap-2">
-                            @if(str_ends_with(strtolower($ajuan->berkas_zip), '.pdf'))
-                                <button type="button" onclick="previewPdf('{{ Storage::disk('public')->url($ajuan->berkas_zip) }}', 'Berkas Keseluruhan')" class="inline-flex items-center text-xs px-3 py-1 bg-white border border-primary text-primary hover:bg-primary-soft/10 rounded font-medium transition-colors shadow-sm">
-                                    <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                                    Tinjau Berkas Utama
-                                </button>
-                            @endif
-                            <a href="{{ Storage::disk('public')->url($ajuan->berkas_zip) }}" target="_blank" class="inline-flex items-center text-xs px-3 py-1 bg-primary text-white hover:bg-primary-light rounded font-medium transition-colors shadow-sm">
-                                <svg class="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
-                                Unduh
-                            </a>
-                        </div>
-                    @elseif($ajuan->metode === 'offline')
+                    @if($ajuan->metode === 'offline')
                         <span class="text-xs font-semibold px-2 py-1 bg-gray-200 text-gray-700 rounded">Metode: Offline</span>
-                    @else
+                    @elseif($ajuan->metode === 'online' && !$ajuan->berkas_zip)
                         <span class="text-xs font-semibold px-2 py-1 bg-red-100 text-red-700 rounded">Berkas ZIP/PDF belum diunggah</span>
                     @endif
                 </div>
@@ -197,7 +190,18 @@
                 <div class="px-5 py-4 bg-gray-50 border-t border-border mt-auto rounded-b-card">
                     <h3 class="text-xs font-semibold text-muted mb-2">Tindak Lanjut Cepat</h3>
                     <div class="flex flex-col gap-2">
-                        @if($ajuan->posisi_surat !== 'Selesai (Surat Terbit)')
+                        @if($nextPosisi === 'Selesai (Surat Terbit)')
+                        <form action="{{ route('admin.ajuan.disposisi', $ajuan) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="posisi_baru" value="{{ $nextPosisi }}">
+                            <input type="hidden" name="status_ajuan_baru" value="selesai">
+                            <button type="submit"
+                                onclick="return confirm('Selesaikan usulan ini?')"
+                                class="w-full py-2 px-3 bg-green-600 rounded text-white text-xs font-medium hover:bg-green-700 transition-colors flex items-center justify-center shadow-sm">
+                                Selesai
+                            </button>
+                        </form>
+                        @elseif($ajuan->posisi_surat !== 'Selesai (Surat Terbit)')
                         <form action="{{ route('admin.ajuan.disposisi', $ajuan) }}" method="POST">
                             @csrf
                             <input type="hidden" name="posisi_baru" value="{{ $nextPosisi }}">

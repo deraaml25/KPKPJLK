@@ -15,6 +15,7 @@ class PjKadesController extends Controller
     {
         $pjkades = PjKades::withoutGlobalScopes()
             ->with(['desa', 'alasanPemberhentian', 'checklists'])
+            ->where('status', '!=', 'draft')
             ->latest()
             ->paginate(15);
 
@@ -177,5 +178,17 @@ class PjKadesController extends Controller
 
         return redirect()->route('admin.pjkades.show', $pjkades)
             ->with('success', "{$labelSK} berhasil diterbitkan. Status usulan resmi disetujui.");
+    }
+
+    /**
+     * Print Checklist Syarat
+     */
+    public function printSyarat($id)
+    {
+        $pjkades = PjKades::withoutGlobalScopes()
+            ->with(['desa.kecamatan', 'alasanPemberhentian', 'checklists'])
+            ->findOrFail($id);
+
+        return view('admin.pjkades.print-syarat', compact('pjkades'));
     }
 }

@@ -40,7 +40,7 @@ class AjuanBpdController extends Controller
             'bpd_ids' => 'required|array',
         ]);
 
-        DB::transaction(function () use ($request) {
+        $ajuan = DB::transaction(function () use ($request) {
             $ajuan = AjuanBpd::create([
                 'desa_id' => auth()->user()->desa_id,
                 'no_registrasi' => 'BPD-' . time(),
@@ -76,6 +76,8 @@ class AjuanBpdController extends Controller
                 'status' => 'selesai',
                 'tgl_selesai' => now(),
             ]);
+
+            return $ajuan;
         });
 
         return redirect()->route('desa.ajuan-bpd.show', $ajuan)->with('success', 'Ajuan BPD berhasil dibuat. Silakan lengkapi dan unggah dokumen persyaratan di bawah.');
