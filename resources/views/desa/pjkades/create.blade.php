@@ -9,7 +9,6 @@
     }">
         <div class="mb-6 border-b border-border pb-4">
             <h2 class="text-xl font-display font-bold text-ink">Buat Usulan Pemberhentian & SK Kades</h2>
-            <p class="text-muted text-sm mt-1">Pilih jenis pemberhentian Kepala Desa terlebih dahulu (Pemberhentian Definitif atau Pemberhentian Sementara / Cuti), lalu tentukan alasan dan data Pj/Plt pengganti.</p>
         </div>
 
         @if ($errors->any())

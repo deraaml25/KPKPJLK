@@ -59,7 +59,7 @@
 
             <div class="relative z-10 flex flex-col h-full">
                 <!-- Logo Header -->
-                <div class="flex items-center h-[72px] mt-2">
+                <div class="flex items-center h-[72px] border-b border-white/10 bg-black/10 relative">
                     <div class="w-[60px] flex-shrink-0 flex justify-center items-center">
                         <img src="{{ asset('logo.png') }}" onerror="this.src='https://lh3.googleusercontent.com/aida-public/AB6AXuDKBYY88kZ13swAXZCwTS6ub06DYmk7LgIvWrsJg4M5Mf764XFIciikJ_cuC39VrLn_VfTYs_HVED5VotHHKbdrPkVC9ZxMCk27gHWU2YHiYe1RguIfp1OfWuNAnoKAFkHh9p2cYiVxg-LNb09DpG2Pndv5ZtWWTy7W5rcPBE5qYyBjBfMS8eLV8wYS0VZ9sXduv8_vi7bSuXA4QGHHnSYxzVjt3Th6UicoO9-auMC89VtIMDJ4YkYG-qvLrLDMaAo85-DohAodwHVQ'" alt="Logo" class="w-8 h-8 object-contain">
                     </div>
@@ -93,9 +93,7 @@
                         <p class="text-slate-400 text-[9px] uppercase font-semibold tracking-wide truncate mt-0.5">
                             {{ auth()->user()->role == 'super_admin' ? 'Administrator' : 'Operator Desa' }}
                         </p>
-                        @if(auth()->user()->role == 'super_admin')
-                        <p class="text-yellow-500 text-[9px] font-mono mt-0.5 truncate">NIP: 198001012005011001</p>
-                        @endif
+
                         <form method="POST" action="{{ route('logout') }}" class="mt-2.5">
                             @csrf
                             <button type="submit" class="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-[11px] font-semibold w-full">

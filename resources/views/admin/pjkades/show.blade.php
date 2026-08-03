@@ -10,9 +10,7 @@
             Kembali ke Daftar Evaluasi SK Kades
         </a>
         <div class="flex items-center gap-3">
-            <span class="text-sm font-medium text-muted">Status Saat Ini:</span>
-            <span
-                class="px-3 py-1 rounded bg-surface border border-border font-bold text-ink shadow-sm">{{ strtoupper($pjkades->status) }}</span>
+            <!-- Badge status dihilangkan atas permintaan user -->
         </div>
     </div>
 
@@ -53,7 +51,11 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    <p class="font-medium">Klik tombol "Lihat Dokumen" pada tabel di kanan</p>
+                    @if($pjkades->berkas_zip && preg_match('/\.zip|\.rar$/i', $pjkades->berkas_zip))
+                        <p class="font-medium text-center px-4">Berkas gabungan berupa file ZIP/RAR.<br>Silakan klik tombol "Unduh" di sudut kanan atas untuk melihat isinya.</p>
+                    @else
+                        <p class="font-medium text-center px-4">Pilih dokumen pada tabel di kanan untuk memuat pratinjau</p>
+                    @endif
                 </div>
                 <iframe id="pdf-iframe" src="" class="w-full h-full rounded shadow-sm border border-gray-300 hidden" frameborder="0"></iframe>
                 <img id="img-preview" src="" class="w-full h-full object-contain rounded shadow-sm border border-gray-300 hidden">
@@ -265,6 +267,13 @@
             }
 
             document.addEventListener('DOMContentLoaded', function() {
+                // Auto preview berkas zip/pdf if available
+                @if($pjkades->berkas_zip && preg_match('/\.(pdf|jpe?g|png)$/i', $pjkades->berkas_zip))
+                    setTimeout(() => {
+                        previewFile('{{ Storage::disk("public")->url($pjkades->berkas_zip) }}');
+                    }, 500);
+                @endif
+
                 // Remove countEl since it's removed from header
                 document.querySelectorAll('.verify-checkbox').forEach(checkbox => {
                     checkbox.addEventListener('change', function() {

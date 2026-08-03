@@ -10,9 +10,7 @@
             Kembali ke Daftar Antrean
         </a>
         <div class="flex items-center gap-3">
-            <span class="text-sm font-medium text-muted">Status Saat Ini:</span>
-            <span
-                class="px-3 py-1 rounded bg-surface border border-border font-bold text-ink shadow-sm">{{ strtoupper($ajuanBpd->status) }}</span>
+            <!-- Badge status dihilangkan atas permintaan user -->
         </div>
     </div>
 
@@ -102,9 +100,7 @@
                                         <p class="text-sm font-semibold text-ink leading-tight">
                                             {{ $item->templateChecklist->nama_dokumen }}
                                         </p>
-                                        @if($item->templateChecklist->wajib)
-                                            <span class="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-700">Wajib</span>
-                                        @endif
+
 
                                         @if($item->file_path)
                                             <button
@@ -121,20 +117,13 @@
                                         @endif
                                     </div>
 
-                                    @if($item->file_path)
-                                    <form class="bpd-verify-form flex flex-col gap-1 mt-2 sm:mt-0 w-full sm:w-auto" data-url="{{ route('admin.ajuan-bpd.verify-checklist', [$ajuanBpd->id, $item->id]) }}">
+                                    <form action="{{ route('admin.ajuan-bpd.verify-checklist', [$ajuanBpd->id, $item->id]) }}" method="POST" class="verify-form flex-shrink-0 ml-auto sm:ml-4" data-url="{{ route('admin.ajuan-bpd.verify-checklist', [$ajuanBpd->id, $item->id]) }}">
                                         @csrf
-                                        <div class="flex items-center gap-2 mb-1">
-                                            <label class="flex items-center gap-1 text-[10px] cursor-pointer">
-                                                <input type="radio" name="status" value="terverifikasi" class="bpd-verify-input text-green-600 focus:ring-green-600 w-3 h-3" {{ $item->status === 'terverifikasi' ? 'checked' : '' }} data-last-status="{{ $item->status }}"> Valid
-                                            </label>
-                                            <label class="flex items-center gap-1 text-[10px] cursor-pointer">
-                                                <input type="radio" name="status" value="ditolak" class="bpd-verify-input text-red-600 focus:ring-red-600 w-3 h-3" {{ $item->status === 'ditolak' ? 'checked' : '' }} data-last-status="{{ $item->status }}"> Tolak
-                                            </label>
-                                        </div>
-                                        <input type="text" name="catatan" value="{{ $item->catatan }}" placeholder="Catatan opsional..." class="bpd-verify-input text-[10px] rounded border-gray-300 w-full">
+                                        <input type="checkbox" name="status" value="terverifikasi" 
+                                               class="w-7 h-7 text-primary focus:ring-primary border-gray-300 rounded shadow-sm cursor-pointer transition-colors verify-checkbox" 
+                                               {{ $item->status === 'terverifikasi' ? 'checked' : '' }}
+                                               title="Tandai Sesuai">
                                     </form>
-                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -233,6 +222,46 @@
                 
                 document.getElementById('preview-title').innerText = title;
             }
+
+            document.addEventListener('DOMContentLoaded', function() {
+                document.querySelectorAll('.verify-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        const form = this.closest('form');
+                        const url = form.getAttribute('data-url');
+                        const token = form.querySelector('input[name="_token"]').value;
+                        const status = this.checked ? 'terverifikasi' : 'menunggu_verifikasi';
+                        
+                        const row = form.closest('.p-4');
+                        if (this.checked) {
+                            row.classList.remove('border-red-500', 'bg-red-50/40', 'border-amber-400', 'bg-amber-50/30');
+                            row.classList.add('border-green-500', 'bg-green-50/40');
+                        } else {
+                            row.classList.remove('border-green-500', 'bg-green-50/40', 'border-red-500', 'bg-red-50/40');
+                            row.classList.add('border-amber-400', 'bg-amber-50/30');
+                        }
+
+                        fetch(url, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': token,
+                                'Accept': 'application/json'
+                            },
+                            body: JSON.stringify({ status: status })
+                        }).catch(err => {
+                            console.error('Network error during verification update', err);
+                            this.checked = !this.checked;
+                            if (this.checked) {
+                                row.classList.remove('border-amber-400', 'bg-amber-50/30');
+                                row.classList.add('border-green-500', 'bg-green-50/40');
+                            } else {
+                                row.classList.remove('border-green-500', 'bg-green-50/40');
+                                row.classList.add('border-amber-400', 'bg-amber-50/30');
+                            }
+                        });
+                    });
+                });
+            });
         </script>
         <style>
             .custom-scrollbar::-webkit-scrollbar {

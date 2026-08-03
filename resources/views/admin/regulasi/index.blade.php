@@ -34,7 +34,7 @@
                                 {{ $reg->desa->nama_desa }}
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-ink font-medium">
-                                {{ $reg->no_regulasi }}</td>
+                                {{ $reg->no_regulasi ?? '-' }}</td>
                             <td class="px-6 py-4">
                                 <div class="text-sm font-medium text-ink font-display">{{ $reg->judul }}</div>
                                 <span
@@ -47,10 +47,13 @@
                                 @if($reg->status === 'disahkan')
                                     <span
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Disahkan</span>
-                                @elseif($reg->status === 'direvisi')
+                                @elseif($reg->status === 'perlu_revisi')
                                     <span
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Perlu
                                         Revisi</span>
+                                @elseif($reg->status === 'disetujui')
+                                    <span
+                                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800">Menunggu Desa Sahkan</span>
                                 @else
                                     <span
                                         class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">Menunggu

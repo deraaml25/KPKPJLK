@@ -18,7 +18,7 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
         @forelse ($informasis as $info)
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col hover:shadow-md transition-shadow">
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden flex flex-col hover:shadow-md transition-all duration-300 hover:-translate-y-1 group">
                 @if($info->foto && is_array($info->foto) && count($info->foto) > 0)
                     <img src="{{ Storage::url($info->foto[0]) }}" alt="{{ $info->judul }}"
                         class="w-full h-48 object-cover">
@@ -45,7 +45,7 @@
 
                     <div class="border-t border-slate-100 pt-4 mt-auto">
                         <a href="{{ route('desa.bimtek-informasi.show', $info) }}"
-                            class="text-blue-600 text-sm font-semibold hover:text-blue-800 flex items-center gap-1">
+                            class="text-blue-600 text-sm font-semibold hover:text-blue-800 flex items-center gap-1 transition-all group-hover:translate-x-1">
                             Baca Selengkapnya
                             <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
                         </a>

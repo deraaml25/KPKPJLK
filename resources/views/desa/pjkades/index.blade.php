@@ -1,22 +1,15 @@
 <x-app-layout>
     @section('title', 'SK Kades')
 
-    <div class="bg-white rounded-card p-6 shadow-sm border border-border mb-6">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-                <h2 class="text-xl font-display font-bold text-ink">SK Pemberhentian & Penunjukan Pj/Plt Kades</h2>
-                <p class="text-muted text-sm mt-1">Modul pengusulan Pemberhentian Kepala Desa (Definitif atau Sementara/Cuti) beserta Penunjukan Penjabat (Pj Kades) / Pelaksana Tugas (Plt Kades).</p>
-            </div>
-            <div>
-                <a href="{{ route('desa.pjkades.create') }}"
-                    class="inline-flex items-center px-4 py-2 bg-primary text-white font-medium rounded-btn hover:bg-primary-light transition-colors shadow-sm text-sm">
-                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                    </svg>
-                    + Buat Usulan SK Pemberhentian & Kades Baru
-                </a>
-            </div>
+    <div class="flex items-center justify-between mb-6 mt-1">
+        <div>
+            <p class="text-muted text-sm mt-1">Kelola usulan pemberhentian Kades dan penunjukan Pj/Plt secara digital.</p>
         </div>
+        <a href="{{ route('desa.pjkades.create') }}"
+            class="inline-flex items-center px-4 py-2 bg-primary text-white text-sm font-medium rounded-btn hover:bg-primary-light hover:-translate-y-0.5 hover:shadow-lg transition-all active:scale-95 shadow-sm">
+            <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Buat Usulan Baru
+        </a>
     </div>
 
     @if(session('success'))
@@ -32,7 +25,7 @@
     @endif
 
     {{-- Table --}}
-    <div class="bg-white rounded-card shadow-sm border border-border overflow-hidden">
+    <div class="bg-white rounded-card shadow-sm border border-border overflow-hidden transition-shadow duration-300 hover:shadow-md">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-border">
                 <thead class="bg-gray-50">
@@ -47,7 +40,7 @@
                 </thead>
                 <tbody class="bg-white divide-y divide-border">
                     @forelse ($pjkades as $pj)
-                        <tr class="hover:bg-gray-50/50">
+                        <tr class="hover:bg-gray-50 transition-colors group">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="text-sm font-semibold text-ink font-mono">{{ $pj->no_registrasi ?? ('SKK-' . $pj->id) }}</div>
                                 <div class="text-xs text-muted mt-0.5">{{ $pj->tgl_diajukan ? $pj->tgl_diajukan->format('d M Y') : $pj->created_at->format('d M Y') }}</div>
@@ -110,7 +103,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <a href="{{ route('desa.pjkades.show', $pj->id) }}"
-                                    class="inline-flex items-center px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-ink text-xs font-medium rounded transition-colors">
+                                    class="inline-flex items-center px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-ink text-xs font-medium rounded transition-all group-hover:bg-primary-soft group-hover:text-primary group-hover:scale-105">
                                     Lihat & Unggah
                                 </a>
                             </td>

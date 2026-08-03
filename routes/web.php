@@ -67,7 +67,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
     Route::get('/regulasi', [RegulasiController::class, 'index'])->name('regulasi.index');
     Route::get('/regulasi/{regulasi}', [RegulasiController::class, 'show'])->name('regulasi.show');
     Route::post('/regulasi/{regulasi}/kembalikan', [RegulasiController::class, 'kembalikanUntukRevisi'])->name('regulasi.kembalikan');
-    Route::post('/regulasi/{regulasi}/sahkan', [RegulasiController::class, 'sahkanAturan'])->name('regulasi.sahkan');
+    Route::post('/regulasi/{regulasi}/setujui', [RegulasiController::class, 'setujuiDraft'])->name('regulasi.setujui');
     // Modul 2: e-Bimtek (Admin) - Removed by request
     // Modul 2b: Informasi & Berita Pembinaan (Admin CRUD)
     Route::get('/bimtek-informasi', [BimtekInformasiController::class, 'index'])->name('bimtek-informasi.index');

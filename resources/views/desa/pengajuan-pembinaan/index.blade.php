@@ -15,13 +15,13 @@
         </nav>
     </div>
 
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 transition-shadow duration-300 hover:shadow-md">
         <div class="flex items-center justify-between mb-6">
             <div>
                 <h3 class="text-lg font-bold text-slate-900">Daftar Pengajuan Pembinaan</h3>
                 <p class="text-sm text-slate-500 mt-1">Kelola pengajuan permohonan narasumber atau pembinaan untuk desa Anda.</p>
             </div>
-            <a href="{{ route('desa.pengajuan-pembinaan.create') }}" class="bg-[#0A1A3A] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-900 transition-colors flex items-center gap-2">
+            <a href="{{ route('desa.pengajuan-pembinaan.create') }}" class="bg-[#0A1A3A] text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-blue-900 transition-all hover:-translate-y-0.5 hover:shadow-lg active:scale-95 flex items-center gap-2">
                 <span class="material-symbols-outlined text-[18px]">add</span>
                 Buat Pengajuan Baru
             </a>
@@ -39,7 +39,7 @@
                 </thead>
                 <tbody>
                     @forelse($pengajuans as $pengajuan)
-                    <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                    <tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors group">
                         <td class="py-3 px-4 text-sm text-slate-600">
                             {{ $pengajuan->created_at->format('d M Y') }}
                         </td>
@@ -52,7 +52,7 @@
                             </span>
                         </td>
                         <td class="py-3 px-4 text-right">
-                            <a href="{{ route('desa.pengajuan-pembinaan.show', $pengajuan->id) }}" class="text-blue-600 hover:text-blue-800 text-sm font-semibold">
+                            <a href="{{ route('desa.pengajuan-pembinaan.show', $pengajuan->id) }}" class="text-blue-600 hover:text-blue-800 text-sm font-semibold transition-all inline-block group-hover:translate-x-1">
                                 Detail
                             </a>
                         </td>

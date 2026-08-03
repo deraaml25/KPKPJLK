@@ -1,28 +1,20 @@
 <x-app-layout>
     @section('title', 'Ajuan BPD')
 
-    <div
-        class="bg-white rounded-card p-6 shadow-sm border border-border mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div class="flex items-center justify-between mb-6 mt-1">
         <div>
-            <h2 class="text-xl font-display font-bold text-ink">Ajuan BPD</h2>
-            <p class="text-muted text-sm mt-1">
-                Kelola pengajuan pemberhentian dan peresmian BPD (PAW) Desa Anda.
-            </p>
+            <p class="text-muted text-sm mt-1">Kelola pengajuan pemberhentian dan peresmian BPD (PAW) Desa Anda.</p>
         </div>
-        <div class="flex items-center gap-2">
-            <a href="{{ route('desa.ajuan-bpd.create') }}"
-                class="inline-flex items-center px-4 h-10 bg-primary text-white text-sm font-bold rounded-btn hover:bg-primary-light transition-colors shadow-sm whitespace-nowrap">
-                <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                </svg>
-                Buat Ajuan Baru
-            </a>
-        </div>
+        <a href="{{ route('desa.ajuan-bpd.create') }}"
+            class="inline-flex items-center px-4 py-2 bg-primary text-white text-sm font-medium rounded-btn hover:bg-primary-light hover:-translate-y-0.5 hover:shadow-lg transition-all active:scale-95 shadow-sm">
+            <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Buat Ajuan Baru
+        </a>
     </div>
 
     <!-- Tabel -->
     <div>
-        <div class="bg-white rounded-card shadow-sm border border-border overflow-hidden">
+        <div class="bg-white rounded-card shadow-sm border border-border overflow-hidden transition-shadow duration-300 hover:shadow-md">
             <table class="w-full text-left border-collapse">
                 <thead>
                     <tr class="bg-slate-50 border-b border-border">
@@ -36,7 +28,7 @@
                 </thead>
                 <tbody class="divide-y divide-border">
                     @forelse ($ajuans as $ajuan)
-                        <tr class="hover:bg-slate-50 transition-colors">
+                        <tr class="hover:bg-slate-50 transition-colors group">
                             <td class="py-3 px-4">
                                 <span class="font-bold text-ink">{{ $ajuan->no_registrasi }}</span>
                             </td>
@@ -55,7 +47,7 @@
                                 </span>
                             </td>
                             <td class="py-3 px-4 text-right">
-                                <a href="{{ route('desa.ajuan-bpd.show', $ajuan) }}" class="text-sm font-bold text-primary hover:underline">Detail</a>
+                                <a href="{{ route('desa.ajuan-bpd.show', $ajuan) }}" class="text-sm font-bold text-primary hover:underline transition-all inline-block group-hover:translate-x-1">Detail</a>
                             </td>
                         </tr>
                     @empty

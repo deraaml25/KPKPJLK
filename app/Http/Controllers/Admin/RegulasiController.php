@@ -48,33 +48,13 @@ class RegulasiController extends Controller
         return back()->with('warning', 'Draf dikembalikan ke desa dengan status Perlu Revisi.');
     }
 
-    public function sahkanAturan(Request $request, Regulasi $regulasi)
+    public function setujuiDraft(Regulasi $regulasi)
     {
-        $request->validate([
-            'no_regulasi' => 'required|string|unique:regulasis,no_regulasi',
-            'file_final' => 'nullable|file|max:10240',
+        $regulasi->update([
+            'status' => 'disetujui',
         ]);
 
-        if ($request->hasFile('file_final')) {
-            $ext = strtolower($request->file('file_final')->getClientOriginalExtension());
-            if ($ext !== 'pdf') {
-                return back()->withErrors(['file_final' => 'File final harus berupa PDF.']);
-            }
-        }
-
-        $updateData = [
-            'status' => 'disahkan',
-            'no_regulasi' => $request->no_regulasi,
-            'tgl_disahkan' => now(),
-        ];
-
-        if ($request->hasFile('file_final')) {
-            $updateData['file_pdf'] = $request->file('file_final')->store('regulasi/pdf_final', 'public');
-        }
-
-        $regulasi->update($updateData);
-
         return redirect()->route('admin.regulasi.show', $regulasi)
-            ->with('success', 'Aturan Resmi Disahkan dengan Nomor Lembaran: ' . $request->no_regulasi);
+            ->with('success', 'Draf Regulasi telah disetujui dan diteruskan kembali ke desa untuk disahkan.');
     }
 }

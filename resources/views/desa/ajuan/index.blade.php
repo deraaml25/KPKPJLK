@@ -3,10 +3,10 @@
 
     <div class="flex items-center justify-between mb-6">
         <div>
-            <p class="text-muted text-sm mt-1">Kelola seluruh ajuan rekomendasi dari desa Anda.</p>
+            <p class="text-muted text-sm mt-1">Kelola seluruh ajuan rekomendasi terkait pengangkatan, rotasi, dan pemberhentian perangkat desa Anda.</p>
         </div>
         
-        <a href="{{ route('desa.ajuan.create') }}" class="inline-flex items-center px-4 py-2 bg-primary text-white text-sm font-medium rounded-btn hover:bg-primary-light transition-colors shadow-sm">
+        <a href="{{ route('desa.ajuan.create') }}" class="inline-flex items-center px-4 py-2 bg-primary text-white text-sm font-medium rounded-btn hover:bg-primary-light hover:-translate-y-0.5 hover:shadow-lg transition-all active:scale-95 shadow-sm">
             <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             Buat Ajuan Baru
         </a>
@@ -21,7 +21,7 @@
     @endif
 
     <!-- Ajuan Table -->
-    <div class="bg-surface rounded-card border border-border shadow-sm overflow-hidden">
+    <div class="bg-surface rounded-card border border-border shadow-sm overflow-hidden transition-shadow duration-300 hover:shadow-md">
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-border">
                 <thead>
@@ -40,7 +40,7 @@
                             $tahapAktif = $ajuan->milestoneTrackings->where('tgl_selesai', null)->min('tahap')
                                 ?? ($ajuan->milestoneTrackings->max('tahap') + 1 ?: 1);
                         @endphp
-                        <tr class="hover:bg-gray-50 transition-colors">
+                        <tr class="hover:bg-gray-50 transition-colors group">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="font-mono text-sm font-semibold text-ink">{{ $ajuan->no_registrasi }}</div>
                                 <div class="text-xs text-muted">{{ \Carbon\Carbon::parse($ajuan->tgl_diajukan)->format('d M Y') }}</div>
@@ -86,7 +86,7 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <a href="{{ route('desa.ajuan.show', $ajuan) }}" class="inline-flex items-center px-4 py-2 bg-primary-soft text-primary text-sm font-medium rounded-btn hover:bg-primary hover:text-white transition-all">
+                                <a href="{{ route('desa.ajuan.show', $ajuan) }}" class="inline-flex items-center px-4 py-2 bg-primary-soft text-primary text-sm font-medium rounded-btn hover:bg-primary hover:text-white transition-all group-hover:scale-105">
                                     Lihat & Upload Dokumen
                                 </a>
                             </td>

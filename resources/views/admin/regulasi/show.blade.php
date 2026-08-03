@@ -108,7 +108,7 @@
             
             <!-- Info Card -->
             <!-- Info Card -->
-            <div class="rounded-xl p-5 shadow-sm mb-5 relative overflow-hidden" style="background-color: #e0f2fe; color: #0c4a6e;">
+            <div class="rounded-xl p-5 shadow-sm mb-5 relative overflow-hidden flex-shrink-0" style="background-color: #e0f2fe; color: #0c4a6e;">
                 <div class="absolute top-0 right-0 p-4 opacity-20">
                     <span class="material-symbols-outlined text-8xl" style="color: #0284c7;">account_balance</span>
                 </div>
@@ -123,13 +123,18 @@
 
                     <div class="mt-4 pt-4 border-t border-blue-200">
                         <p class="text-sm font-semibold mb-1 leading-snug">{{ $regulasi->judul }}</p>
+                        @if($regulasi->deskripsi)
+                            <p class="text-xs mt-2 opacity-90 leading-relaxed italic border-l-2 border-blue-300 pl-2">{{ $regulasi->deskripsi }}</p>
+                        @else
+                            <p class="text-xs mt-2 opacity-60 italic">Tidak ada keterangan yang dilampirkan.</p>
+                        @endif
                     </div>
                 </div>
             </div>
 
             <!-- Panel Aksi -->
-            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 mb-6">
-                <h3 class="text-md font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100">Catatan Perbaikan Desa</h3>
+            <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5 mb-6 flex-shrink-0">
+                <h3 class="text-md font-bold text-slate-800 mb-4 pb-2 border-b border-slate-100">Tindakan Admin</h3>
 
                 @if($regulasi->status === 'disahkan')
                     <div class="p-4 bg-green-50 text-green-800 rounded-lg text-sm border border-green-100">
@@ -147,8 +152,25 @@
                     </div>
                 @else
                     
+                    <!-- Form Setujui -->
+                    <form action="{{ route('admin.regulasi.setujui', $regulasi) }}" method="POST" class="mb-6 pb-6 border-b border-slate-200">
+                        @csrf
+                        <div class="mb-4">
+                            <h4 class="text-sm font-bold text-green-700 flex items-center gap-2">
+                                <span class="material-symbols-outlined text-[18px]">verified</span>
+                                Setujui Draft Regulasi
+                            </h4>
+                            <p class="text-[10px] text-slate-500 mt-1">Gunakan form ini jika dokumen sudah dikoreksi dan benar. Desa kemudian akan mengunggah versi PDF final untuk disahkan.</p>
+                        </div>
+
+                        <button type="submit" onclick="return confirm('Apakah Anda yakin draf regulasi ini sudah benar dan disetujui?')"
+                            class="w-full inline-flex justify-center items-center px-4 py-2 font-bold rounded-lg transition-colors text-sm shadow-sm bg-green-600 hover:bg-green-700 text-white">
+                            Setujui Draft
+                        </button>
+                    </form>
+                    
                     <!-- Form Revisi -->
-                    <form action="{{ route('admin.regulasi.kembalikan', $regulasi) }}" method="POST" enctype="multipart/form-data" class="mb-6 pb-6 border-b border-slate-100">
+                    <form action="{{ route('admin.regulasi.kembalikan', $regulasi) }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         
                         <div class="mb-4">

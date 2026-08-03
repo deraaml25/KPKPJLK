@@ -1,20 +1,15 @@
 <x-app-layout>
     @section('title', 'Rencana P3D')
 
-    <div class="bg-white rounded-card p-6 shadow-sm border border-border mb-6">
-        <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-            <div>
-                <h2 class="text-xl font-display font-bold text-ink">Rencana P3D (Penjaringan dan Penyaringan Perangkat Desa)</h2>
-                <p class="text-muted text-sm mt-1">Kelola data formasi jabatan perangkat desa yang kosong beserta rencana pelaksanaan P3D dan anggarannya.</p>
-            </div>
-            <div>
-                <a href="{{ route('desa.rencana-p3d.create') }}"
-                    class="inline-flex items-center px-4 py-2 bg-primary text-white font-medium rounded-btn hover:bg-primary-light transition-colors shadow-sm text-sm">
-                    <span class="material-symbols-outlined mr-2 text-[18px]">add</span>
-                    Input Data P3D Baru
-                </a>
-            </div>
+    <div class="flex items-center justify-between mb-6 mt-1">
+        <div>
+            <p class="text-muted text-sm mt-1">Kelola data formasi jabatan perangkat desa yang kosong beserta rencana pelaksanaan P3D dan anggarannya.</p>
         </div>
+        <a href="{{ route('desa.rencana-p3d.create') }}"
+            class="inline-flex items-center px-4 py-2 bg-primary text-white text-sm font-medium rounded-btn hover:bg-primary-light hover:-translate-y-0.5 hover:shadow-lg transition-all active:scale-95 shadow-sm">
+            <svg class="w-5 h-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Input Data P3D Baru
+        </a>
     </div>
 
     @if(session('success'))

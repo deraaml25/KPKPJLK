@@ -50,6 +50,27 @@ class RegulasiController extends Controller
 
         \Log::info('REGULASI FILE STORED', ['path' => $path]);
 
+        // Auto-generate no_regulasi
+        $prefix = match($request->tipe) {
+            'perdes' => 'PRD',
+            'perkades' => 'PKD',
+            'sk_kades' => 'SKK',
+            default => 'REG'
+        };
+        $year = date('Y');
+        $month = date('m');
+
+        $latestReg = Regulasi::where('no_regulasi', 'like', "{$prefix}/{$year}/{$month}/%")
+            ->orderBy('id', 'desc')
+            ->first();
+
+        $nextNumber = '0001';
+        if ($latestReg && preg_match('/(\d{4})$/', $latestReg->no_regulasi, $matches)) {
+            $nextNumber = str_pad(intval($matches[1]) + 1, 4, '0', STR_PAD_LEFT);
+        }
+
+        $noRegulasi = "{$prefix}/{$year}/{$month}/{$nextNumber}";
+
         $reg = Regulasi::create([
             'judul' => $request->judul,
             'deskripsi' => $request->deskripsi,
@@ -58,7 +79,7 @@ class RegulasiController extends Controller
             'status' => 'menunggu_evaluasi',
             'desa_id' => $desaId,
             'tgl_diajukan' => now(),
-            'no_regulasi' => null,
+            'no_regulasi' => $noRegulasi,
         ]);
 
         \Log::info('REGULASI CREATED', ['id' => $reg->id]);
@@ -102,5 +123,24 @@ class RegulasiController extends Controller
         $regulasi->update($updateData);
 
         return back()->with('success', 'Rancangan revisi telah diserahkan kembali ke Dinpermasdes.');
+    }
+
+    public function sahkanAturan(Request $request, Regulasi $regulasi)
+    {
+        if ($regulasi->desa_id !== Auth::user()->desa_id || $regulasi->status !== 'disetujui') {
+            abort(403);
+        }
+
+        $request->validate([
+            'file_final' => 'required|file|mimes:pdf|max:10240',
+        ]);
+
+        $regulasi->update([
+            'status' => 'disahkan',
+            'tgl_disahkan' => now(),
+            'file_pdf' => $request->file('file_final')->store('regulasi/pdf_final', 'public')
+        ]);
+
+        return back()->with('success', 'Aturan Resmi Disahkan dengan Nomor Lembaran: ' . $regulasi->no_regulasi);
     }
 }

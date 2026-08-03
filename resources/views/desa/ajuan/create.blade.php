@@ -30,10 +30,7 @@
     @endif
 
     <div class="bg-surface rounded-card border border-border shadow-sm p-8 max-w-3xl mx-auto" x-data="ajuanForm()">
-        <h2 class="text-2xl font-display font-bold text-ink mb-2">Form Ajuan Layanan</h2>
-        <p class="text-muted text-sm mb-8">Pilih jenis layanan, lalu pilih perangkat desa. Checklist dokumen akan
-            otomatis menyesuaikan jenis layanan yang Anda pilih. Anda dapat mengunggah dokumen nanti di halaman detail.
-        </p>
+        <h2 class="text-2xl font-display font-bold text-ink mb-6">Form Ajuan Layanan</h2>
 
         <form method="POST" action="{{ route('desa.ajuan.store') }}" @submit="isSubmitting = true">
             @csrf
@@ -193,7 +190,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg> Jika Anda tidak menemukan nama perangkat desa, pastikan data telah ditambahkan pada menu Data
-                    Master.</p>
+                    Kepala dan Perangkat Desa.</p>
             </div>
 
             <div class="flex items-center justify-end gap-3 pt-6 border-t border-border">

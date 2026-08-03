@@ -29,7 +29,7 @@ class AjuanBpdController extends Controller
         $checklist = ChecklistAjuanBpd::where('ajuan_bpd_id', $ajuanBpd->id)->findOrFail($checklistId);
 
         $request->validate([
-            'status' => 'required|in:terverifikasi,ditolak',
+            'status' => 'required|in:terverifikasi,ditolak,menunggu_verifikasi',
             'catatan' => 'nullable|string'
         ]);
 

@@ -159,3 +159,10 @@
         color: rgba(255, 255, 255, 0.60);
     }
 }
+
+@layer base {
+    /* Force table headers to be center aligned across the app */
+    th, th.text-left {
+        text-align: center !important;
+    }
+}

@@ -12,9 +12,6 @@
                     Kembali
                 </a>
                 <h2 class="text-xl font-display font-bold text-ink">Ajukan Permohonan Pembinaan</h2>
-                <p class="text-muted text-sm mt-1">
-                    Kirim permohonan pembinaan / narasumber ke Dinpermasdes. Upload surat permohonan atau surat undangan sebagai persyaratan.
-                </p>
             </div>
 
             @if($errors->any())

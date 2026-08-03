@@ -1,20 +1,7 @@
 <x-app-layout>
     @section('title', 'Data BPD Saya')
 
-    <div
-        class="bg-white rounded-card p-6 shadow-sm border border-border mb-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-        <div>
-            <h2 class="text-xl font-display font-bold text-ink">Data BPD</h2>
-            <p class="text-muted text-sm mt-1">
-                Data master bpd aktif di <strong>{{ auth()->user()->desa->nama_desa ?? 'Desa Anda' }}</strong>.
-                Data ini difilter otomatis oleh sistem (hanya menampilkan wilayah Anda).
-            </p>
-        </div>
-        <div class="bg-primary/10 text-primary px-4 py-2 rounded-lg border border-primary/20 text-center shadow-sm">
-            <span class="block text-2xl font-black font-display leading-none">{{ $totalAktif }}</span>
-            <span class="text-[10px] font-bold uppercase tracking-wider">BPD Aktif</span>
-        </div>
-    </div>
+
 
     <!-- Toolbar / Pencarian -->
     <div class="mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -30,7 +17,7 @@
         </form>
         <div class="flex items-center gap-2">
             <a href="{{ route('desa.bpd.create') }}"
-                class="inline-flex items-center px-4 h-10 bg-primary text-white text-sm font-bold rounded-btn hover:bg-primary-light transition-colors shadow-sm whitespace-nowrap">
+                class="inline-flex items-center px-4 h-10 bg-primary text-white text-sm font-bold rounded-btn hover:bg-primary-light hover:-translate-y-0.5 hover:shadow-lg transition-all active:scale-95 shadow-sm whitespace-nowrap">
                 <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
@@ -43,7 +30,7 @@
     <div>
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             @forelse ($bpd as $row)
-                <div class="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-6 flex flex-col hover:shadow-[0_8px_25px_-5px_rgba(0,0,0,0.08)] transition-shadow border border-slate-100">
+                <div class="bg-white rounded-2xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.05)] p-6 flex flex-col transition-all duration-300 hover:-translate-y-1 hover:shadow-lg border border-slate-100 group">
                     <div class="flex justify-between items-start mb-8">
                         <div class="w-[72px] h-[72px] rounded-full bg-slate-200 flex flex-shrink-0 items-center justify-center overflow-hidden">
                             <svg class="w-12 h-12 text-slate-400 mt-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
@@ -58,12 +45,6 @@
                                     <span class="w-1.5 h-1.5 rounded-full bg-red-500 mr-2"></span> Nonaktif
                                 </span>
                             @endif
-
-                            @if(str_starts_with($row->status_verifikasi, 'pending'))
-                                <span class="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold bg-amber-100 text-amber-700 border border-amber-200 uppercase">
-                                    Menunggu Verifikasi
-                                </span>
-                            @endif
                         </div>
                     </div>
                     
@@ -71,19 +52,29 @@
                         <h3 class="text-[17px] font-black text-slate-800 leading-snug uppercase mb-1.5">{{ $row->nama }}</h3>
                         <p class="text-[14px] text-slate-600">{{ $row->jabatan }}</p>
                         <p class="text-[14px] text-slate-600">{{ $row->desa->nama_desa ?? auth()->user()->desa->nama_desa ?? 'Desa' }}, {{ $row->desa->kecamatan->nama_kecamatan ?? auth()->user()->desa->kecamatan->nama_kecamatan ?? 'Kecamatan' }}</p>
+                        @if(str_starts_with($row->status_verifikasi, 'pending'))
+                            <div class="mt-2.5">
+                                <span class="inline-flex items-center px-2 py-1 rounded text-[10px] font-bold bg-amber-50 text-amber-600 border border-amber-200/80 uppercase tracking-wider">
+                                    <svg class="w-3 h-3 mr-1.5 text-amber-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    Menunggu Verifikasi
+                                </span>
+                            </div>
+                        @endif
                     </div>
 
                     <div class="mt-5 pt-4 border-t border-slate-100 flex items-center justify-end gap-4">
-                        <a href="{{ route('desa.bpd.edit', $row) }}" class="text-[13px] font-bold text-blue-600 hover:text-blue-700">Edit</a>
+                        <a href="{{ route('desa.bpd.edit', $row) }}" class="text-[13px] font-bold text-blue-600 hover:text-blue-800 transition-transform hover:scale-110">Edit</a>
                         @if($row->status_aktif)
                             <form action="{{ route('desa.bpd.destroy', $row) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menonaktifkan BPD ini?');">
                                 @csrf @method('DELETE')
-                                <button type="submit" class="text-[13px] font-bold text-red-600 hover:text-red-700">Nonaktifkan</button>
+                                <button type="submit" class="text-[13px] font-bold text-red-600 hover:text-red-800 transition-transform hover:scale-105">Nonaktifkan</button>
                             </form>
                         @else
                             <form action="{{ route('desa.bpd.activate', $row) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin mengaktifkan kembali BPD ini?');">
                                 @csrf @method('PATCH')
-                                <button type="submit" class="text-[13px] font-bold text-green-600 hover:text-green-700">Aktifkan</button>
+                                <button type="submit" class="text-[13px] font-bold text-green-600 hover:text-green-800 transition-transform hover:scale-105">Aktifkan</button>
                             </form>
                         @endif
                     </div>
