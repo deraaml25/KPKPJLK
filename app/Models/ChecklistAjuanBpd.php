@@ -15,6 +15,11 @@ class ChecklistAjuanBpd extends Model
         return $this->belongsTo(TemplateChecklistBpd::class, 'template_checklist_bpd_id');
     }
 
+    public function ajuanBpd()
+    {
+        return $this->belongsTo(AjuanBpd::class, 'ajuan_bpd_id');
+    }
+
     public function updater()
     {
         return $this->belongsTo(User::class, 'updated_by');

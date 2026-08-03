@@ -76,6 +76,8 @@ class AdminAjuanController extends Controller
             'catatan' => 'nullable|string'
         ]);
 
+        \Illuminate\Support\Facades\Log::info("verifyDokumen received for ajuan {$ajuan->id}, checklist {$checklistAjuan->id} with status: " . $request->status);
+
         $checklistAjuan->update([
             'status' => $request->status,
             'catatan' => $request->catatan,
@@ -86,7 +88,35 @@ class AdminAjuanController extends Controller
             $ajuan->update(['status' => 'direvisi']);
         }
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'status' => $checklistAjuan->status,
+                'message' => 'Status dokumen berhasil diperbarui!'
+            ]);
+        }
+
         return back()->with('success', 'Status dokumen berhasil diperbarui!');
+    }
+
+    /**
+     * Verifikasi Bulk (Simpan semua centang sekaligus)
+     */
+    public function verifyDokumenBulk(Request $request, Ajuan $ajuan)
+    {
+        $request->validate([
+            'status' => 'nullable|array',
+            'status.*' => 'in:valid,lengkap',
+        ]);
+
+        $statuses = $request->input('status', []);
+
+        foreach ($ajuan->checklistAjuans as $checklist) {
+            $status = isset($statuses[$checklist->id]) ? 'valid' : 'menunggu';
+            $checklist->update(['status' => $status]);
+        }
+
+        return back()->with('success', 'Semua centang dokumen berhasil disimpan!');
     }
 
     /**

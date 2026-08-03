@@ -51,13 +51,17 @@ class DriveController extends Controller
             }
         } elseif (count($parts) === 3) {
             // Level 3: {kecamatan}/{desa}
+            $kecamatanName = $parts[1];
             $desaName = $parts[2];
-            $desa = Desa::where('nama_desa', str_replace('_', ' ', $desaName))->first();
+            $desa = Desa::where('nama_desa', str_replace('_', ' ', $desaName))
+                ->whereHas('kecamatan', function($q) use ($kecamatanName) {
+                    $q->where('nama_kecamatan', str_replace('_', ' ', $kecamatanName));
+                })->first();
             
             if ($desa) {
                 $fixedFolders = ['kades' => 'Kades', 'perangkat_desa' => 'Perangkat Desa', 'bpd' => 'BPD', 'pembinaan' => 'Pembinaan'];
                 foreach ($fixedFolders as $slug => $label) {
-                    $folders[] = ['name' => $label, 'path' => $path . '/' . $slug, 'count' => 0];
+                    $folders[] = ['name' => $label, 'path' => $path . '/' . $slug, 'count' => $this->getVirtualFolderCount($desa->id, $slug)];
                 }
             }
             if (Storage::disk('public')->exists($path)) {
@@ -67,20 +71,24 @@ class DriveController extends Controller
             }
         } elseif (count($parts) === 4) {
             // Level 4: {kecamatan}/{desa}/{module}
+            $kecamatanName = $parts[1];
             $desaName = $parts[2];
             $module = $parts[3];
-            $desa = Desa::where('nama_desa', str_replace('_', ' ', $desaName))->first();
+            $desa = Desa::where('nama_desa', str_replace('_', ' ', $desaName))
+                ->whereHas('kecamatan', function($q) use ($kecamatanName) {
+                    $q->where('nama_kecamatan', str_replace('_', ' ', $kecamatanName));
+                })->first();
             
             if ($module === 'kades') {
-                $folders[] = ['name' => 'Pemberhentian', 'path' => $path . '/pemberhentian', 'count' => 0];
-                $folders[] = ['name' => 'Penunjukan', 'path' => $path . '/penunjukan', 'count' => 0];
+                $folders[] = ['name' => 'Pemberhentian', 'path' => $path . '/pemberhentian', 'count' => $this->getVirtualFolderCount($desa->id, 'kades', 'pemberhentian')];
+                $folders[] = ['name' => 'Penunjukan', 'path' => $path . '/penunjukan', 'count' => $this->getVirtualFolderCount($desa->id, 'kades', 'penunjukan')];
             } elseif ($module === 'perangkat_desa') {
-                $folders[] = ['name' => 'Pemberhentian', 'path' => $path . '/pemberhentian', 'count' => 0];
-                $folders[] = ['name' => 'Rotasi', 'path' => $path . '/rotasi', 'count' => 0];
-                $folders[] = ['name' => 'Pengangkatan', 'path' => $path . '/pengangkatan', 'count' => 0];
+                $folders[] = ['name' => 'Pemberhentian', 'path' => $path . '/pemberhentian', 'count' => $this->getVirtualFolderCount($desa->id, 'perangkat_desa', 'pemberhentian')];
+                $folders[] = ['name' => 'Rotasi', 'path' => $path . '/rotasi', 'count' => $this->getVirtualFolderCount($desa->id, 'perangkat_desa', 'rotasi')];
+                $folders[] = ['name' => 'Pengangkatan', 'path' => $path . '/pengangkatan', 'count' => $this->getVirtualFolderCount($desa->id, 'perangkat_desa', 'pengangkatan')];
             } elseif ($module === 'bpd') {
-                $folders[] = ['name' => 'Pemberhentian', 'path' => $path . '/pemberhentian', 'count' => 0];
-                $folders[] = ['name' => 'Peresmian', 'path' => $path . '/peresmian', 'count' => 0];
+                $folders[] = ['name' => 'Pemberhentian', 'path' => $path . '/pemberhentian', 'count' => $this->getVirtualFolderCount($desa->id, 'bpd', 'pemberhentian')];
+                $folders[] = ['name' => 'Peresmian', 'path' => $path . '/peresmian', 'count' => $this->getVirtualFolderCount($desa->id, 'bpd', 'peresmian')];
             } elseif ($module === 'pembinaan' && $desa) {
                 $pembinaans = \App\Models\PengajuanPembinaan::where('desa_id', $desa->id)->where('status', '!=', 'draft')->get();
                 foreach ($pembinaans as $pem) {
@@ -105,48 +113,90 @@ class DriveController extends Controller
             }
         } elseif (count($parts) === 5) {
             // Level 5: {kecamatan}/{desa}/{module}/{jenis}
+            $kecamatanName = $parts[1];
             $desaName = $parts[2];
             $module = $parts[3];
             $jenis = $parts[4];
             
-            $desa = Desa::where('nama_desa', str_replace('_', ' ', $desaName))->first();
+            $desa = Desa::where('nama_desa', str_replace('_', ' ', $desaName))
+                ->whereHas('kecamatan', function($q) use ($kecamatanName) {
+                    $q->where('nama_kecamatan', str_replace('_', ' ', $kecamatanName));
+                })->first();
             if ($desa) {
                 if ($module === 'kades') {
                     if ($jenis === 'pemberhentian') {
                         $ajuanChecklists = \App\Models\ChecklistAjuan::whereNotNull('file_path')->whereHas('ajuan', function($q) use ($desa) {
-                            $q->where('desa_id', $desa->id)->where('status', '!=', 'draft')->whereIn('jenis_layanan_id', [4, 5]);
+                            $q->where('desa_id', $desa->id)
+                              ->where('status', '!=', 'draft')
+                              ->whereIn('jenis_layanan_id', [4, 5])
+                              ->whereHas('milestoneTrackings', function($sq) {
+                                  $sq->where('tahap', '>=', 3);
+                              });
                         })->get();
                         foreach ($ajuanChecklists as $chk) {
                             $files[] = ['name' => '[e-Rekom] ' . basename($chk->file_path), 'path' => $chk->file_path, 'size' => Storage::disk('public')->exists($chk->file_path) ? Storage::disk('public')->size($chk->file_path) : 0, 'url'  => Storage::disk('public')->url($chk->file_path)];
                         }
+                        
+                        $ajuans = \App\Models\Ajuan::whereNotNull('berkas_zip')->where('desa_id', $desa->id)->where('status', '!=', 'draft')->whereIn('jenis_layanan_id', [4, 5])
+                            ->whereHas('milestoneTrackings', function($sq) { $sq->where('tahap', '>=', 3); })->get();
+                        foreach ($ajuans as $aju) {
+                            $files[] = ['name' => '[e-Rekom_ZIP] ' . basename($aju->berkas_zip), 'path' => $aju->berkas_zip, 'size' => Storage::disk('public')->exists($aju->berkas_zip) ? Storage::disk('public')->size($aju->berkas_zip) : 0, 'url' => Storage::disk('public')->url($aju->berkas_zip)];
+                        }
                     } elseif ($jenis === 'penunjukan') {
                         $pjKadesChecklists = \App\Models\ChecklistPjKades::whereNotNull('file_path')->whereHas('pjKades', function($q) use ($desa) {
-                            $q->where('desa_id', $desa->id)->where('status', '!=', 'draft');
+                            $q->where('desa_id', $desa->id)
+                              ->where('status', '!=', 'draft')
+                              ->whereNotIn('posisi_surat', ['Front Office (FO)', 'Berkas Diterima', 'Verifikasi & Validasi Petugas'])
+                              ->whereNotNull('posisi_surat');
                         })->get();
                         foreach ($pjKadesChecklists as $chk) {
                             $files[] = ['name' => '[SK-Kades] ' . basename($chk->file_path), 'path' => $chk->file_path, 'size' => Storage::disk('public')->exists($chk->file_path) ? Storage::disk('public')->size($chk->file_path) : 0, 'url'  => Storage::disk('public')->url($chk->file_path)];
+                        }
+                        
+                        $pjs = \App\Models\PjKades::whereNotNull('berkas_zip')->where('desa_id', $desa->id)->where('status', '!=', 'draft')
+                            ->whereNotIn('posisi_surat', ['Front Office (FO)', 'Berkas Diterima', 'Verifikasi & Validasi Petugas'])->whereNotNull('posisi_surat')->get();
+                        foreach ($pjs as $pj) {
+                            $files[] = ['name' => '[SK-Kades_ZIP] ' . basename($pj->berkas_zip), 'path' => $pj->berkas_zip, 'size' => Storage::disk('public')->exists($pj->berkas_zip) ? Storage::disk('public')->size($pj->berkas_zip) : 0, 'url' => Storage::disk('public')->url($pj->berkas_zip)];
                         }
                     }
                 } elseif ($module === 'perangkat_desa') {
                     $mapJenis = ['pengangkatan' => 1, 'rotasi' => 2, 'pemberhentian' => 3];
                     if (isset($mapJenis[$jenis])) {
                         $ajuanChecklists = \App\Models\ChecklistAjuan::whereNotNull('file_path')->whereHas('ajuan', function($q) use ($desa, $mapJenis, $jenis) {
-                            $q->where('desa_id', $desa->id)->where('status', '!=', 'draft')->where('jenis_layanan_id', $mapJenis[$jenis]);
+                            $q->where('desa_id', $desa->id)
+                              ->where('status', '!=', 'draft')
+                              ->where('jenis_layanan_id', $mapJenis[$jenis])
+                              ->whereHas('milestoneTrackings', function($sq) {
+                                  $sq->where('tahap', '>=', 3);
+                              });
                         })->get();
                         foreach ($ajuanChecklists as $chk) {
                             $files[] = ['name' => '[e-Rekom] ' . basename($chk->file_path), 'path' => $chk->file_path, 'size' => Storage::disk('public')->exists($chk->file_path) ? Storage::disk('public')->size($chk->file_path) : 0, 'url'  => Storage::disk('public')->url($chk->file_path)];
+                        }
+                        
+                        $ajuans = \App\Models\Ajuan::whereNotNull('berkas_zip')->where('desa_id', $desa->id)->where('status', '!=', 'draft')->where('jenis_layanan_id', $mapJenis[$jenis])
+                            ->whereHas('milestoneTrackings', function($sq) { $sq->where('tahap', '>=', 3); })->get();
+                        foreach ($ajuans as $aju) {
+                            $files[] = ['name' => '[e-Rekom_ZIP] ' . basename($aju->berkas_zip), 'path' => $aju->berkas_zip, 'size' => Storage::disk('public')->exists($aju->berkas_zip) ? Storage::disk('public')->size($aju->berkas_zip) : 0, 'url' => Storage::disk('public')->url($aju->berkas_zip)];
                         }
                     }
                 } elseif ($module === 'bpd') {
                     if (in_array($jenis, ['pemberhentian', 'peresmian'])) {
                         $bpdChecklists = \App\Models\ChecklistAjuanBpd::whereNotNull('file_path')->whereHas('ajuanBpd', function($q) use ($desa, $jenis) {
-                            $q->where('desa_id', $desa->id)->where('status', '!=', 'draft')->where('jenis_ajuan', $jenis);
+                            $q->where('desa_id', $desa->id)
+                              ->where('status', '!=', 'draft')
+                              ->where('jenis_ajuan', $jenis)
+                              ->whereHas('milestones', function($sq) {
+                                  $sq->where('tahapan', 'like', '%Draft%')->orWhere('tahapan', 'like', '%Validasi%')->orWhere('tahapan', 'like', '%Bupati%');
+                              });
                         })->get();
                         foreach ($bpdChecklists as $chk) {
                             $files[] = ['name' => '[BPD] ' . basename($chk->file_path), 'path' => $chk->file_path, 'size' => Storage::disk('public')->exists($chk->file_path) ? Storage::disk('public')->size($chk->file_path) : 0, 'url'  => Storage::disk('public')->url($chk->file_path)];
                         }
                         
-                        $bpds = \App\Models\AjuanBpd::where('desa_id', $desa->id)->where('status', '!=', 'draft')->where('jenis_ajuan', $jenis)->get();
+                        $bpds = \App\Models\AjuanBpd::where('desa_id', $desa->id)->where('status', '!=', 'draft')->where('jenis_ajuan', $jenis)->whereHas('milestones', function($sq) {
+                            $sq->where('tahapan', 'like', '%Draft%')->orWhere('tahapan', 'like', '%Validasi%')->orWhere('tahapan', 'like', '%Bupati%');
+                        })->get();
                         foreach ($bpds as $bpd) {
                             if ($bpd->berkas_zip) {
                                 $files[] = ['name' => '[BPD_ZIP] ' . basename($bpd->berkas_zip), 'path' => $bpd->berkas_zip, 'size' => Storage::disk('public')->exists($bpd->berkas_zip) ? Storage::disk('public')->size($bpd->berkas_zip) : 0, 'url' => Storage::disk('public')->url($bpd->berkas_zip)];
@@ -196,7 +246,12 @@ class DriveController extends Controller
         $label = $request->query('label', 'drive-dokumen');
         $parts = explode('/', trim($path, '/'));
         
-        $zipName = sys_get_temp_dir() . '/' . $label . '_' . now()->format('Ymd_His') . '.zip';
+        $tempDir = storage_path('app/temp');
+        if (!file_exists($tempDir)) {
+            mkdir($tempDir, 0755, true);
+        }
+        $cleanLabel = preg_replace('/[^A-Za-z0-9_\-]/', '_', $label);
+        $zipName = $tempDir . '/' . $cleanLabel . '_' . now()->format('Ymd_His') . '.zip';
         $zip = new \ZipArchive();
 
         if ($zip->open($zipName, \ZipArchive::CREATE | \ZipArchive::OVERWRITE) !== true) {
@@ -210,34 +265,39 @@ class DriveController extends Controller
             $allPhysical = Storage::disk('public')->allFiles($path);
             foreach ($allPhysical as $file) {
                 $realPath = Storage::disk('public')->path($file);
-                $relativePath = str_replace($path . '/', '', $file);
-                $zip->addFile($realPath, $relativePath);
-                $hasFiles = true;
+                if (file_exists($realPath)) {
+                    $relativePath = str_replace($path . '/', '', $file);
+                    $zip->addFile($realPath, $relativePath);
+                    $hasFiles = true;
+                }
             }
         }
 
         // Add virtual files based on level
         $virtualFiles = [];
         if (count($parts) >= 3) {
+            $kecamatanName = $parts[1];
             $desaName = $parts[2];
-            $desa = Desa::where('nama_desa', str_replace('_', ' ', $desaName))->first();
+            $desa = Desa::where('nama_desa', str_replace('_', ' ', $desaName))
+                ->whereHas('kecamatan', function($q) use ($kecamatanName) {
+                    $q->where('nama_kecamatan', str_replace('_', ' ', $kecamatanName));
+                })->first();
             if ($desa) {
                 if (count($parts) === 3) {
-                    $virtualFiles = $this->getAllVirtualFilesForDesa($desa);
+                    $virtualFiles = $this->getVirtualFilesArray($desa->id);
                 } elseif (count($parts) === 4) {
-                    $module = $parts[3];
-                    $virtualFiles = $this->getVirtualFilesForModule($desa, $module);
+                    $virtualFiles = $this->getVirtualFilesArray($desa->id, $parts[3]);
                 } elseif (count($parts) === 5) {
-                    $module = $parts[3];
-                    $jenis = $parts[4];
-                    $virtualFiles = $this->getVirtualFilesForJenis($desa, $module, $jenis);
+                    $virtualFiles = $this->getVirtualFilesArray($desa->id, $parts[3], $parts[4]);
                 }
             }
         }
 
         foreach ($virtualFiles as $vf) {
-            $zip->addFile($vf['real_path'], $vf['relative_name']);
-            $hasFiles = true;
+            if (file_exists($vf['real_path'])) {
+                $zip->addFile($vf['real_path'], $vf['relative_name']);
+                $hasFiles = true;
+            }
         }
 
         if (!$hasFiles) {
@@ -272,5 +332,144 @@ class DriveController extends Controller
         }
 
         return $breadcrumbs;
+    }
+
+    private function getVirtualFolderCount($desaId, $module, $jenis = null)
+    {
+        $count = 0;
+        if ($module === 'kades') {
+            if ($jenis === 'pemberhentian' || $jenis === null) {
+                $count += \App\Models\ChecklistAjuan::whereNotNull('file_path')->whereHas('ajuan', function($q) use ($desaId) {
+                    $q->where('desa_id', $desaId)->where('status', '!=', 'draft')->whereIn('jenis_layanan_id', [4, 5])
+                      ->whereHas('milestoneTrackings', function($sq) { $sq->where('tahap', '>=', 3); });
+                })->count();
+                $count += \App\Models\Ajuan::whereNotNull('berkas_zip')->where('desa_id', $desaId)->where('status', '!=', 'draft')->whereIn('jenis_layanan_id', [4, 5])
+                    ->whereHas('milestoneTrackings', function($sq) { $sq->where('tahap', '>=', 3); })->count();
+            }
+            if ($jenis === 'penunjukan' || $jenis === null) {
+                $count += \App\Models\ChecklistPjKades::whereNotNull('file_path')->whereHas('pjKades', function($q) use ($desaId) {
+                    $q->where('desa_id', $desaId)->where('status', '!=', 'draft')
+                      ->whereNotIn('posisi_surat', ['Front Office (FO)', 'Berkas Diterima', 'Verifikasi & Validasi Petugas'])
+                      ->whereNotNull('posisi_surat');
+                })->count();
+                $count += \App\Models\PjKades::whereNotNull('berkas_zip')->where('desa_id', $desaId)->where('status', '!=', 'draft')
+                    ->whereNotIn('posisi_surat', ['Front Office (FO)', 'Berkas Diterima', 'Verifikasi & Validasi Petugas'])->whereNotNull('posisi_surat')->count();
+            }
+        } elseif ($module === 'perangkat_desa') {
+            $mapJenis = ['pengangkatan' => 1, 'rotasi' => 2, 'pemberhentian' => 3];
+            $jenisList = $jenis ? [$jenis => $mapJenis[$jenis]] : $mapJenis;
+            foreach ($jenisList as $j => $layananId) {
+                $count += \App\Models\ChecklistAjuan::whereNotNull('file_path')->whereHas('ajuan', function($q) use ($desaId, $layananId) {
+                    $q->where('desa_id', $desaId)->where('status', '!=', 'draft')->where('jenis_layanan_id', $layananId)
+                      ->whereHas('milestoneTrackings', function($sq) { $sq->where('tahap', '>=', 3); });
+                })->count();
+                $count += \App\Models\Ajuan::whereNotNull('berkas_zip')->where('desa_id', $desaId)->where('status', '!=', 'draft')->where('jenis_layanan_id', $layananId)
+                    ->whereHas('milestoneTrackings', function($sq) { $sq->where('tahap', '>=', 3); })->count();
+            }
+        } elseif ($module === 'bpd') {
+            $jenisList = $jenis ? [$jenis] : ['pemberhentian', 'peresmian'];
+            foreach ($jenisList as $j) {
+                $count += \App\Models\ChecklistAjuanBpd::whereNotNull('file_path')->whereHas('ajuanBpd', function($q) use ($desaId, $j) {
+                    $q->where('desa_id', $desaId)->where('status', '!=', 'draft')->where('jenis_ajuan', $j)
+                      ->whereHas('milestones', function($sq) {
+                          $sq->where('tahapan', 'like', '%Draft%')->orWhere('tahapan', 'like', '%Validasi%')->orWhere('tahapan', 'like', '%Bupati%');
+                      });
+                })->count();
+                $count += \App\Models\AjuanBpd::whereNotNull('berkas_zip')->where('desa_id', $desaId)->where('status', '!=', 'draft')->where('jenis_ajuan', $j)
+                      ->whereHas('milestones', function($sq) {
+                          $sq->where('tahapan', 'like', '%Draft%')->orWhere('tahapan', 'like', '%Validasi%')->orWhere('tahapan', 'like', '%Bupati%');
+                      })->count();
+            }
+        } elseif ($module === 'pembinaan') {
+            $pembinaans = \App\Models\PengajuanPembinaan::where('desa_id', $desaId)->where('status', '!=', 'draft')->get();
+            foreach ($pembinaans as $pem) {
+                if ($pem->file_surat_permohonan) $count++;
+                if ($pem->file_undangan) $count++;
+            }
+        }
+        return $count;
+    }
+
+    private function getVirtualFilesArray($desaId, $module = null, $jenis = null)
+    {
+        $files = [];
+        $modules = $module ? [$module] : ['kades', 'perangkat_desa', 'bpd', 'pembinaan'];
+
+        foreach ($modules as $m) {
+            if ($m === 'kades') {
+                if ($jenis === 'pemberhentian' || $jenis === null) {
+                    $ajuans = \App\Models\Ajuan::where('desa_id', $desaId)->where('status', '!=', 'draft')->whereIn('jenis_layanan_id', [4, 5])
+                        ->whereHas('milestoneTrackings', function($sq) { $sq->where('tahap', '>=', 3); })->get();
+                    foreach ($ajuans as $aju) {
+                        if ($aju->berkas_zip) {
+                            $files[] = ['real_path' => Storage::disk('public')->path($aju->berkas_zip), 'relative_name' => 'Kades/Pemberhentian/[e-Rekom_ZIP] ' . basename($aju->berkas_zip)];
+                        }
+                        $checklists = \App\Models\ChecklistAjuan::where('ajuan_id', $aju->id)->whereNotNull('file_path')->get();
+                        foreach ($checklists as $chk) {
+                            $files[] = ['real_path' => Storage::disk('public')->path($chk->file_path), 'relative_name' => 'Kades/Pemberhentian/[e-Rekom] ' . basename($chk->file_path)];
+                        }
+                    }
+                }
+                if ($jenis === 'penunjukan' || $jenis === null) {
+                    $pjs = \App\Models\PjKades::where('desa_id', $desaId)->where('status', '!=', 'draft')
+                        ->whereNotIn('posisi_surat', ['Front Office (FO)', 'Berkas Diterima', 'Verifikasi & Validasi Petugas'])->whereNotNull('posisi_surat')->get();
+                    foreach ($pjs as $pj) {
+                        if ($pj->berkas_zip) {
+                            $files[] = ['real_path' => Storage::disk('public')->path($pj->berkas_zip), 'relative_name' => 'Kades/Penunjukan/[SK-Kades_ZIP] ' . basename($pj->berkas_zip)];
+                        }
+                        $checklists = \App\Models\ChecklistPjKades::where('pj_kades_id', $pj->id)->whereNotNull('file_path')->get();
+                        foreach ($checklists as $chk) {
+                            $files[] = ['real_path' => Storage::disk('public')->path($chk->file_path), 'relative_name' => 'Kades/Penunjukan/[SK-Kades] ' . basename($chk->file_path)];
+                        }
+                    }
+                }
+            } elseif ($m === 'perangkat_desa') {
+                $mapJenis = ['pengangkatan' => 1, 'rotasi' => 2, 'pemberhentian' => 3];
+                $jenisList = $jenis ? [$jenis => $mapJenis[$jenis]] : $mapJenis;
+                foreach ($jenisList as $j => $layananId) {
+                    $ajuans = \App\Models\Ajuan::where('desa_id', $desaId)->where('status', '!=', 'draft')->where('jenis_layanan_id', $layananId)
+                        ->whereHas('milestoneTrackings', function($sq) { $sq->where('tahap', '>=', 3); })->get();
+                    foreach ($ajuans as $aju) {
+                        $fName = ucwords($j);
+                        if ($aju->berkas_zip) {
+                            $files[] = ['real_path' => Storage::disk('public')->path($aju->berkas_zip), 'relative_name' => 'Perangkat Desa/'.$fName.'/[e-Rekom_ZIP] ' . basename($aju->berkas_zip)];
+                        }
+                        $checklists = \App\Models\ChecklistAjuan::where('ajuan_id', $aju->id)->whereNotNull('file_path')->get();
+                        foreach ($checklists as $chk) {
+                            $files[] = ['real_path' => Storage::disk('public')->path($chk->file_path), 'relative_name' => 'Perangkat Desa/'.$fName.'/[e-Rekom] ' . basename($chk->file_path)];
+                        }
+                    }
+                }
+            } elseif ($m === 'bpd') {
+                $jenisList = $jenis ? [$jenis] : ['pemberhentian', 'peresmian'];
+                foreach ($jenisList as $j) {
+                    $bpds = \App\Models\AjuanBpd::where('desa_id', $desaId)->where('status', '!=', 'draft')->where('jenis_ajuan', $j)
+                        ->whereHas('milestones', function($sq) {
+                            $sq->where('tahapan', 'like', '%Draft%')->orWhere('tahapan', 'like', '%Validasi%')->orWhere('tahapan', 'like', '%Bupati%');
+                        })->get();
+                    foreach ($bpds as $bpd) {
+                        $fName = ucwords($j);
+                        if ($bpd->berkas_zip) {
+                            $files[] = ['real_path' => Storage::disk('public')->path($bpd->berkas_zip), 'relative_name' => 'BPD/'.$fName.'/[BPD_ZIP] ' . basename($bpd->berkas_zip)];
+                        }
+                        $checklists = \App\Models\ChecklistAjuanBpd::where('ajuan_bpd_id', $bpd->id)->whereNotNull('file_path')->get();
+                        foreach ($checklists as $chk) {
+                            $files[] = ['real_path' => Storage::disk('public')->path($chk->file_path), 'relative_name' => 'BPD/'.$fName.'/[BPD] ' . basename($chk->file_path)];
+                        }
+                    }
+                }
+            } elseif ($m === 'pembinaan') {
+                $pembinaans = \App\Models\PengajuanPembinaan::where('desa_id', $desaId)->where('status', '!=', 'draft')->get();
+                foreach ($pembinaans as $pem) {
+                    if ($pem->file_surat_permohonan) {
+                        $files[] = ['real_path' => Storage::disk('public')->path($pem->file_surat_permohonan), 'relative_name' => 'Pembinaan/[Pembinaan] ' . basename($pem->file_surat_permohonan)];
+                    }
+                    if ($pem->file_undangan) {
+                        $files[] = ['real_path' => Storage::disk('public')->path($pem->file_undangan), 'relative_name' => 'Pembinaan/[Pembinaan_Undangan] ' . basename($pem->file_undangan)];
+                    }
+                }
+            }
+        }
+        return $files;
     }
 }

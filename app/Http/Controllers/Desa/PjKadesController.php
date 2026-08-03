@@ -38,19 +38,21 @@ class PjKadesController extends Controller
 
         // Alasan Pj Kades (Definitif)
         $alasanPj = AlasanPemberhentian::whereIn('nama', [
-            'Meninggal Dunia',
-            'Permintaan Sendiri',
-            'Diberhentikan',
+            'Pemberhentian Kades karena Meninggal Dunia',
+            'Pemberhentian Kades karena Permintaan Sendiri',
+            'Pemberhentian Kades karena Diberhentikan dengan Tidak Hormat',
+            'Pengangkatan Pj Kades',
         ])->get();
 
         // Alasan Plt Kades (Sementara / Cuti)
         $alasanPlt = AlasanPemberhentian::whereIn('nama', [
+            'Pemberhentian Kades Sementara',
+            'Pengangkatan Plt Kades',
             'Cuti Sakit',
-            'Cuti Umroh/Haji',
+            'Cuti Umroh / Haji',
             'Cuti Tahunan',
             'Cuti Bersalin',
             'Cuti Alasan Penting',
-            'Pemberhentian Sementara (Hukum/Disiplin)',
         ])->get();
 
         // Ambil data Sekretaris Desa aktif
@@ -126,9 +128,26 @@ class PjKadesController extends Controller
             'metode' => $request->metode,
         ]);
 
+        // Ambil ID Alasan Pemberhentian dan ID Pengangkatan yang bersesuaian
+        $alasanIds = [$alasan->id];
+        
+        if ($kategori === 'pj_kades') {
+            $alasanPengangkatan = \App\Models\AlasanPemberhentian::where('nama', 'Pengangkatan Pj Kades')->first();
+            if ($alasanPengangkatan) {
+                $alasanIds[] = $alasanPengangkatan->id;
+            }
+        } elseif ($kategori === 'plt_kades') {
+            $alasanPengangkatan = \App\Models\AlasanPemberhentian::where('nama', 'Pengangkatan Plt Kades')->first();
+            if ($alasanPengangkatan) {
+                $alasanIds[] = $alasanPengangkatan->id;
+            }
+        }
+
         // Generate Checklist Items dari TemplateChecklist
+        $alasanIdsString = implode(',', $alasanIds);
         $templates = TemplateChecklist::where('jenis_layanan_id', $jenisLayanan->id ?? 0)
-            ->where('alasan_pemberhentian_id', $alasan->id)
+            ->whereIn('alasan_pemberhentian_id', $alasanIds)
+            ->orderByRaw("FIELD(alasan_pemberhentian_id, {$alasanIdsString})")
             ->orderBy('urutan')
             ->get();
 

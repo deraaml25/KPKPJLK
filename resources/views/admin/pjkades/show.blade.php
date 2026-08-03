@@ -39,10 +39,25 @@
                     <p class="text-xs text-muted">SK Kades ({{ $pjkades->kategori === 'plt_kades' ? 'Plt Kades' : 'Pj Kades' }}) — {{ $pjkades->desa->nama_desa }}</p>
                 </div>
                 @if($pjkades->berkas_zip)
-                    <a href="{{ Storage::disk('public')->url($pjkades->berkas_zip) }}" target="_blank"
-                        class="inline-flex items-center gap-1 px-3 py-1.5 bg-primary text-white text-xs font-medium rounded-btn hover:bg-primary-light transition-colors flex-shrink-0">
-                        📥 Unduh
-                    </a>
+                    <div class="flex gap-2">
+                        @if(preg_match('/\.(pdf|jpe?g|png)$/i', $pjkades->berkas_zip))
+                            <button type="button" onclick="previewFile('{{ Storage::disk('public')->url($pjkades->berkas_zip) }}')"
+                                class="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-700 text-xs font-medium rounded hover:bg-blue-200 transition-colors flex-shrink-0">
+                                <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                Lihat
+                            </button>
+                        @endif
+                        <a href="{{ Storage::disk('public')->url($pjkades->berkas_zip) }}" target="_blank"
+                            class="inline-flex items-center px-3 py-1.5 bg-primary text-white text-xs font-medium rounded hover:bg-primary-light transition-colors flex-shrink-0">
+                            <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Unduh
+                        </a>
+                    </div>
                 @endif
             </div>
             <div class="flex-1 bg-gray-200 relative p-2" id="pdf-container">
@@ -67,7 +82,7 @@
         <div class="{{ $pjkades->metode !== 'offline' ? 'lg:col-span-5' : 'w-full' }} flex flex-col gap-6 h-full overflow-y-auto pr-2 custom-scrollbar">
 
             {{-- IDENTITAS DESA / PROFIL CALON --}}
-            <div class="bg-primary text-white rounded-card shadow-sm p-4">
+            <div class="bg-primary text-white rounded-card shadow-sm p-4 flex-shrink-0">
                 <div class="flex justify-between items-start mb-2">
                     <div>
                         <p class="text-[10px] font-mono text-primary-soft">{{ $pjkades->no_registrasi ?? ('SKK-' . $pjkades->id) }}</p>
@@ -94,7 +109,7 @@
             </div>
 
             {{-- Checklist Dokumen Verification Table --}}
-            <div class="bg-surface rounded-card shadow-sm border border-border overflow-hidden">
+            <div class="bg-surface rounded-card shadow-sm border border-border overflow-hidden flex-shrink-0">
                 <div class="px-5 py-4 border-b border-border bg-gray-50 flex items-center justify-between">
                     <h3 class="font-display font-semibold text-ink">Verifikasi Syarat</h3>
                     <a href="{{ route('admin.pjkades.print-syarat', $pjkades->id) }}" target="_blank" class="inline-flex items-center text-xs px-2 py-1 bg-white border border-gray-300 rounded font-medium text-ink hover:bg-gray-50 transition-colors shadow-sm">
@@ -103,46 +118,51 @@
                     </a>
                 </div>
 
-                <div class="divide-y divide-border">
-                    @foreach($pjkades->checklists as $index => $item)
-                        <div class="p-4 border-l-4 transition-colors {{ $item->status_verifikasi == 'valid' ? 'border-green-500 bg-green-50/40' : ($item->status_verifikasi == 'tidak_sesuai' ? 'border-red-500 bg-red-50/40' : 'border-amber-400 bg-amber-50/30') }}">
-                            <div class="flex items-center gap-3">
-                                <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-xs font-bold text-ink border border-border shadow-sm flex-shrink-0">{{ $index + 1 }}</span>
-                                
-                                <div class="flex-1 flex flex-col sm:flex-row sm:items-center gap-2 justify-between">
-                                    <div class="flex items-center gap-2 flex-wrap">
-                                        <p class="text-sm font-semibold text-ink leading-tight">
-                                            {{ $item->nama_dokumen }}
-                                        </p>
+                <form action="{{ route('admin.pjkades.verify-bulk', $pjkades->id) }}" method="POST">
+                    @csrf
+                    <div class="divide-y divide-border">
+                        @foreach($pjkades->checklists as $index => $item)
+                            <div class="p-4 border-l-4 transition-colors {{ $item->status_verifikasi == 'valid' ? 'border-green-500 bg-green-50/40' : ($item->status_verifikasi == 'tidak_sesuai' ? 'border-red-500 bg-red-50/40' : 'border-amber-400 bg-amber-50/30') }}" id="row-{{ $item->id }}">
+                                <div class="flex items-center gap-3">
+                                    <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-xs font-bold text-ink border border-border shadow-sm flex-shrink-0">{{ $index + 1 }}</span>
+                                    
+                                    <div class="flex-1 flex flex-col sm:flex-row sm:items-center gap-2 justify-between">
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <p class="text-sm font-semibold text-ink leading-tight">
+                                                {{ $item->nama_dokumen }}
+                                            </p>
 
-                                        @if($item->file_path)
-                                            <button
-                                                onclick="previewFile('{{ asset('storage/' . $item->file_path) }}')"
-                                                class="ml-2 inline-flex items-center text-xs px-2 py-1 bg-white hover:bg-gray-50 border border-gray-300 rounded font-medium text-ink transition-colors shadow-sm">
-                                                <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                </svg>
-                                                Lihat Dokumen
-                                            </button>
-                                        @else
-                                            <span class="ml-2 inline-block px-2 py-1 bg-gray-100 text-gray-500 text-[10px] font-medium rounded border border-gray-200">Belum Terunggah</span>
-                                        @endif
+                                            @if($item->file_path)
+                                                <button type="button"
+                                                    onclick="previewFile('{{ asset('storage/' . $item->file_path) }}')"
+                                                    class="ml-2 inline-flex items-center text-xs px-2 py-1 bg-white hover:bg-gray-50 border border-gray-300 rounded font-medium text-ink transition-colors shadow-sm">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    </svg>
+                                                    Lihat Dokumen
+                                                </button>
+                                            @endif
+                                        </div>
+
+                                        <div class="flex-shrink-0 ml-auto sm:ml-4">
+                                            <input type="checkbox" name="status[{{ $item->id }}]" value="valid" 
+                                                   class="verify-checkbox w-6 h-6 text-primary focus:ring-primary border-gray-300 rounded shadow-sm cursor-pointer transition-colors" 
+                                                   {{ $item->status_verifikasi == 'valid' ? 'checked' : '' }}
+                                                   onchange="toggleRowColor(this, 'row-{{ $item->id }}')"
+                                                   title="Tandai Sesuai">
+                                        </div>
                                     </div>
-
-                                    <form action="{{ route('admin.pjkades.verify-checklist', [$pjkades->id, $item->id]) }}" method="POST" class="verify-form flex-shrink-0 ml-auto sm:ml-4" data-url="{{ route('admin.pjkades.verify-checklist', [$pjkades->id, $item->id]) }}">
-                                        @csrf
-                                        <input type="hidden" name="status_verifikasi" value="tidak_sesuai">
-                                        <input type="checkbox" name="status_verifikasi" value="valid" 
-                                               class="verify-checkbox w-6 h-6 text-primary focus:ring-primary border-gray-300 rounded shadow-sm cursor-pointer transition-colors" 
-                                               {{ $item->status_verifikasi == 'valid' ? 'checked' : '' }}
-                                               title="Tandai Sesuai">
-                                    </form>
                                 </div>
                             </div>
-                        </div>
-                    @endforeach
-                </div>
+                        @endforeach
+                    </div>
+                    <div class="p-4 bg-gray-50 border-t border-border flex justify-end">
+                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-primary border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-primary-dark focus:bg-primary-dark active:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm">
+                            <i class="fas fa-save mr-2"></i> Simpan Centang
+                        </button>
+                    </div>
+                </form>
             </div>
 
             {{-- Kolom Catatan Admin --}}
@@ -257,7 +277,7 @@
                 iframe.classList.add('hidden');
                 img.classList.add('hidden');
 
-                if (url.toLowerCase().endsWith('.pdf')) {
+                if (url.toLowerCase().includes('.pdf')) {
                     iframe.src = url;
                     iframe.classList.remove('hidden');
                 } else {
@@ -273,48 +293,18 @@
                         previewFile('{{ Storage::disk("public")->url($pjkades->berkas_zip) }}');
                     }, 500);
                 @endif
-
-                // Remove countEl since it's removed from header
-                document.querySelectorAll('.verify-checkbox').forEach(checkbox => {
-                    checkbox.addEventListener('change', function() {
-                        const form = this.closest('form');
-                        const url = form.getAttribute('data-url');
-                        const token = form.querySelector('input[name="_token"]').value;
-                        const status = this.checked ? 'valid' : 'tidak_sesuai';
-                        
-                        // Optimistic UI update
-                        const row = form.closest('.p-4');
-                        if (this.checked) {
-                            row.classList.remove('border-red-500', 'bg-red-50/40', 'border-amber-400', 'bg-amber-50/30');
-                            row.classList.add('border-green-500', 'bg-green-50/40');
-                        } else {
-                            row.classList.remove('border-green-500', 'bg-green-50/40', 'border-red-500', 'bg-red-50/40');
-                            row.classList.add('border-red-500', 'bg-red-50/40');
-                        }
-
-                        fetch(url, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': token,
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({ status_verifikasi: status })
-                        }).catch(err => {
-                            console.error('Network error during verification update', err);
-                            // Revert UI on network error
-                            this.checked = !this.checked;
-                            if (this.checked) {
-                                row.classList.remove('border-red-500', 'bg-red-50/40');
-                                row.classList.add('border-green-500', 'bg-green-50/40');
-                            } else {
-                                row.classList.remove('border-green-500', 'bg-green-50/40');
-                                row.classList.add('border-red-500', 'bg-red-50/40');
-                            }
-                        });
-                    });
-                });
             });
+
+            function toggleRowColor(checkbox, rowId) {
+                const row = document.getElementById(rowId);
+                if (checkbox.checked) {
+                    row.classList.remove('border-red-500', 'bg-red-50/40', 'border-amber-400', 'bg-amber-50/30');
+                    row.classList.add('border-green-500', 'bg-green-50/40');
+                } else {
+                    row.classList.remove('border-green-500', 'bg-green-50/40', 'border-red-500', 'bg-red-50/40');
+                    row.classList.add('border-amber-400', 'bg-amber-50/30');
+                }
+            }
         </script>
         <style>
             .custom-scrollbar::-webkit-scrollbar {

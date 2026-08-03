@@ -94,6 +94,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
     Route::get('/pjkades/{pjkades}', [PjKadesController::class, 'show'])->name('pjkades.show');
     Route::get('/pjkades/{pjkades}/print-syarat', [PjKadesController::class, 'printSyarat'])->name('pjkades.print-syarat');
     Route::post('/pjkades/{pjkades}/verify/{checklistPjKades}', [PjKadesController::class, 'verifyChecklist'])->name('pjkades.verify-checklist');
+    Route::post('/pjkades/{pjkades}/verify-bulk', [PjKadesController::class, 'verifyChecklistBulk'])->name('pjkades.verify-bulk');
     Route::post('/pjkades/{pjkades}/generate-sk', [PjKadesController::class, 'generateSk'])->name('pjkades.generate-sk');
     Route::post('/pjkades/{pjkades}/update-catatan', [PjKadesController::class, 'updateCatatanAdmin'])->name('pjkades.update-catatan');
     Route::post('/pjkades/{pjkades}/disposisi', [PjKadesController::class, 'updateDisposisi'])->name('pjkades.disposisi');
@@ -228,6 +229,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
     Route::get('/ajuan/{ajuan}', [AdminAjuanController::class, 'show'])->name('ajuan.show');
     Route::get('/ajuan/{ajuan}/print-syarat', [AdminAjuanController::class, 'printSyarat'])->name('ajuan.print-syarat');
     Route::post('/ajuan/{ajuan}/verify/{checklistAjuan}', [AdminAjuanController::class, 'verifyDokumen'])->name('ajuan.verify');
+    Route::post('/ajuan/{ajuan}/verify-bulk', [AdminAjuanController::class, 'verifyDokumenBulk'])->name('ajuan.verify-bulk');
     Route::post('/ajuan/{ajuan}/update-catatan', [AdminAjuanController::class, 'updateCatatanAdmin'])->name('ajuan.update-catatan');
     Route::post('/ajuan/{ajuan}/disposisi', [AdminAjuanController::class, 'updateDisposisi'])->name('ajuan.disposisi');
 

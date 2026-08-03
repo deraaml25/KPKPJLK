@@ -41,10 +41,25 @@
                 <div class="flex items-center gap-2">
                     <span id="preview-title" class="hidden"></span>
                     @if($ajuan->metode === 'online' && $ajuan->berkas_zip)
-                        <a href="{{ Storage::disk('public')->url($ajuan->berkas_zip) }}" target="_blank"
-                            class="inline-flex items-center gap-1 px-3 py-1.5 bg-primary text-white text-xs font-medium rounded-btn hover:bg-primary-light transition-colors flex-shrink-0">
-                            📥 Unduh
-                        </a>
+                        <div class="flex gap-2">
+                            @if(preg_match('/\.(pdf|jpe?g|png)$/i', $ajuan->berkas_zip))
+                                <button type="button" onclick="previewPdf('{{ Storage::disk('public')->url($ajuan->berkas_zip) }}', 'Berkas Keseluruhan Persyaratan')"
+                                    class="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-700 text-xs font-medium rounded hover:bg-blue-200 transition-colors flex-shrink-0">
+                                    <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                    </svg>
+                                    Lihat
+                                </button>
+                            @endif
+                            <a href="{{ Storage::disk('public')->url($ajuan->berkas_zip) }}" target="_blank"
+                                class="inline-flex items-center px-3 py-1.5 bg-primary text-white text-xs font-medium rounded hover:bg-primary-light transition-colors flex-shrink-0">
+                                <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                                </svg>
+                                Unduh
+                            </a>
+                        </div>
                     @endif
                 </div>
             </div>
@@ -110,48 +125,55 @@
                         Print Checklist
                     </a>
                 </div>
+                <form action="{{ route('admin.ajuan.verify-bulk', $ajuan) }}" method="POST">
+                    @csrf
+                    <div class="divide-y divide-border">
+                        @foreach($ajuan->checklistAjuans as $index => $item)
+                            <div class="p-4 border-l-4 transition-colors {{ $item->status == 'valid' || $item->status == 'lengkap' ? 'border-green-500 bg-green-50/40' : ($item->status == 'kurang' || $item->status == 'tidak_sesuai' ? 'border-red-500 bg-red-50/40' : 'border-amber-400 bg-amber-50/30') }}" id="row-{{ $item->id }}">
+                                <div class="flex items-center gap-3">
+                                    <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-xs font-bold text-ink border border-border shadow-sm flex-shrink-0">{{ $item->templateChecklist->urutan }}</span>
+                                    <div class="flex-1 flex flex-col sm:flex-row sm:items-center gap-2 justify-between">
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <p class="text-sm font-semibold text-ink leading-tight">
+                                                {{ $item->templateChecklist->nama_dokumen }}
+                                            </p>
+                                            @if($item->templateChecklist->wajib && !in_array(strtolower($ajuan->jenisLayanan->nama), ['rotasi', 'pengangkatan']))
+                                                <span class="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-700">Wajib</span>
+                                            @endif
 
-                <div class="divide-y divide-border">
-                    @foreach($dokumenList as $item)
-                        <div class="p-4 border-l-4 transition-colors {{ $item->status == 'valid' || $item->status == 'lengkap' ? 'border-green-500 bg-green-50/40' : ($item->status == 'kurang' || $item->status == 'tidak_sesuai' ? 'border-red-500 bg-red-50/40' : 'border-amber-400 bg-amber-50/30') }}">
-                            <div class="flex items-center gap-3">
-                                <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-white text-xs font-bold text-ink border border-border shadow-sm flex-shrink-0">{{ $item->templateChecklist->urutan }}</span>
-                                <div class="flex-1 flex flex-col sm:flex-row sm:items-center gap-2 justify-between">
-                                    <div class="flex items-center gap-2 flex-wrap">
-                                        <p class="text-sm font-semibold text-ink leading-tight">
-                                            {{ $item->templateChecklist->nama_dokumen }}
-                                        </p>
-                                        @if($item->templateChecklist->wajib && !in_array(strtolower($ajuan->jenisLayanan->nama), ['rotasi', 'pengangkatan']))
-                                            <span class="inline-flex items-center rounded-full bg-red-100 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-red-700">Wajib</span>
-                                        @endif
+                                            @if($item->file_path)
+                                                <button type="button"
+                                                    onclick="previewPdf('{{ Storage::disk('public')->url($item->file_path) }}', '{{ addslashes($item->templateChecklist->nama_dokumen) }}')"
+                                                    class="ml-2 inline-flex items-center text-xs px-2 py-1 bg-white hover:bg-gray-50 border border-gray-300 rounded font-medium text-ink transition-colors shadow-sm">
+                                                    <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                                    </svg>
+                                                    Lihat PDF
+                                                </button>
+                                            @elseif($ajuan->metode === 'online' && !$ajuan->berkas_zip)
+                                                <span class="ml-2 inline-block px-2 py-1 bg-gray-100 text-gray-500 text-xs font-medium rounded border border-gray-200">Belum Terunggah</span>
+                                            @endif
+                                        </div>
 
-                                        @if($item->file_path)
-                                            <button
-                                                onclick="previewPdf('{{ Storage::disk('public')->url($item->file_path) }}', '{{ addslashes($item->templateChecklist->nama_dokumen) }}')"
-                                                class="ml-2 inline-flex items-center text-xs px-2 py-1 bg-white hover:bg-gray-50 border border-gray-300 rounded font-medium text-ink transition-colors shadow-sm">
-                                                <svg class="w-3 h-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                                                </svg>
-                                                Lihat PDF
-                                            </button>
-                                        @elseif($ajuan->metode === 'online' && !$ajuan->berkas_zip)
-                                            <span class="ml-2 inline-block px-2 py-1 bg-gray-100 text-gray-500 text-xs font-medium rounded border border-gray-200">Belum Terunggah</span>
-                                        @endif
+                                        <div class="flex-shrink-0 ml-auto sm:ml-4">
+                                            <input type="checkbox" name="status[{{ $item->id }}]" value="valid" 
+                                                   class="w-7 h-7 text-primary focus:ring-primary border-gray-300 rounded shadow-sm cursor-pointer transition-colors verify-checkbox" 
+                                                   {{ $item->status == 'valid' || $item->status == 'lengkap' ? 'checked' : '' }}
+                                                   onchange="toggleRowColor(this, 'row-{{ $item->id }}')"
+                                                   title="Tandai Sesuai">
+                                        </div>
                                     </div>
-
-                                    <form action="{{ route('admin.ajuan.verify', [$ajuan, $item]) }}" method="POST" class="verify-form flex-shrink-0 ml-auto sm:ml-4" data-url="{{ route('admin.ajuan.verify', [$ajuan, $item]) }}">
-                                        @csrf
-                                        <input type="checkbox" name="status" value="valid" 
-                                               class="w-7 h-7 text-primary focus:ring-primary border-gray-300 rounded shadow-sm cursor-pointer transition-colors verify-checkbox" 
-                                               {{ $item->status == 'valid' || $item->status == 'lengkap' ? 'checked' : '' }}
-                                               title="Tandai Sesuai">
-                                    </form>
                                 </div>
                             </div>
-                        </div>
-                    @endforeach
-                </div>
+                        @endforeach
+                    </div>
+                    <div class="p-4 bg-gray-50 border-t border-border flex justify-end">
+                        <button type="submit" class="inline-flex items-center px-4 py-2 bg-primary border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-primary-dark focus:bg-primary-dark active:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition ease-in-out duration-150 shadow-sm">
+                            Simpan Centang
+                        </button>
+                    </div>
+                </form>
             </div>
 
             {{-- PANEL BERKAS ZIP & CATATAN ADMIN --}}
@@ -251,48 +273,16 @@
                 document.getElementById('preview-title').innerText = title;
             }
 
-            document.addEventListener('DOMContentLoaded', function() {
-                document.querySelectorAll('.verify-checkbox').forEach(checkbox => {
-                    checkbox.addEventListener('change', function() {
-                        const form = this.closest('form');
-                        const url = form.getAttribute('data-url');
-                        const token = form.querySelector('input[name="_token"]').value;
-                        const status = this.checked ? 'valid' : 'menunggu';
-                        
-                        // Optimistic UI update
-                        const row = form.closest('.p-4');
-                        if (this.checked) {
-                            row.classList.remove('border-red-500', 'bg-red-50/40', 'border-amber-400', 'bg-amber-50/30');
-                            row.classList.add('border-green-500', 'bg-green-50/40');
-                        } else {
-                            row.classList.remove('border-green-500', 'bg-green-50/40', 'border-red-500', 'bg-red-50/40');
-                            row.classList.add('border-amber-400', 'bg-amber-50/30');
-                        }
-
-                        // Send request without requiring response handling
-                        fetch(url, {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': token,
-                                'Accept': 'application/json'
-                            },
-                            body: JSON.stringify({ status: status })
-                        }).catch(err => {
-                            console.error('Network error during verification update', err);
-                            // Revert UI on network error
-                            this.checked = !this.checked;
-                            if (this.checked) {
-                                row.classList.remove('border-amber-400', 'bg-amber-50/30');
-                                row.classList.add('border-green-500', 'bg-green-50/40');
-                            } else {
-                                row.classList.remove('border-green-500', 'bg-green-50/40');
-                                row.classList.add('border-amber-400', 'bg-amber-50/30');
-                            }
-                        });
-                    });
-                });
-            });
+            function toggleRowColor(checkbox, rowId) {
+                const row = document.getElementById(rowId);
+                if (checkbox.checked) {
+                    row.classList.remove('border-red-500', 'bg-red-50/40', 'border-amber-400', 'bg-amber-50/30');
+                    row.classList.add('border-green-500', 'bg-green-50/40');
+                } else {
+                    row.classList.remove('border-green-500', 'bg-green-50/40', 'border-red-500', 'bg-red-50/40');
+                    row.classList.add('border-amber-400', 'bg-amber-50/30');
+                }
+            }
         </script>
         <style>
             .custom-scrollbar::-webkit-scrollbar {

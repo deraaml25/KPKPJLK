@@ -15,17 +15,18 @@ class PjKadesChecklistSeeder extends Seeder
         $layananPj = JenisLayanan::firstOrCreate(['nama' => 'Pj Kades (Pemberhentian Definitif & Penunjukan Pj)']);
         $layananPlt = JenisLayanan::firstOrCreate(['nama' => 'Plt Kades (Pemberhentian Sementara / Cuti & Penunjukan Plt)']);
 
-        // 2. Alasan Pemberhentian / Cuti
+        // 2. Alasan Pemberhentian / Cuti (We use these as the specific category the user selects)
         $alasanList = [
             // Definitif (Pj Kades)
-            'Meninggal Dunia' => 'definitif',
-            'Permintaan Sendiri' => 'definitif',
-            'Diberhentikan Dengan Tidak Hormat' => 'definitif',
+            'Pemberhentian Kades karena Meninggal Dunia' => 'definitif',
+            'Pemberhentian Kades karena Permintaan Sendiri' => 'definitif',
+            'Pemberhentian Kades karena Diberhentikan dengan Tidak Hormat' => 'definitif',
+            'Pengangkatan Pj Kades' => 'definitif',
 
             // Sementara / Cuti (Plt Kades)
-            'Pemberhentian Sementara' => 'sementara',
+            'Pemberhentian Kades Sementara' => 'sementara',
+            'Pengangkatan Plt Kades' => 'sementara',
             'Cuti Sakit' => 'sementara',
-            'Cuti Umroh / Haji' => 'sementara',
             'Cuti Tahunan' => 'sementara',
             'Cuti Bersalin' => 'sementara',
             'Cuti Alasan Penting' => 'sementara',
@@ -37,122 +38,100 @@ class PjKadesChecklistSeeder extends Seeder
         }
 
         // ==========================================
-        // DOKUMEN PERSYARATAN PJ KADES (PNS) - COMMON (14 items)
+        // DOKUMEN PENGUSULAN SK PEMBERHENTIAN KADES
         // ==========================================
-        $persyaratanPjKadesPns = [
-            'Surat Pengantar dari Kecamatan kepada Bupati',
-            'Surat Usulan Pj Kepala Desa dari Sekdes kepada Bupati lewat Camat',
-            'Fc. SK PNS Calon Pj Kepala Desa yang diusulkan',
-            'Surat Pernyataan Kesediaan Menjadi Pj Kepala Desa (bermaterai)',
-            'Fc. Ijazah Calon Pj Kepala Desa',
-            'Fc. KTP Calon Pj Kepala Desa',
-            'Fc. KK Calon Pj Kepala Desa',
-            'Surat Pernyataan Kebenaran Dokumen dari Sekdes (bermaterai)',
-            'Surat Pernyataan Kebenaran Dokumen dari Calon Pj Kepala Desa',
-            'Surat Keterangan Pimpinan Tempat Bekerja Calon Pj Kepala Desa terkait pencalonan ybs',
-            'Permohonan Rekomendasi Penunjukan Pj Kepala Desa (ttd Sekdes & Ketua BPD kepada Camat)',
-            'Rekomendasi Camat tentang Penunjukan Pj Kepala Desa',
-            'Surat Pernyataan Persetujuan Penunjukan Pj Kepala Desa atas Rekomendasi Camat (ttd Sekdes & Ketua BPD)',
-            'Undangan, Daftar Hadir, Berita Acara, & Dokumentasi Rapat Penunjukan Pj Kepala Desa',
+        
+        // --- 1. Karena Meninggal Dunia ---
+        $docsMeninggal = [
+            'Surat pengantar dr kec kepada bupati',
+            'Surat permohonan pemberhentian kades dari kecamatan, kpd bupati cq kadispermasdes',
+            'Surat permohonan pemberhentian kades dari bpd kpd bupati lwt camat',
+            'SK pengangkatan kades induk dan penambahan',
+            'Surat kematian',
+            'Fc kk kades',
+            'Fc ktp kades',
+            'Undangan rapat/musyawarah, daftarhadir, Berita acara, dokumentasi rapat bpd ttg pemberhentian kades',
         ];
+        $this->createTemplates($layananPj->id, $alasanModels['Pemberhentian Kades karena Meninggal Dunia']->id, $docsMeninggal);
 
-        // --- GROUP A: PJ KADES (Meninggal Dunia) ---
-        $docsPjMeninggal = array_merge([
-            'Surat Pengantar dari Kecamatan kepada Bupati',
-            'Surat Permohonan Pemberhentian Kades dari Kecamatan kepada Bupati cq. Kadispermasdes',
-            'Surat Permohonan Pemberhentian Kades dari BPD kepada Bupati lewat Camat',
-            'SK Pengangkatan Kades Induk dan Penambahan',
-            'Surat Kematian',
-            'Fc. KK Kades',
-            'Fc. KTP Kades',
-            'Undangan Rapat/Musyawarah, Daftar Hadir, Berita Acara, & Dokumentasi Rapat BPD tentang Pemberhentian Kades',
-        ], $persyaratanPjKadesPns);
-
-        $this->createTemplates($layananPj->id, $alasanModels['Meninggal Dunia']->id, $docsPjMeninggal);
-
-        // --- GROUP A: PJ KADES (Permintaan Sendiri) ---
-        $docsPjPermintaanSendiri = array_merge([
-            'Surat Pengantar dari Kecamatan kepada Bupati',
-            'Surat Permohonan Pemberhentian Kades dari Kecamatan kepada Bupati cq. Kadispermasdes',
-            'Surat Permohonan Pemberhentian Kades dari BPD kepada Bupati lewat Camat',
-            'SK Pengangkatan Kades Induk dan Penambahan',
-            'Surat Pengunduran Diri (bermaterai)',
-            'Fc. KK Kades',
-            'Fc. KTP Kades',
-            'Undangan Rapat/Musyawarah, Daftar Hadir, Berita Acara, & Dokumentasi Rapat BPD tentang Pemberhentian Kades',
-        ], $persyaratanPjKadesPns);
-
-        $this->createTemplates($layananPj->id, $alasanModels['Permintaan Sendiri']->id, $docsPjPermintaanSendiri);
-
-        // --- GROUP A: PJ KADES (Diberhentikan Dengan Tidak Hormat) ---
-        $docsPjDiberhentikan = array_merge([
-            'Surat Pengantar dari Kecamatan kepada Bupati',
-            'Surat Permohonan Pemberhentian Kades dari Kecamatan kepada Bupati cq. Kadispermasdes',
-            'Surat Permohonan Pemberhentian Kades dari BPD kepada Bupati lewat Camat',
-            'SK Pengangkatan Kades Induk dan Penambahan',
-            'Surat Pelanggaran Disiplin / Putusan Pengadilan kekuatan hukum tetap (Terpidana)',
-            'Fc. KK Kades',
-            'Fc. KTP Kades',
-            'Laporan BPD, Undangan Rapat/Musyawarah, Daftar Hadir, Berita Acara, & Dokumentasi Rapat BPD tentang Pemberhentian Kades',
-        ], $persyaratanPjKadesPns);
-
-        $this->createTemplates($layananPj->id, $alasanModels['Diberhentikan Dengan Tidak Hormat']->id, $docsPjDiberhentikan);
-
-        // ==========================================
-        // DOKUMEN PENDUKUNG PLT KADES (SEKDES) - COMMON (6 items)
-        // ==========================================
-        $pendukungPltSekdes = [
-            'Surat Pengantar dari Kecamatan',
-            'Surat Permohonan Usulan Plt Kepala Desa dari Camat kepada Bupati Banyumas cq. Kepala Dinpermasdes',
-            'Surat Permohonan Usulan Plt Kepala Desa dari Kepala Desa kepada Bupati Banyumas melalui Camat',
-            'SK Kades tentang Pengangkatan Sekdes',
-            'Fc. KTP Sekdes',
-            'Fc. KK Sekdes',
+        // --- 2. Karena Permintaan Sendiri ---
+        $docsPermintaanSendiri = [
+            'Surat pengantar dr kec kepada bupati',
+            'Surat permohonan pemberhentian kades dari kecamatan, kpd bupati cq kadispermasdes',
+            'Surat permohonan pemberhentian kades dari bpd kpd bupati lwt camat',
+            'SK pengangkatan kades induk dan penambahan',
+            'Surat pengunduran diri bermaterai',
+            'Fc kk kades',
+            'Fc ktp kades',
+            'Undangan rapat/musyawarah, daftarhadir, Berita acara, dokumentasi rapat bpd ttg pemberhentian kades',
         ];
+        $this->createTemplates($layananPj->id, $alasanModels['Pemberhentian Kades karena Permintaan Sendiri']->id, $docsPermintaanSendiri);
 
-        // --- GROUP B: PLT KADES (Pemberhentian Sementara) ---
-        $docsPltSementara = array_merge([
-            'Surat Pengantar dari Kecamatan kepada Bupati',
-            'Surat Permohonan Pemberhentian Sementara Kades dari Kecamatan kepada Bupati cq. Kadispermasdes',
-            'Surat Permohonan Pemberhentian Sementara Kades dari BPD kepada Bupati lewat Camat',
-            'SK Pengangkatan Kades Induk dan Penambahan',
-            'Bukti Melanggar Larangan / Pelanggaran Disiplin / Penetapan Terdakwa (min 5 thn) / Penetapan Tersangka belum Inkracht',
-            'Fc. KK Kades',
-            'Fc. KTP Kades',
-            'Laporan BPD, Undangan Rapat/Musyawarah, Daftar Hadir, Berita Acara, & Dokumentasi Rapat BPD tentang Pemberhentian Kades',
-        ], $pendukungPltSekdes);
+        // --- 3. Karena Diberhentikan Dengan Tidak Hormat ---
+        $docsDiberhentikan = [
+            'Surat pengantar dr kec kepada bupati',
+            'Surat permohonan pemberhentian kades dari kecamatan, kpd bupati cq kadispermasdes',
+            'Surat permohonan pemberhentian kades dari bpd kpd bupati lwt camat',
+            'SK pengangkatan kades induk dan penambahan',
+            'Surat pelanggaran disiplin/Dinyatakan sebagai terpidana berdasarkan putusan pengadilan yang telah mempunyai kekuatan hukum tetap',
+            'Fc kk kades',
+            'Fc ktp kades',
+            'Laporan bpd, undangan rapat/musyawarah, daftarhadir, Berita acara, dokumentasi rapat bpd ttg pemberhentian kades',
+        ];
+        $this->createTemplates($layananPj->id, $alasanModels['Pemberhentian Kades karena Diberhentikan dengan Tidak Hormat']->id, $docsDiberhentikan);
 
-        $this->createTemplates($layananPlt->id, $alasanModels['Pemberhentian Sementara']->id, $docsPltSementara);
+        // --- 4. Pengangkatan Pj Kades ---
+        $docsPengangkatanPj = [
+            'Surat pengantar dr kec kpd bupati',
+            'Surat usulan pj kades dari sekdes kpd bupati lewat camat',
+            'Fc sk pns (calon pj kades) yg diusulkan',
+            'Surat pernyataan kesediaan menjadi pj kades bermaterai',
+            'Fc ijazah calon pj kades',
+            'Fc ktp calon pj kades',
+            'Fc kk calon pj kades',
+            'Surat pernyataan kebenaran dokumen dari sekdes bermaterai',
+            'Surat pernyataan kebenaran dokumen dari calon pj kades',
+            'Surat keterangan pimpinan tempat bekerja calon pj kades terkait pencalonan ybs menjadi pj kades',
+            'Permohonan rekom penunjukan kades di ttd sekdes dan ketua bpd kpd camat',
+            'Rekomendasi camat ttg penunjukan pj kades',
+            'Surat pernyataan persetujuan penunjukan pj kades atas rekomendasi camat di ttd sekdes dan ketua bpd',
+            'Undangan daftar hadir BA dokumentasi rapat penunjukkan pj kades',
+        ];
+        $this->createTemplates($layananPj->id, $alasanModels['Pengangkatan Pj Kades']->id, $docsPengangkatanPj);
 
-        // --- GROUP B: PLT KADES (Cuti Sakit) ---
-        $docsPltSakit = array_merge([
-            'Surat Keterangan Dokter / Rumah Sakit',
-        ], $pendukungPltSekdes);
-        $this->createTemplates($layananPlt->id, $alasanModels['Cuti Sakit']->id, $docsPltSakit);
+        // ==========================================
+        // DOKUMEN PENGUSULAN SK PEMBERHENTIAN KADES SEMENTARA & PLT
+        // ==========================================
+        
+        // --- 5. Pemberhentian Kades Sementara ---
+        $docsSementara = [
+            'Surat pengantar dr kec kepada bupati',
+            'Surat permohonan pemberhentian sementara kades dari kecamatan, kpd bupati cq kadispermasdes',
+            'Surat permohonan pemberhentian sementara kades dari bpd kpd bupati lwt camat',
+            'SK pengangkatan kades induk dan penambahan',
+            'Bukti melanggar larangan/pelanggaran disiplin/penetapan terdakwa paling singkat 5 tahun, penetapan tersangka belum ada putusan pengadilan yang telah mempunyai kekuatan hukum tetap',
+            'Fc kk kades',
+            'Fc ktp kades',
+            'Laporan bpd, undangan rapat/musyawarah, daftarhadir, Berita acara, dokumentasi rapat bpd ttg pemberhentian kades',
+        ];
+        $this->createTemplates($layananPlt->id, $alasanModels['Pemberhentian Kades Sementara']->id, $docsSementara);
 
-        // --- GROUP B: PLT KADES (Cuti Umroh / Haji) ---
-        $docsPltHaji = array_merge([
-            'Surat Keterangan / Konfirmasi dari Biro Perjalanan Umroh / Haji',
-        ], $pendukungPltSekdes);
-        $this->createTemplates($layananPlt->id, $alasanModels['Cuti Umroh / Haji']->id, $docsPltHaji);
+        // --- 6. Pengangkatan Plt Kades ---
+        $docsPengangkatanPlt = [
+            'Surat pengantar dari kecamatan',
+            'Surat permohonan usulan pelaksana tugas kepala desa dari camat kepada bupati banyumas c.q. kepala dinpermasdes',
+            'Surat permohonan usulan pelaksana tugas dari kepala desa kepada bupati banyumas melalui camat',
+            'SK kades tentang pengangkatan sekdes',
+            'Fc ktp sekdes',
+            'Fc kk sekdes',
+        ];
+        $this->createTemplates($layananPlt->id, $alasanModels['Pengangkatan Plt Kades']->id, $docsPengangkatanPlt);
 
-        // --- GROUP B: PLT KADES (Cuti Tahunan) ---
-        $docsPltTahunan = array_merge([
-            'Surat Permohonan Cuti Tahunan Kepala Desa',
-        ], $pendukungPltSekdes);
-        $this->createTemplates($layananPlt->id, $alasanModels['Cuti Tahunan']->id, $docsPltTahunan);
-
-        // --- GROUP B: PLT KADES (Cuti Bersalin) ---
-        $docsPltBersalin = array_merge([
-            'Surat Permohonan Cuti Bersalin / Surat Keterangan Dokter Bidan',
-        ], $pendukungPltSekdes);
-        $this->createTemplates($layananPlt->id, $alasanModels['Cuti Bersalin']->id, $docsPltBersalin);
-
-        // --- GROUP B: PLT KADES (Cuti Alasan Penting) ---
-        $docsPltPenting = array_merge([
-            'Surat Keterangan / Surat Pernyataan Alasan Penting / Surat Kematian',
-        ], $pendukungPltSekdes);
-        $this->createTemplates($layananPlt->id, $alasanModels['Cuti Alasan Penting']->id, $docsPltPenting);
+        // --- 7. Cuti Kades (Tambahan opsional jika dibutuhkan) ---
+        $this->createTemplates($layananPlt->id, $alasanModels['Cuti Sakit']->id, ['Surat Keterangan Dokter']);
+        $this->createTemplates($layananPlt->id, $alasanModels['Cuti Tahunan']->id, ['Permohonan Cuti Tahunan']);
+        $this->createTemplates($layananPlt->id, $alasanModels['Cuti Bersalin']->id, ['Permohonan Cuti Bersalin']);
+        $this->createTemplates($layananPlt->id, $alasanModels['Cuti Alasan Penting']->id, ['Surat keterangan yang menyertakan alasan (misal: surat pernyataan/surat kematian/surat dari biro)']);
     }
 
     private function createTemplates(int $jenisLayananId, int $alasanId, array $documents): void
@@ -166,10 +145,11 @@ class PjKadesChecklistSeeder extends Seeder
             TemplateChecklist::create([
                 'jenis_layanan_id' => $jenisLayananId,
                 'alasan_pemberhentian_id' => $alasanId,
-                'nama_dokumen' => $namaDokumen,
+                'nama_dokumen' => ucfirst($namaDokumen),
                 'urutan' => $index + 1,
                 'wajib' => true,
             ]);
         }
     }
 }
+

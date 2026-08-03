@@ -50,7 +50,37 @@ class PjKadesController extends Controller
 
         $statusText = $request->status_verifikasi === 'valid' ? 'Valid' : 'Tidak Sesuai';
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'status' => $checklist->status_verifikasi,
+                'message' => "Dokumen {$checklist->nama_dokumen} ditandai sebagai {$statusText}."
+            ]);
+        }
+
         return back()->with('success', "Dokumen {$checklist->nama_dokumen} ditandai sebagai {$statusText}.");
+    }
+
+    /**
+     * Verifikasi Bulk (Simpan semua centang sekaligus)
+     */
+    public function verifyChecklistBulk(Request $request, $id)
+    {
+        $pjkades = PjKades::withoutGlobalScopes()->findOrFail($id);
+
+        $request->validate([
+            'status' => 'nullable|array',
+            'status.*' => 'in:valid',
+        ]);
+
+        $statuses = $request->input('status', []);
+
+        foreach ($pjkades->checklists as $checklist) {
+            $status = isset($statuses[$checklist->id]) ? 'valid' : 'menunggu';
+            $checklist->update(['status_verifikasi' => $status]);
+        }
+
+        return back()->with('success', 'Semua centang dokumen berhasil disimpan!');
     }
 
     public function updateCatatanAdmin(Request $request, $id)

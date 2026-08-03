@@ -99,11 +99,12 @@
                                     </span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium flex justify-center gap-2">
                                 <a href="{{ route('admin.pjkades.show', $pj->id) }}"
                                     class="inline-flex items-center px-3 py-1.5 bg-primary text-white text-xs font-medium rounded-btn hover:bg-primary-light transition-colors">
                                     Verifikasi & SK
                                 </a>
+
                             </td>
                         </tr>
                     @empty

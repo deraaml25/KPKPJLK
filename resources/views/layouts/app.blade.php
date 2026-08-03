@@ -94,13 +94,19 @@
                             {{ auth()->user()->role == 'super_admin' ? 'Administrator' : 'Operator Desa' }}
                         </p>
 
-                        <form method="POST" action="{{ route('logout') }}" class="mt-2.5">
-                            @csrf
-                            <button type="submit" class="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-[11px] font-semibold w-full">
-                                <span class="material-symbols-outlined text-[14px]">logout</span>
-                                Keluar
-                            </button>
-                        </form>
+                        <div class="flex flex-col gap-2 mt-2.5">
+                            <a href="{{ route('profile.edit') }}" class="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-[11px] font-semibold w-full">
+                                <span class="material-symbols-outlined text-[14px]">manage_accounts</span>
+                                Profil Saya
+                            </a>
+                            <form method="POST" action="{{ route('logout') }}" class="w-full">
+                                @csrf
+                                <button type="submit" class="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-[11px] font-semibold w-full">
+                                    <span class="material-symbols-outlined text-[14px]">logout</span>
+                                    Keluar
+                                </button>
+                            </form>
+                        </div>
                     </div>
                 </div>
             </div>
