@@ -2,13 +2,15 @@
     @section('title', 'Detail Pengajuan — ' . $pengajuanPembinaan->judul_kegiatan)
 
     <div class="max-w-4xl mx-auto">
-        <a href="{{ route('admin.pengajuan-pembinaan.index') }}"
-            class="text-sm text-primary hover:underline flex items-center gap-1 mb-5">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
-            </svg>
-            Kembali ke Daftar Pengajuan
-        </a>
+        <div class="flex flex-wrap items-center gap-3 mb-5">
+            <a href="{{ route('admin.pengajuan-pembinaan.index') }}"
+                class="text-sm text-primary hover:underline flex items-center gap-1">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                </svg>
+                Kembali ke Daftar Pengajuan
+            </a>
+        </div>
 
         @if(session('success'))
             <div class="mb-4 px-4 py-3 bg-green-50 border border-green-200 text-green-800 rounded-card text-sm">

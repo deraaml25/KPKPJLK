@@ -88,9 +88,9 @@ class AjuanBpdController extends Controller
 
         // If it's the final stage (e.g. SK Terbit)
         if (str_contains(strtolower($request->tahapan), 'sk terbit') || str_contains(strtolower($request->tahapan), 'selesai')) {
-            $ajuanBpd->update(['status' => 'selesai']);
+            $ajuanBpd->update(['status' => 'selesai', 'posisi_surat' => $request->tahapan]);
         } else {
-            $ajuanBpd->update(['status' => 'diproses']);
+            $ajuanBpd->update(['status' => 'diproses', 'posisi_surat' => $request->tahapan]);
         }
 
         return back()->with('success', "Status proses / Disposisi berhasil diperbarui: {$request->tahapan}");
@@ -105,5 +105,13 @@ class AjuanBpdController extends Controller
         $ajuanBpd->load(['desa', 'pesertas.bpd', 'checklists.templateChecklist', 'milestones']);
 
         return view('admin.ajuan-bpd.print-syarat', compact('ajuanBpd'));
+    }
+
+    public function destroy($id)
+    {
+        $ajuanBpd = AjuanBpd::findOrFail($id);
+        $ajuanBpd->delete();
+
+        return redirect()->route('admin.ajuan-bpd.index')->with('success', 'Data ajuan BPD berhasil dihapus.');
     }
 }

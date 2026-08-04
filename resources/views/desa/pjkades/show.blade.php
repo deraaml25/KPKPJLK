@@ -2,49 +2,11 @@
     @section('title', 'Detail Usulan SK Kades')
 
     <div class="max-w-6xl mx-auto mb-8">
-        {{-- Header Card --}}
-        <div class="bg-white rounded-card p-6 shadow-sm border border-border mb-6">
-            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-                <div>
-                    <div class="flex items-center gap-2 mb-1">
-                        @if($pjkades->kategori === 'plt_kades')
-                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200">
-                                Plt Kades (Pelaksana Tugas)
-                            </span>
-                        @else
-                            <span class="px-2.5 py-0.5 rounded-full text-xs font-bold bg-indigo-100 text-indigo-800 border border-indigo-200">
-                                Pj Kades (Penjabat)
-                            </span>
-                        @endif
-                        <span class="text-xs font-mono text-muted">#{{ $pjkades->no_registrasi ?? ('SKK-' . $pjkades->id) }}</span>
-                    </div>
-                    <h2 class="text-xl font-display font-bold text-ink">
-                        Usulan {{ $pjkades->kategori === 'plt_kades' ? 'Plt Kepala Desa' : 'Pj Kepala Desa' }} — Desa {{ $pjkades->desa->nama_desa }}
-                    </h2>
-                    <p class="text-muted text-sm mt-1">
-                        Alasan Pemberhentian/Cuti: <strong class="text-ink">{{ $pjkades->alasan_nama ?? ($pjkades->alasanPemberhentian->nama ?? '-') }}</strong>
-                    </p>
-                </div>
-
-                <div class="flex items-center gap-3">
-                    <a href="{{ route('desa.pjkades.index') }}" class="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-ink font-medium rounded-btn transition-colors text-sm">
-                        Kembali ke Daftar
-                    </a>
-
-                    @if($pjkades->status === 'draft' || $pjkades->status === 'rejected')
-                        <form action="{{ route('desa.pjkades.submit', $pjkades->id) }}" method="POST">
-                            @csrf
-                            <button type="submit" onclick="return confirm('Apakah Anda yakin ingin mengirim berkas usulan ini ke Dinpermasdes?')"
-                                class="px-4 py-2 bg-primary text-white font-medium rounded-btn hover:bg-primary-light transition-colors shadow-sm text-sm flex items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
-                                </svg>
-                                Kirim Usulan ke Dinpermasdes
-                            </button>
-                        </form>
-                    @endif
-                </div>
-            </div>
+        <div class="flex flex-wrap items-center gap-3 mb-5">
+            <a href="{{ route('desa.pjkades.index') }}" class="inline-flex items-center text-sm font-medium text-muted hover:text-ink">
+                <svg class="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                Kembali ke Daftar Usulan
+            </a>
         </div>
 
         @if(session('success'))
@@ -62,28 +24,43 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {{-- ===== KIRI: Detail & File ===== --}}
             <div class="lg:col-span-2 space-y-6">
+
+                {{-- Header Card --}}
+                <div class="bg-primary text-white rounded-card shadow-md p-6 relative overflow-hidden">
+                    <div class="absolute -top-10 -right-10 w-40 h-40 bg-white opacity-5 rounded-full blur-xl"></div>
+                    <div class="flex flex-wrap justify-between items-start gap-3 mb-5 relative z-10">
+                        <div>
+                            <p class="text-xs font-mono text-primary-soft tracking-widest mb-1">{{ $pjkades->no_registrasi ?? ('#PJK/2026/08/0004') }} &bull; <span class="font-bold uppercase">{{ $pjkades->kategori === 'plt_kades' ? 'Plt Kades' : 'Pj Kades' }}</span></p>
+                            <h2 class="text-xl font-display font-bold">Usulan {{ $pjkades->kategori === 'plt_kades' ? 'Plt Kepala Desa' : 'Pj Kepala Desa' }} — Desa {{ $pjkades->desa->nama_desa }}</h2>
+                        </div>
+                        @php
+                            $statusBadge = match($pjkades->status) {
+                                'approved' => ['label' => 'Disetujui / SK Bupati Terbit', 'css' => 'bg-green-500 text-white'],
+                                'submitted' => ['label' => 'Dalam Proses Verifikasi', 'css' => 'bg-blue-500 text-white'],
+                                'rejected' => ['label' => 'Dikembalikan / Minta Revisi', 'css' => 'bg-red-500 text-white'],
+                                'draft' => ['label' => 'Draft (Lengkapi Berkas)', 'css' => 'bg-gray-400 text-white'],
+                                default => ['label' => $pjkades->status, 'css' => 'bg-gray-400 text-white'],
+                            };
+                        @endphp
+                        <span class="px-3 py-1.5 rounded-full text-xs font-bold shadow-sm {{ $statusBadge['css'] }}">
+                            {{ $statusBadge['label'] }}
+                        </span>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 bg-black/10 rounded-xl p-4 border border-white/10 relative z-10">
+                        <div>
+                            <p class="text-xs text-primary-soft mb-0.5">Tgl Diajukan</p>
+                            <p class="font-semibold text-sm">{{ $pjkades->tgl_diajukan ? \Carbon\Carbon::parse($pjkades->tgl_diajukan)->translatedFormat('d M Y') : '-' }}</p>
+                        </div>
+                        <div>
+                            <p class="text-xs text-primary-soft mb-0.5">{{ $pjkades->kategori === 'plt_kades' ? 'Alasan Pemberhentian Sementara / Cuti' : 'Alasan Pemberhentian Kades' }}</p>
+                            <p class="font-semibold text-sm">{{ $pjkades->alasan_nama ?? ($pjkades->alasanPemberhentian->nama ?? '-') }}</p>
+                        </div>
+                    </div>
+                </div>
+
                 {{-- Info Card --}}
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-white p-5 rounded-card border border-border shadow-sm">
-                <div class="text-xs text-muted font-medium uppercase tracking-wider mb-1">Status Usulan</div>
-                @if($pjkades->status === 'approved')
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">
-                        Disetujui / SK Bupati Terbit
-                    </span>
-                @elseif($pjkades->status === 'submitted')
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800">
-                        Dalam Proses Verifikasi
-                    </span>
-                @elseif($pjkades->status === 'rejected')
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-800">
-                        Dikembalikan / Minta Revisi
-                    </span>
-                @else
-                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-800">
-                        Draft (Lengkapi Berkas)
-                    </span>
-                @endif
-            </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
 
             <div class="bg-white p-5 rounded-card border border-border shadow-sm">
                 <div class="text-xs text-muted font-medium uppercase tracking-wider mb-1">Calon {{ $pjkades->kategori === 'plt_kades' ? 'Plt' : 'Pj' }} Kades</div>
@@ -108,10 +85,9 @@
                     <div class="bg-primary h-2 rounded-full" style="width: {{ $total > 0 ? round(($uploaded/$total)*100) : 0 }}%"></div>
                 </div>
             </div>
-        </div>        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {{-- Kiri: Checklist --}}
-            <div class="lg:col-span-2 space-y-6">
-                {{-- Checklist Table & Upload Form --}}
+            </div>
+
+            {{-- Checklist Table & Upload Form --}}
                 <div class="bg-surface rounded-card shadow-sm border border-border overflow-hidden" x-data="{ isSubmitting: false }">
                         <div class="p-6 border-b border-border bg-gray-50 flex items-center justify-between">
                             <div>
@@ -129,26 +105,7 @@
                                     </div>
 
                                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 lg:gap-4 flex-shrink-0">
-                                        @if($pjkades->metode === 'online')
-                                            @if($item->file_path)
-                                                <a href="{{ Storage::disk('public')->url($item->file_path) }}" target="_blank" class="flex items-center text-xs font-medium text-primary hover:text-primary-light transition-colors bg-primary-soft/10 px-3 py-1.5 rounded-full">
-                                                    <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                                                    Lihat File
-                                                </a>
-                                            @endif
-                                            
-                                            @if(in_array($pjkades->status, ['draft', 'rejected']))
-                                                <form action="{{ route('desa.pjkades.upload', [$pjkades->id, $item->id]) }}" method="POST" enctype="multipart/form-data" class="flex items-center gap-2">
-                                                    @csrf
-                                                    <input type="file" name="file_dokumen" accept=".pdf,.jpg,.jpeg,.png" class="text-[10px] w-48" required>
-                                                    <button type="submit" class="px-2 py-1 bg-primary text-white text-[10px] font-medium rounded hover:bg-primary-light whitespace-nowrap">
-                                                        {{ $item->file_path ? 'Ganti File' : 'Unggah' }}
-                                                    </button>
-                                                </form>
-                                            @elseif(!$item->file_path)
-                                                <span class="inline-block px-2 py-1 bg-gray-100 text-gray-500 text-xs font-medium rounded border border-gray-200">Belum Terunggah</span>
-                                            @endif
-                                        @endif
+
 
                                         @if($item->status_verifikasi === 'valid')
                                             <div class="flex items-center text-success text-sm font-medium whitespace-nowrap">
@@ -172,18 +129,33 @@
 
                     <form method="POST" action="{{ route('desa.pjkades.bulkUpload', $pjkades->id) }}" enctype="multipart/form-data" @submit="isSubmitting = true">
                         @csrf
-                        @if($pjkades->metode === 'online' && in_array($pjkades->status, ['draft', 'rejected']))
-                        <div class="px-6 py-6 bg-white border-t border-border">
-                            <label class="block text-sm font-medium text-ink mb-2">Unggah Keseluruhan Persyaratan (.ZIP / .RAR / .PDF)</label>
-                            <input type="file" name="berkas_zip" accept=".zip,.rar,.pdf" 
-                                   class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary-light file:cursor-pointer cursor-pointer focus:outline-none border border-border rounded-md p-2">
-                            @if($pjkades->berkas_zip)
-                                <div class="mt-3 text-sm text-success flex items-center">
-                                    <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                    Berkas telah diunggah. <a href="{{ Storage::disk('public')->url($pjkades->berkas_zip) }}" target="_blank" class="ml-2 underline text-primary">Unduh / Lihat</a>
+                        @if($pjkades->metode === 'online')
+                            @if(in_array($pjkades->status, ['draft', 'rejected']))
+                            <div class="px-6 py-6 bg-white border-t border-border">
+                                <label class="block text-sm font-medium text-ink mb-2">Unggah Keseluruhan Persyaratan (.ZIP / .RAR / .PDF)</label>
+                                <input type="file" name="berkas_zip" accept=".zip,.rar,.pdf" 
+                                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary-light file:cursor-pointer cursor-pointer focus:outline-none border border-border rounded-md p-2">
+                                @if($pjkades->berkas_zip)
+                                    <div class="mt-3 text-sm text-success flex items-center">
+                                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                        Berkas telah diunggah. <a href="{{ Storage::disk('public')->url($pjkades->berkas_zip) }}" target="_blank" class="ml-2 underline text-primary">Unduh / Lihat</a>
+                                    </div>
+                                @endif
+                            </div>
+                            @else
+                                @if($pjkades->berkas_zip)
+                                <div class="px-6 py-5 bg-gray-50 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                    <div class="flex items-center text-sm font-medium text-ink">
+                                        <span class="material-symbols-outlined text-[20px] text-primary mr-2">folder_zip</span>
+                                        Berkas Keseluruhan Persyaratan (ZIP/PDF)
+                                    </div>
+                                    <a href="{{ Storage::disk('public')->url($pjkades->berkas_zip) }}" target="_blank" class="inline-flex items-center text-sm text-primary hover:text-primary-light font-medium bg-primary-soft/10 px-4 py-2 rounded-lg transition-colors">
+                                        <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                        Unduh / Lihat Berkas
+                                    </a>
                                 </div>
+                                @endif
                             @endif
-                        </div>
                         @endif
 
                         @if($pjkades->catatan_admin)

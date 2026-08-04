@@ -71,9 +71,18 @@
                                 @endif
                             </td>
                             <td class="px-6 py-4 font-medium text-center whitespace-nowrap">
-                                <a href="{{ route('admin.ajuan.show', $ajuan) }}" class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded-btn bg-primary text-white hover:bg-primary-light transition-colors shadow-sm">
-                                    Verifikasi Split-Screen
-                                </a>
+                                <div class="flex items-center justify-center gap-2">
+                                    <a href="{{ route('admin.ajuan.show', $ajuan) }}" class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded bg-primary text-white hover:bg-primary-light transition-all hover:scale-105 shadow-sm">
+                                        Verifikasi Split-Screen
+                                    </a>
+                                    <form action="{{ route('admin.ajuan.destroy', $ajuan->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data usulan ini secara permanen? Semua berkas terkait akan ikut terhapus.');" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="inline-flex items-center px-2 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 text-xs font-medium rounded border border-red-200 transition-all hover:scale-105" title="Hapus">
+                                            <span class="material-symbols-outlined text-[16px]">delete</span>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty

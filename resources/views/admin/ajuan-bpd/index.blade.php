@@ -13,7 +13,7 @@
                         <th class="py-3 px-4 text-xs font-bold text-muted uppercase tracking-wider">Metode</th>
                         <th class="py-3 px-4 text-xs font-bold text-muted uppercase tracking-wider">Tgl Diajukan</th>
                         <th class="py-3 px-4 text-xs font-bold text-muted uppercase tracking-wider">Status</th>
-                        <th class="py-3 px-4 text-xs font-bold text-muted uppercase tracking-wider text-right">Aksi</th>
+                        <th class="py-3 px-4 text-center text-xs font-bold text-muted uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border">
@@ -35,12 +35,43 @@
                                 {{ $ajuan->tgl_diajukan ? \Carbon\Carbon::parse($ajuan->tgl_diajukan)->translatedFormat('d M Y') : '-' }}
                             </td>
                             <td class="py-3 px-4">
-                                <span class="px-2 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded">
-                                    {{ strtoupper($ajuan->status) }}
-                                </span>
+                                @if($ajuan->status === 'menunggu_verifikasi')
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold tracking-wide uppercase bg-blue-100 text-blue-800">
+                                        Perlu Verifikasi
+                                    </span>
+                                @elseif($ajuan->status === 'revisi')
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold tracking-wide uppercase bg-amber-100 text-amber-800">
+                                        Revisi
+                                    </span>
+                                @elseif($ajuan->status === 'diproses')
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold tracking-wide uppercase bg-purple-100 text-purple-800">
+                                        Diproses
+                                    </span>
+                                @elseif($ajuan->status === 'selesai')
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold tracking-wide uppercase bg-green-100 text-green-800">
+                                        Selesai
+                                    </span>
+                                @elseif($ajuan->status === 'ditolak')
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold tracking-wide uppercase bg-red-100 text-red-800">
+                                        Ditolak
+                                    </span>
+                                @else
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold tracking-wide uppercase bg-gray-100 text-gray-800">
+                                        {{ str_replace('_', ' ', $ajuan->status) }}
+                                    </span>
+                                @endif
                             </td>
-                            <td class="py-3 px-4 text-right">
-                                <a href="{{ route('admin.ajuan-bpd.show', $ajuan) }}" class="text-sm font-bold text-primary hover:underline">Verifikasi</a>
+                            <td class="py-3 px-4 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <a href="{{ route('admin.ajuan-bpd.show', $ajuan) }}" class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded bg-primary text-white hover:bg-primary-light transition-all hover:scale-105 shadow-sm">Verifikasi</a>
+                                    <form action="{{ route('admin.ajuan-bpd.destroy', $ajuan->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus ajuan BPD ini secara permanen? Semua berkas terkait akan ikut terhapus.');" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="inline-flex items-center px-2 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 text-xs font-medium rounded border border-red-200 transition-all hover:scale-105" title="Hapus">
+                                            <span class="material-symbols-outlined text-[16px]">delete</span>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty

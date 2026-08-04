@@ -1,7 +1,7 @@
 <x-app-layout>
     @section('title', 'Tinjau Regulasi')
 
-    <div class="mb-4 flex items-center justify-between">
+    <div class="mb-4 flex flex-wrap items-center gap-3">
         <a href="{{ route('admin.regulasi.index') }}"
             class="text-sm font-medium text-slate-500 hover:text-slate-800 flex items-center gap-1 transition-colors">
             <span class="material-symbols-outlined text-[18px]">arrow_back</span>

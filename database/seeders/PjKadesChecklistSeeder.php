@@ -18,13 +18,13 @@ class PjKadesChecklistSeeder extends Seeder
         // 2. Alasan Pemberhentian / Cuti (We use these as the specific category the user selects)
         $alasanList = [
             // Definitif (Pj Kades)
-            'Pemberhentian Kades karena Meninggal Dunia' => 'definitif',
-            'Pemberhentian Kades karena Permintaan Sendiri' => 'definitif',
-            'Pemberhentian Kades karena Diberhentikan dengan Tidak Hormat' => 'definitif',
+            'Meninggal Dunia' => 'definitif',
+            'Permintaan Sendiri' => 'definitif',
+            'Diberhentikan' => 'definitif',
             'Pengangkatan Pj Kades' => 'definitif',
 
             // Sementara / Cuti (Plt Kades)
-            'Pemberhentian Kades Sementara' => 'sementara',
+            'Pemberhentian Sementara' => 'sementara',
             'Pengangkatan Plt Kades' => 'sementara',
             'Cuti Sakit' => 'sementara',
             'Cuti Tahunan' => 'sementara',
@@ -43,59 +43,59 @@ class PjKadesChecklistSeeder extends Seeder
 
         // --- 1. Karena Meninggal Dunia ---
         $docsMeninggal = [
-            'Surat pengantar dr kec kepada bupati',
-            'Surat permohonan pemberhentian kades dari kecamatan, kpd bupati cq kadispermasdes',
-            'Surat permohonan pemberhentian kades dari bpd kpd bupati lwt camat',
-            'SK pengangkatan kades induk dan penambahan',
-            'Surat kematian',
-            'Fc kk kades',
-            'Fc ktp kades',
-            'Undangan rapat/musyawarah, daftarhadir, Berita acara, dokumentasi rapat bpd ttg pemberhentian kades',
+            'Surat Pengantar dari Kecamatan kepada Bupati',
+            'Surat Permohonan Pemberhentian Kades dari Kecamatan kepada Bupati c.q. Kepala Dinpermasdes',
+            'Surat Permohonan Pemberhentian Kades dari BPD kepada Bupati melalui Camat',
+            'SK Pengangkatan Kades Induk dan Penambahan',
+            'Surat Kematian',
+            'Fotokopi KK Kades',
+            'Fotokopi KTP Kades',
+            'Undangan Rapat/Musyawarah, Daftar Hadir, Berita Acara, dan Dokumentasi Rapat BPD tentang Pemberhentian Kades',
         ];
-        $this->createTemplates($layananPj->id, $alasanModels['Pemberhentian Kades karena Meninggal Dunia']->id, $docsMeninggal);
+        $this->createTemplates($layananPj->id, $alasanModels['Meninggal Dunia']->id, $docsMeninggal);
 
         // --- 2. Karena Permintaan Sendiri ---
         $docsPermintaanSendiri = [
-            'Surat pengantar dr kec kepada bupati',
-            'Surat permohonan pemberhentian kades dari kecamatan, kpd bupati cq kadispermasdes',
-            'Surat permohonan pemberhentian kades dari bpd kpd bupati lwt camat',
-            'SK pengangkatan kades induk dan penambahan',
-            'Surat pengunduran diri bermaterai',
-            'Fc kk kades',
-            'Fc ktp kades',
-            'Undangan rapat/musyawarah, daftarhadir, Berita acara, dokumentasi rapat bpd ttg pemberhentian kades',
+            'Surat Pengantar dari Kecamatan kepada Bupati',
+            'Surat Permohonan Pemberhentian Kades dari Kecamatan kepada Bupati c.q. Kepala Dinpermasdes',
+            'Surat Permohonan Pemberhentian Kades dari BPD kepada Bupati melalui Camat',
+            'SK Pengangkatan Kades Induk dan Penambahan',
+            'Surat Pengunduran Diri Bermeterai',
+            'Fotokopi KK Kades',
+            'Fotokopi KTP Kades',
+            'Undangan Rapat/Musyawarah, Daftar Hadir, Berita Acara, dan Dokumentasi Rapat BPD tentang Pemberhentian Kades',
         ];
-        $this->createTemplates($layananPj->id, $alasanModels['Pemberhentian Kades karena Permintaan Sendiri']->id, $docsPermintaanSendiri);
+        $this->createTemplates($layananPj->id, $alasanModels['Permintaan Sendiri']->id, $docsPermintaanSendiri);
 
         // --- 3. Karena Diberhentikan Dengan Tidak Hormat ---
         $docsDiberhentikan = [
-            'Surat pengantar dr kec kepada bupati',
-            'Surat permohonan pemberhentian kades dari kecamatan, kpd bupati cq kadispermasdes',
-            'Surat permohonan pemberhentian kades dari bpd kpd bupati lwt camat',
-            'SK pengangkatan kades induk dan penambahan',
-            'Surat pelanggaran disiplin/Dinyatakan sebagai terpidana berdasarkan putusan pengadilan yang telah mempunyai kekuatan hukum tetap',
-            'Fc kk kades',
-            'Fc ktp kades',
-            'Laporan bpd, undangan rapat/musyawarah, daftarhadir, Berita acara, dokumentasi rapat bpd ttg pemberhentian kades',
+            'Surat Pengantar dari Kecamatan kepada Bupati',
+            'Surat Permohonan Pemberhentian Kades dari Kecamatan kepada Bupati c.q. Kepala Dinpermasdes',
+            'Surat Permohonan Pemberhentian Kades dari BPD kepada Bupati melalui Camat',
+            'SK Pengangkatan Kades Induk dan Penambahan',
+            'Surat Pelanggaran Disiplin/Dinyatakan sebagai Terpidana berdasarkan Putusan Pengadilan yang telah Berkekuatan Hukum Tetap',
+            'Fotokopi KK Kades',
+            'Fotokopi KTP Kades',
+            'Laporan BPD, Undangan Rapat/Musyawarah, Daftar Hadir, Berita Acara, dan Dokumentasi Rapat BPD tentang Pemberhentian Kades',
         ];
-        $this->createTemplates($layananPj->id, $alasanModels['Pemberhentian Kades karena Diberhentikan dengan Tidak Hormat']->id, $docsDiberhentikan);
+        $this->createTemplates($layananPj->id, $alasanModels['Diberhentikan']->id, $docsDiberhentikan);
 
         // --- 4. Pengangkatan Pj Kades ---
         $docsPengangkatanPj = [
-            'Surat pengantar dr kec kpd bupati',
-            'Surat usulan pj kades dari sekdes kpd bupati lewat camat',
-            'Fc sk pns (calon pj kades) yg diusulkan',
-            'Surat pernyataan kesediaan menjadi pj kades bermaterai',
-            'Fc ijazah calon pj kades',
-            'Fc ktp calon pj kades',
-            'Fc kk calon pj kades',
-            'Surat pernyataan kebenaran dokumen dari sekdes bermaterai',
-            'Surat pernyataan kebenaran dokumen dari calon pj kades',
-            'Surat keterangan pimpinan tempat bekerja calon pj kades terkait pencalonan ybs menjadi pj kades',
-            'Permohonan rekom penunjukan kades di ttd sekdes dan ketua bpd kpd camat',
-            'Rekomendasi camat ttg penunjukan pj kades',
-            'Surat pernyataan persetujuan penunjukan pj kades atas rekomendasi camat di ttd sekdes dan ketua bpd',
-            'Undangan daftar hadir BA dokumentasi rapat penunjukkan pj kades',
+            'Surat Pengantar dari Kecamatan kepada Bupati',
+            'Surat Usulan Pj Kades dari Sekdes kepada Bupati melalui Camat',
+            'Fotokopi SK PNS (Calon Pj Kades) yang Diusulkan',
+            'Surat Pernyataan Kesediaan Menjadi Pj Kades Bermeterai',
+            'Fotokopi Ijazah Calon Pj Kades',
+            'Fotokopi KTP Calon Pj Kades',
+            'Fotokopi KK Calon Pj Kades',
+            'Surat Pernyataan Kebenaran Dokumen dari Sekdes Bermeterai',
+            'Surat Pernyataan Kebenaran Dokumen dari Calon Pj Kades Bermeterai',
+            'Surat Keterangan Pimpinan Tempat Bekerja Calon Pj Kades terkait Pencalonan Ybs Menjadi Pj Kades',
+            'Permohonan Rekomendasi Penunjukan Pj Kades yang Ditandatangani Sekdes dan Ketua BPD kepada Camat',
+            'Rekomendasi Camat tentang Penunjukan Pj Kades',
+            'Surat Pernyataan Persetujuan Penunjukan Pj Kades atas Rekomendasi Camat yang Ditandatangani Sekdes dan Ketua BPD',
+            'Undangan, Daftar Hadir, Berita Acara, dan Dokumentasi Rapat Penunjukan Pj Kades',
         ];
         $this->createTemplates($layananPj->id, $alasanModels['Pengangkatan Pj Kades']->id, $docsPengangkatanPj);
 
@@ -105,25 +105,25 @@ class PjKadesChecklistSeeder extends Seeder
 
         // --- 5. Pemberhentian Kades Sementara ---
         $docsSementara = [
-            'Surat pengantar dr kec kepada bupati',
-            'Surat permohonan pemberhentian sementara kades dari kecamatan, kpd bupati cq kadispermasdes',
-            'Surat permohonan pemberhentian sementara kades dari bpd kpd bupati lwt camat',
-            'SK pengangkatan kades induk dan penambahan',
-            'Bukti melanggar larangan/pelanggaran disiplin/penetapan terdakwa paling singkat 5 tahun, penetapan tersangka belum ada putusan pengadilan yang telah mempunyai kekuatan hukum tetap',
-            'Fc kk kades',
-            'Fc ktp kades',
-            'Laporan bpd, undangan rapat/musyawarah, daftarhadir, Berita acara, dokumentasi rapat bpd ttg pemberhentian kades',
+            'Surat Pengantar dari Kecamatan kepada Bupati',
+            'Surat Permohonan Pemberhentian Sementara Kades dari Kecamatan kepada Bupati c.q. Kepala Dinpermasdes',
+            'Surat Permohonan Pemberhentian Sementara Kades dari BPD kepada Bupati melalui Camat',
+            'SK Pengangkatan Kades Induk dan Penambahan',
+            'Bukti Melanggar Larangan/Pelanggaran Disiplin/Penetapan Terdakwa Paling Singkat 5 Tahun/Penetapan Tersangka Belum Ada Putusan Pengadilan yang telah Berkekuatan Hukum Tetap',
+            'Fotokopi KK Kades',
+            'Fotokopi KTP Kades',
+            'Laporan BPD, Undangan Rapat/Musyawarah, Daftar Hadir, Berita Acara, dan Dokumentasi Rapat BPD tentang Pemberhentian Kades',
         ];
-        $this->createTemplates($layananPlt->id, $alasanModels['Pemberhentian Kades Sementara']->id, $docsSementara);
+        $this->createTemplates($layananPlt->id, $alasanModels['Pemberhentian Sementara']->id, $docsSementara);
 
         // --- 6. Pengangkatan Plt Kades ---
         $docsPengangkatanPlt = [
-            'Surat pengantar dari kecamatan',
-            'Surat permohonan usulan pelaksana tugas kepala desa dari camat kepada bupati banyumas c.q. kepala dinpermasdes',
-            'Surat permohonan usulan pelaksana tugas dari kepala desa kepada bupati banyumas melalui camat',
-            'SK kades tentang pengangkatan sekdes',
-            'Fc ktp sekdes',
-            'Fc kk sekdes',
+            'Surat Pengantar dari Kecamatan',
+            'Surat Permohonan Usulan Pelaksana Tugas Kepala Desa dari Camat kepada Bupati Banyumas c.q. Kepala Dinpermasdes',
+            'Surat Permohonan Usulan Pelaksana Tugas dari Kepala Desa kepada Bupati Banyumas melalui Camat',
+            'SK Kades tentang Pengangkatan Sekdes',
+            'Fotokopi KTP Sekdes',
+            'Fotokopi KK Sekdes',
         ];
         $this->createTemplates($layananPlt->id, $alasanModels['Pengangkatan Plt Kades']->id, $docsPengangkatanPlt);
 

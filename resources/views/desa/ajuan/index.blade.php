@@ -26,19 +26,21 @@
             <table class="min-w-full divide-y divide-border">
                 <thead>
                     <tr class="bg-gray-50">
-                        <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">No. Registrasi / Tgl</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">No. Registrasi / Tanggal</th>
                         <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Jenis Layanan</th>
                         <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Perangkat Desa</th>
-                        <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Progres & Tahap</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Kelengkapan Dokumen</th>
+                        <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Status</th>
                         <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-border">
                     @forelse($ajuans as $ajuan)
                         @php
-                            $slaHariBerjalan = $ajuan->tgl_diajukan ? now()->diffInDaysFiltered(fn($d) => !$d->isWeekend(), $ajuan->tgl_diajukan) : 0;
-                            $tahapAktif = $ajuan->milestoneTrackings->where('tgl_selesai', null)->min('tahap')
-                                ?? ($ajuan->milestoneTrackings->max('tahap') + 1 ?: 1);
+                            $totalChecklist = $ajuan->checklistAjuans->count();
+                            $uploadedChecklist = $ajuan->checklistAjuans->whereNotNull('file_path')->count();
+                            $approvedChecklist = $ajuan->checklistAjuans->whereIn('status', ['lengkap', 'valid', 'terverifikasi'])->count();
+                            $percent = $totalChecklist > 0 ? round(($uploadedChecklist / $totalChecklist) * 100) : 0;
                         @endphp
                         <tr class="hover:bg-gray-50 transition-colors group">
                             <td class="px-6 py-4 whitespace-nowrap">
@@ -54,7 +56,7 @@
                                         default => 'bg-gray-100 text-muted'
                                     };
                                 @endphp
-                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $badgeColor }}">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold {{ $badgeColor }}">
                                     {{ $ajuan->jenisLayanan->nama }}
                                 </span>
                                 <div class="text-xs text-muted mt-1 uppercase font-bold">{{ $ajuan->metode }}</div>
@@ -68,32 +70,42 @@
                                 </div>
                                 <div class="text-xs text-muted">{{ $ajuan->pesertas->first() ? $ajuan->pesertas->first()->perangkatDesa->jabatan : '-' }}</div>
                             </td>
-                            <td class="px-6 py-4">
-                                <div class="flex items-center gap-2 mb-1">
-                                    @php
-                                        $statusLabel = ['submitted' => 'Menunggu Verifikasi', 'direvisi' => 'Perlu Perbaikan', 'diproses' => 'Sedang Diproses', 'selesai' => 'Selesai', 'draft' => 'Draft'];
-                                        $statusWarna = ['submitted' => 'bg-blue-100 text-blue-700', 'direvisi' => 'bg-red-100 text-danger', 'diproses' => 'bg-yellow-100 text-warning', 'selesai' => 'bg-green-100 text-success', 'draft' => 'bg-gray-100 text-muted'];
-                                    @endphp
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium {{ $statusWarna[$ajuan->status] ?? 'bg-gray-100 text-muted' }}">
-                                        {{ $statusLabel[$ajuan->status] ?? $ajuan->status }}
-                                    </span>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center gap-2">
+                                    <div class="w-24 bg-gray-200 rounded-full h-2 overflow-hidden">
+                                        <div class="bg-primary h-2 rounded-full" style="width: {{ $percent }}%"></div>
+                                    </div>
+                                    <span class="text-xs font-bold text-ink">{{ $uploadedChecklist }}/{{ $totalChecklist }}</span>
                                 </div>
-                                @if(in_array($ajuan->status, ['submitted', 'direvisi', 'diproses']))
-                                    <p class="text-xs text-ink font-medium">Tahap {{ $tahapAktif <= 9 ? $tahapAktif : 9 }}/9</p>
-                                    <p class="text-xs text-muted mt-0.5">Berjalan: {{ $slaHariBerjalan }} HK (Maks 20 HK)</p>
-                                @elseif($ajuan->status === 'selesai')
-                                    <p class="text-xs text-success font-medium">Rekomendasi Terbit</p>
-                                @endif
+                                <div class="text-xs text-muted mt-1">{{ $approvedChecklist }} disetujui</div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
-                                <a href="{{ route('desa.ajuan.show', $ajuan) }}" class="inline-flex items-center px-4 py-2 bg-primary-soft text-primary text-sm font-medium rounded-btn hover:bg-primary hover:text-white transition-all group-hover:scale-105">
-                                    Lihat & Upload Dokumen
-                                </a>
+                                @php
+                                    $statusLabel = ['submitted' => 'Menunggu Verifikasi', 'direvisi' => 'Perlu Perbaikan', 'diproses' => 'Sedang Diproses', 'selesai' => 'Selesai', 'draft' => 'Draft'];
+                                    $statusWarna = ['submitted' => 'bg-blue-100 text-blue-700', 'direvisi' => 'bg-red-100 text-danger', 'diproses' => 'bg-yellow-100 text-warning', 'selesai' => 'bg-green-100 text-success', 'draft' => 'bg-gray-100 text-muted'];
+                                @endphp
+                                <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium {{ $statusWarna[$ajuan->status] ?? 'bg-gray-100 text-muted' }}">
+                                    {{ $statusLabel[$ajuan->status] ?? $ajuan->status }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <a href="{{ route('desa.ajuan.show', $ajuan) }}" class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded bg-primary text-white hover:bg-primary-light transition-all hover:scale-105 shadow-sm">
+                                        Lihat & Unggah
+                                    </a>
+                                    <form action="{{ route('desa.ajuan.destroy', $ajuan->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus usulan ini secara permanen? Semua berkas terkait akan ikut terhapus.');" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="inline-flex items-center px-2 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 text-xs font-medium rounded border border-red-200 transition-all hover:scale-105" title="Hapus">
+                                            <span class="material-symbols-outlined text-[16px]">delete</span>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="5" class="p-0">
+                            <td colspan="6" class="p-0">
                                 <x-empty-state 
                                     icon="<path stroke-linecap='round' stroke-linejoin='round' d='M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2' />"
                                     title="Belum ada ajuan yang dibuat"

@@ -34,7 +34,7 @@
                         <th class="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Tgl Pengajuan</th>
                         <th class="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Judul Kegiatan</th>
                         <th class="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                        <th class="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Aksi</th>
+                        <th class="py-3 px-4 text-center text-xs font-semibold text-slate-500 uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -51,10 +51,19 @@
                                 {{ ucfirst($pengajuan->status) }}
                             </span>
                         </td>
-                        <td class="py-3 px-4 text-right">
-                            <a href="{{ route('desa.pengajuan-pembinaan.show', $pengajuan->id) }}" class="text-blue-600 hover:text-blue-800 text-sm font-semibold transition-all inline-block group-hover:translate-x-1">
-                                Detail
-                            </a>
+                        <td class="py-3 px-4 text-center">
+                            <div class="flex items-center justify-center gap-2">
+                                <a href="{{ route('desa.pengajuan-pembinaan.show', $pengajuan->id) }}" class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded bg-primary text-white hover:bg-primary-light transition-all hover:scale-105 shadow-sm">
+                                    Detail
+                                </a>
+                                <form action="{{ route('desa.pengajuan-pembinaan.destroy', $pengajuan->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data pengajuan pembinaan ini secara permanen?');" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="inline-flex items-center px-2 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 text-xs font-medium rounded border border-red-200 transition-all hover:scale-105" title="Hapus">
+                                        <span class="material-symbols-outlined text-[16px]">delete</span>
+                                    </button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                     @empty

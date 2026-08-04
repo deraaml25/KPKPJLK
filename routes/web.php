@@ -54,6 +54,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
     Route::get('/ajuan/{ajuan}', [AjuanController::class, 'show'])->name('ajuan.show');
     Route::patch('/ajuan/{ajuan}/checklist/{checklistAjuan}/verifikasi', [AjuanController::class, 'verifikasiChecklist'])->name('ajuan.verifikasi-checklist');
     Route::post('/ajuan/{ajuan}/milestone', [AjuanController::class, 'updateMilestone'])->name('ajuan.update-milestone');
+    Route::delete('/ajuan/{ajuan}', [AjuanController::class, 'destroy'])->name('ajuan.destroy');
 
     // Arsip
     Route::get('/arsip', [ArsipRekomController::class, 'index'])->name('arsip.index');
@@ -71,6 +72,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
     Route::get('/regulasi/{regulasi}', [RegulasiController::class, 'show'])->name('regulasi.show');
     Route::post('/regulasi/{regulasi}/kembalikan', [RegulasiController::class, 'kembalikanUntukRevisi'])->name('regulasi.kembalikan');
     Route::post('/regulasi/{regulasi}/setujui', [RegulasiController::class, 'setujuiDraft'])->name('regulasi.setujui');
+    Route::delete('/regulasi/{regulasi}', [RegulasiController::class, 'destroy'])->name('regulasi.destroy');
     // Modul 2: e-Bimtek (Admin) - Removed by request
     // Modul 2b: Informasi & Berita Pembinaan (Admin CRUD)
     Route::get('/bimtek-informasi', [BimtekInformasiController::class, 'index'])->name('bimtek-informasi.index');
@@ -85,6 +87,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
     Route::get('/pengajuan-pembinaan', [PengajuanPembinaanController::class, 'index'])->name('pengajuan-pembinaan.index');
     Route::get('/pengajuan-pembinaan/{pengajuanPembinaan}', [PengajuanPembinaanController::class, 'show'])->name('pengajuan-pembinaan.show');
     Route::post('/pengajuan-pembinaan/{pengajuanPembinaan}/balas', [PengajuanPembinaanController::class, 'balas'])->name('pengajuan-pembinaan.balas');
+    Route::delete('/pengajuan-pembinaan/{pengajuanPembinaan}', [PengajuanPembinaanController::class, 'destroy'])->name('pengajuan-pembinaan.destroy');
 
     // Modul 4: e-Siltap (Admin)
     Route::get('/siltap', [SiltapController::class, 'index'])->name('siltap.index');
@@ -101,6 +104,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
     Route::post('/pjkades/{pjkades}/generate-sk', [PjKadesController::class, 'generateSk'])->name('pjkades.generate-sk');
     Route::post('/pjkades/{pjkades}/update-catatan', [PjKadesController::class, 'updateCatatanAdmin'])->name('pjkades.update-catatan');
     Route::post('/pjkades/{pjkades}/disposisi', [PjKadesController::class, 'updateDisposisi'])->name('pjkades.disposisi');
+    Route::delete('/pjkades/{pjkades}', [PjKadesController::class, 'destroy'])->name('pjkades.destroy');
 
     // Modul 6: e-Izin Calon (Admin)
     Route::get('/izincalon', [IzinCalonController::class, 'index'])->name('izincalon.index');
@@ -151,6 +155,7 @@ Route::middleware(['auth', 'role:desa'])->prefix('desa')->name('desa.')->group(f
     Route::get('/ajuan/{ajuan}', [App\Http\Controllers\Desa\AjuanController::class, 'show'])->name('ajuan.show');
     Route::post('/ajuan/{ajuan}/upload/{checklistAjuan}', [App\Http\Controllers\Desa\AjuanController::class, 'uploadDokumen'])->name('ajuan.upload');
     Route::post('/ajuan/{ajuan}/bulk-upload', [App\Http\Controllers\Desa\AjuanController::class, 'bulkUpload'])->name('ajuan.bulk-upload');
+    Route::delete('/ajuan/{ajuan}', [App\Http\Controllers\Desa\AjuanController::class, 'destroy'])->name('ajuan.destroy');
 
     Route::get('/arsip', [ArsipController::class, 'index'])->name('arsip.index');
     // Modul 1: e-Regulasi (Desa)
@@ -159,6 +164,7 @@ Route::middleware(['auth', 'role:desa'])->prefix('desa')->name('desa.')->group(f
     Route::get('/regulasi/{regulasi}', [App\Http\Controllers\Desa\RegulasiController::class, 'show'])->name('regulasi.show');
     Route::post('/regulasi', [App\Http\Controllers\Desa\RegulasiController::class, 'store'])->name('regulasi.store');
     Route::post('/regulasi/{regulasi}/kirim-revisi', [App\Http\Controllers\Desa\RegulasiController::class, 'kirimRevisi'])->name('regulasi.kirim-revisi');
+    Route::delete('/regulasi/{regulasi}', [App\Http\Controllers\Desa\RegulasiController::class, 'destroy'])->name('regulasi.destroy');
 
     // Modul 2: e-Bimtek (Desa) - Removed by request
     // Modul 2b: Informasi & Berita Pembinaan (Desa)
@@ -169,6 +175,7 @@ Route::middleware(['auth', 'role:desa'])->prefix('desa')->name('desa.')->group(f
     Route::get('/pengajuan-pembinaan/buat', [App\Http\Controllers\Desa\PengajuanPembinaanController::class, 'create'])->name('pengajuan-pembinaan.create');
     Route::post('/pengajuan-pembinaan', [App\Http\Controllers\Desa\PengajuanPembinaanController::class, 'store'])->name('pengajuan-pembinaan.store');
     Route::get('/pengajuan-pembinaan/{pengajuanPembinaan}', [App\Http\Controllers\Desa\PengajuanPembinaanController::class, 'show'])->name('pengajuan-pembinaan.show');
+    Route::delete('/pengajuan-pembinaan/{pengajuanPembinaan}', [App\Http\Controllers\Desa\PengajuanPembinaanController::class, 'destroy'])->name('pengajuan-pembinaan.destroy');
 
     // Modul 4: e-Siltap (Desa)
     Route::get('/siltap', [App\Http\Controllers\Desa\SiltapController::class, 'index'])->name('siltap.index');
@@ -184,6 +191,7 @@ Route::middleware(['auth', 'role:desa'])->prefix('desa')->name('desa.')->group(f
     Route::post('/pjkades/{pjkades}/upload/{checklistPjKades}', [App\Http\Controllers\Desa\PjKadesController::class, 'uploadChecklist'])->name('pjkades.upload');
     Route::post('/pjkades/{pjkades}/bulk-upload', [App\Http\Controllers\Desa\PjKadesController::class, 'bulkUpload'])->name('pjkades.bulkUpload');
     Route::post('/pjkades/{pjkades}/submit', [App\Http\Controllers\Desa\PjKadesController::class, 'submitUsulan'])->name('pjkades.submit');
+    Route::delete('/pjkades/{pjkades}', [App\Http\Controllers\Desa\PjKadesController::class, 'destroy'])->name('pjkades.destroy');
 
     // Modul 6: e-Izin Calon (Desa)
     Route::get('/izincalon', [App\Http\Controllers\Desa\IzinCalonController::class, 'index'])->name('izincalon.index');
@@ -252,6 +260,7 @@ Route::middleware(['auth', 'role:super_admin'])->prefix('admin')->name('admin.')
     Route::post('/ajuan-bpd/{ajuanBpd}/verify-checklist/{checklist}', [AjuanBpdController::class, 'verifyChecklist'])->name('ajuan-bpd.verify-checklist');
     Route::post('/ajuan-bpd/{ajuanBpd}/catatan', [AjuanBpdController::class, 'updateCatatanAdmin'])->name('ajuan-bpd.catatan');
     Route::post('/ajuan-bpd/{ajuanBpd}/disposisi', [AjuanBpdController::class, 'updateDisposisi'])->name('ajuan-bpd.disposisi');
+    Route::delete('/ajuan-bpd/{ajuanBpd}', [AjuanBpdController::class, 'destroy'])->name('ajuan-bpd.destroy');
 
     Route::get('/penataan', [PenataanController::class, 'index'])->name('penataan.index');
 });

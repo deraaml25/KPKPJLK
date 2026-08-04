@@ -331,4 +331,24 @@ class AjuanController extends Controller
 
         return $tanggal;
     }
+
+    public function destroy(Ajuan $ajuan)
+    {
+        if ($ajuan->desa_id !== Auth::user()->desa_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        // Hapus file fisik di storage
+        if ($ajuan->folder_path && Storage::disk('public')->exists($ajuan->folder_path)) {
+            Storage::disk('public')->deleteDirectory($ajuan->folder_path);
+        }
+
+        // Hapus data relasi dan utama
+        $ajuan->checklistAjuans()->delete();
+        $ajuan->pesertas()->delete();
+        $ajuan->milestoneTrackings()->delete();
+        $ajuan->delete();
+
+        return redirect()->route('desa.ajuan.index')->with('success', 'Data usulan berhasil dihapus.');
+    }
 }

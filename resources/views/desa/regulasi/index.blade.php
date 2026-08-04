@@ -30,14 +30,12 @@
                             class="px-6 py-3 text-left text-xs font-medium text-muted tracking-wider uppercase">Status
                         </th>
                         <th scope="col"
-                            class="px-6 py-3 text-left text-xs font-medium text-muted tracking-wider uppercase">Revisi /
-                            Catatan</th>
+                            class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-border">
                     @forelse ($regulasis as $reg)
                         <tr class="hover:bg-gray-50 transition-colors group">
-
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-mono text-ink font-medium">
                                 {{ $reg->no_regulasi ?? '-' }}
                             </td>
@@ -66,11 +64,20 @@
                                         Verifikasi</span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 text-sm font-medium">
-                                <a href="{{ route('desa.regulasi.show', $reg) }}"
-                                    class="text-primary hover:text-primary-dark transition-all inline-flex items-center group-hover:translate-x-1">
-                                    Lihat Detail &rarr;
-                                </a>
+                            <td class="px-6 py-4 text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <a href="{{ route('desa.regulasi.show', $reg) }}"
+                                        class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded bg-primary text-white hover:bg-primary-light transition-all hover:scale-105 shadow-sm">
+                                        Lihat Detail &rarr;
+                                    </a>
+                                    <form action="{{ route('desa.regulasi.destroy', $reg->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data regulasi ini secara permanen?');" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="inline-flex items-center px-2 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 text-xs font-medium rounded border border-red-200 transition-all hover:scale-105" title="Hapus">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty

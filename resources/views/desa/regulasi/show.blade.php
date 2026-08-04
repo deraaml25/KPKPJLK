@@ -4,11 +4,13 @@
     <div class="w-full">
         <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 mb-6 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
             <div class="flex-1 w-full">
-                <a href="{{ route('desa.regulasi.index') }}"
-                    class="text-sm font-medium text-primary hover:text-primary-light transition-colors inline-flex items-center gap-1.5 mb-3 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg w-fit">
-                    <span class="material-symbols-outlined text-[16px]">arrow_back</span>
-                    Kembali ke Daftar Regulasi
-                </a>
+                <div class="flex flex-wrap items-center gap-2 mb-3 pr-2">
+                    <a href="{{ route('desa.regulasi.index') }}"
+                        class="text-sm font-medium text-primary hover:text-primary-light transition-colors inline-flex items-center gap-1.5 bg-blue-50 hover:bg-blue-100 px-3 py-1.5 rounded-lg w-fit">
+                        <span class="material-symbols-outlined text-[16px]">arrow_back</span>
+                        Kembali ke Daftar Regulasi
+                    </a>
+                </div>
                 <div class="flex items-center gap-3 mb-2 flex-wrap">
                     <h2 class="text-2xl font-display font-bold text-slate-800">{{ $regulasi->judul }}</h2>
                     <span class="inline-flex items-center px-2.5 py-1 rounded-md text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100 shadow-sm uppercase tracking-wider">

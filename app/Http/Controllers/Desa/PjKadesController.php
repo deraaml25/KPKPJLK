@@ -38,21 +38,19 @@ class PjKadesController extends Controller
 
         // Alasan Pj Kades (Definitif)
         $alasanPj = AlasanPemberhentian::whereIn('nama', [
-            'Pemberhentian Kades karena Meninggal Dunia',
-            'Pemberhentian Kades karena Permintaan Sendiri',
-            'Pemberhentian Kades karena Diberhentikan dengan Tidak Hormat',
-            'Pengangkatan Pj Kades',
+            'Meninggal Dunia',
+            'Permintaan Sendiri',
+            'Diberhentikan',
         ])->get();
 
         // Alasan Plt Kades (Sementara)
         $alasanSementara = AlasanPemberhentian::whereIn('nama', [
-            'Pemberhentian Kades Sementara',
+            'Pemberhentian Sementara',
         ])->get();
 
         // Alasan Plt Kades (Cuti)
         $alasanCuti = AlasanPemberhentian::whereIn('nama', [
             'Cuti Sakit',
-            'Cuti Umroh / Haji',
             'Cuti Tahunan',
             'Cuti Bersalin',
             'Cuti Alasan Penting',
@@ -322,5 +320,22 @@ class PjKadesController extends Controller
 
         return redirect()->route('desa.pjkades.index')
             ->with('success', 'Usulan SK Kades berhasil dikirim ke Dinpermasdes untuk proses verifikasi.');
+    }
+
+    public function destroy($id)
+    {
+        $desaId = Auth::user()->desa_id;
+        $pjKades = PjKades::withoutGlobalScopes()
+            ->where('desa_id', $desaId)
+            ->findOrFail($id);
+
+        if ($pjKades->folder_path && Storage::disk('public')->exists($pjKades->folder_path)) {
+            Storage::disk('public')->deleteDirectory($pjKades->folder_path);
+        }
+
+        $pjKades->checklists()->delete();
+        $pjKades->delete();
+
+        return redirect()->route('desa.pjkades.index')->with('success', 'Data Usulan SK Kades berhasil dihapus.');
     }
 }

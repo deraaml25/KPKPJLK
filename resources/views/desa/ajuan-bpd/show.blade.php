@@ -1,7 +1,7 @@
 <x-app-layout>
     @section('title', 'Detail Ajuan BPD: ' . $ajuanBpd->no_registrasi)
 
-    <div class="mb-5 flex flex-wrap items-center justify-between gap-3">
+    <div class="mb-5 flex flex-wrap items-center gap-3">
         <a href="{{ route('desa.ajuan-bpd.index') }}" class="inline-flex items-center text-sm font-medium text-muted hover:text-ink">
             <svg class="w-5 h-5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
             Kembali ke Daftar Ajuan
@@ -28,11 +28,12 @@
             {{-- Header Card --}}
             @php
                 $statusBadge = match($ajuanBpd->status) {
-                    'draft'     => ['label' => 'Draft', 'css' => 'bg-gray-400 text-white'],
-                    'revisi'    => ['label' => 'Perlu Perbaikan', 'css' => 'bg-red-500 text-white'],
-                    'diproses'  => ['label' => 'Sedang Diproses', 'css' => 'bg-yellow-400 text-yellow-900'],
-                    'selesai'   => ['label' => 'Selesai', 'css' => 'bg-green-500 text-white'],
-                    default     => ['label' => $ajuanBpd->status, 'css' => 'bg-gray-400 text-white'],
+                    'draft'               => ['label' => 'Draft', 'css' => 'bg-gray-400 text-white'],
+                    'revisi'              => ['label' => 'Perlu Perbaikan', 'css' => 'bg-red-500 text-white'],
+                    'menunggu_verifikasi' => ['label' => 'Menunggu Verifikasi', 'css' => 'bg-blue-500 text-white'],
+                    'diproses'            => ['label' => 'Sedang Diproses', 'css' => 'bg-yellow-400 text-yellow-900'],
+                    'selesai'             => ['label' => 'Selesai', 'css' => 'bg-green-500 text-white'],
+                    default               => ['label' => $ajuanBpd->status, 'css' => 'bg-gray-400 text-white'],
                 };
             @endphp
 
@@ -115,18 +116,45 @@
                         @endforelse
                     </div>
 
-                    @if($ajuanBpd->metode === 'online' && in_array($ajuanBpd->status, ['draft', 'revisi']))
-                    <div class="px-6 py-6 bg-white border-t border-border">
-                        <label class="block text-sm font-medium text-ink mb-2">Unggah Keseluruhan Persyaratan (.ZIP / .RAR / .PDF)</label>
-                        <input type="file" name="berkas_zip" accept=".zip,.rar,.pdf" 
-                               class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary-light file:cursor-pointer cursor-pointer focus:outline-none border border-border rounded-md p-2">
-                        @if($ajuanBpd->berkas_zip)
-                            <div class="mt-3 text-sm text-success flex items-center">
-                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-                                Berkas telah diunggah. <a href="{{ Storage::disk('public')->url($ajuanBpd->berkas_zip) }}" target="_blank" class="ml-2 underline text-primary">Unduh / Lihat</a>
+                    @if($ajuanBpd->metode === 'online')
+                        @if(in_array($ajuanBpd->status, ['draft', 'revisi']))
+                            <div class="px-6 py-6 bg-white border-t border-border">
+                                @if($ajuanBpd->berkas_zip)
+                                    <div class="mb-5 flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-gray-50 border border-border rounded-lg shadow-sm gap-3">
+                                        <div class="flex items-center text-sm font-medium text-ink">
+                                            <span class="material-symbols-outlined text-[20px] text-primary mr-2">folder_zip</span>
+                                            Berkas Keseluruhan Persyaratan (ZIP/PDF)
+                                        </div>
+                                        <div class="flex items-center gap-3">
+                                            <span class="text-sm text-success font-medium flex items-center">
+                                                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                Telah diunggah
+                                            </span>
+                                            <a href="{{ Storage::disk('public')->url($ajuanBpd->berkas_zip) }}" target="_blank" class="inline-flex items-center text-sm text-primary hover:text-primary-light font-medium bg-primary-soft/10 px-4 py-2 rounded-lg transition-colors">
+                                                <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                                Unduh / Lihat Berkas
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <label class="block text-sm font-medium text-ink mb-2">Ganti Berkas Keseluruhan (.ZIP / .RAR / .PDF)</label>
+                                @else
+                                    <label class="block text-sm font-medium text-ink mb-2">Unggah Keseluruhan Persyaratan (.ZIP / .RAR / .PDF)</label>
+                                @endif
+                                <input type="file" name="berkas_zip" accept=".zip,.rar,.pdf" 
+                                       class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-white hover:file:bg-primary-light file:cursor-pointer cursor-pointer focus:outline-none border border-border rounded-md p-2">
+                            </div>
+                        @elseif($ajuanBpd->berkas_zip)
+                            <div class="px-6 py-5 bg-gray-50 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div class="flex items-center text-sm font-medium text-ink">
+                                    <span class="material-symbols-outlined text-[20px] text-primary mr-2">folder_zip</span>
+                                    Berkas Keseluruhan Persyaratan (ZIP/PDF)
+                                </div>
+                                <a href="{{ Storage::disk('public')->url($ajuanBpd->berkas_zip) }}" target="_blank" class="inline-flex items-center text-sm text-primary hover:text-primary-light font-medium bg-primary-soft/10 px-4 py-2 rounded-lg transition-colors">
+                                    <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                    Unduh / Lihat Berkas
+                                </a>
                             </div>
                         @endif
-                    </div>
                     @endif
 
                     @if($ajuanBpd->catatan_admin)
@@ -138,14 +166,17 @@
 
                     @if(in_array($ajuanBpd->status, ['draft', 'revisi']))
                     <div class="px-6 py-5 bg-gray-50 border-t border-border flex flex-wrap items-center justify-end gap-3">
-                        <button type="submit" name="simpan_draft" value="1" 
+                        <input type="hidden" name="submit_ajuan" id="is_submit_hidden" value="0">
+                        <button type="submit" 
+                                onclick="document.getElementById('is_submit_hidden').value='0'"
                                 :disabled="isSubmitting"
                                 :class="{'opacity-50 cursor-not-allowed': isSubmitting}"
                                 class="px-5 py-2.5 bg-white border border-border rounded-btn text-ink text-sm font-medium hover:bg-gray-50 transition-colors shadow-sm">
                             <span x-show="!isSubmitting">Simpan Draft</span>
                             <span x-show="isSubmitting">Menyimpan...</span>
                         </button>
-                        <button type="submit" name="submit_ajuan" value="1" 
+                        <button type="submit" 
+                                onclick="document.getElementById('is_submit_hidden').value='1'"
                                 :disabled="isSubmitting"
                                 :class="{'opacity-50 cursor-not-allowed': isSubmitting}"
                                 class="px-5 py-2.5 bg-success rounded-btn text-white text-sm font-medium hover:bg-green-700 transition-colors shadow-sm flex items-center">

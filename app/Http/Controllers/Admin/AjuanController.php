@@ -115,6 +115,14 @@ class AjuanController extends Controller
             $ajuan->update(['status' => 'diproses']);
         }
 
+        if ($request->wantsJson()) {
+            return response()->json([
+                'success' => true,
+                'status' => $checklistAjuan->status,
+                'message' => 'Status dokumen berhasil diperbarui.'
+            ]);
+        }
+
         return back()->with('success', 'Status dokumen berhasil diperbarui.');
     }
 
@@ -168,5 +176,19 @@ class AjuanController extends Controller
         $maxTahap = $milestoneTrackings->max('tahap');
 
         return min((int) $maxTahap + 1, 10);
+    }
+
+    public function destroy(Ajuan $ajuan)
+    {
+        if ($ajuan->folder_path && Storage::disk('public')->exists($ajuan->folder_path)) {
+            Storage::disk('public')->deleteDirectory($ajuan->folder_path);
+        }
+
+        $ajuan->checklistAjuans()->delete();
+        $ajuan->pesertas()->delete();
+        $ajuan->milestoneTrackings()->delete();
+        $ajuan->delete();
+
+        return redirect()->route('admin.ajuan.index')->with('success', 'Data usulan e-Rekomendasi berhasil dihapus oleh Admin.');
     }
 }

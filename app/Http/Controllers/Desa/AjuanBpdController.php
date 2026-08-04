@@ -136,7 +136,7 @@ class AjuanBpdController extends Controller
             abort(403);
         }
 
-        $isSubmit = $request->has('submit_ajuan');
+        $isSubmit = $request->input('submit_ajuan') == '1';
 
         $request->validate([
             'berkas_zip' => 'nullable|file|mimes:zip,rar,pdf|max:51200', // 50MB max
@@ -166,7 +166,7 @@ class AjuanBpdController extends Controller
         }
 
         if ($isSubmit) {
-            $ajuanBpd->update(['status' => 'diproses']);
+            $ajuanBpd->update(['status' => 'menunggu_verifikasi']);
 
             MilestoneAjuanBpd::create([
                 'ajuan_bpd_id' => $ajuanBpd->id,
@@ -179,5 +179,28 @@ class AjuanBpdController extends Controller
         }
 
         return back()->with('success', 'Draft dokumen berhasil disimpan.');
+    }
+
+    public function destroy(AjuanBpd $ajuanBpd)
+    {
+        if ($ajuanBpd->desa_id !== auth()->user()->desa_id) {
+            abort(403);
+        }
+
+        // Hapus file ZIP jika ada
+        if ($ajuanBpd->berkas_zip && Storage::disk('public')->exists($ajuanBpd->berkas_zip)) {
+            Storage::disk('public')->delete($ajuanBpd->berkas_zip);
+        }
+
+        // Hapus file individual di checklist
+        foreach ($ajuanBpd->checklists as $checklist) {
+            if ($checklist->file_path && Storage::disk('public')->exists($checklist->file_path)) {
+                Storage::disk('public')->delete($checklist->file_path);
+            }
+        }
+
+        $ajuanBpd->delete();
+
+        return redirect()->route('desa.ajuan-bpd.index')->with('success', 'Ajuan berhasil dihapus.');
     }
 }

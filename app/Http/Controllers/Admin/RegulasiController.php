@@ -59,4 +59,21 @@ class RegulasiController extends Controller
         return redirect()->route('admin.regulasi.show', $regulasi)
             ->with('success', 'Draf Regulasi telah disetujui dan diteruskan kembali ke desa untuk disahkan.');
     }
+
+    public function destroy(Regulasi $regulasi)
+    {
+        if ($regulasi->file_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($regulasi->file_path)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($regulasi->file_path);
+        }
+        if ($regulasi->file_revisi && \Illuminate\Support\Facades\Storage::disk('public')->exists($regulasi->file_revisi)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($regulasi->file_revisi);
+        }
+        if ($regulasi->file_pdf && \Illuminate\Support\Facades\Storage::disk('public')->exists($regulasi->file_pdf)) {
+            \Illuminate\Support\Facades\Storage::disk('public')->delete($regulasi->file_pdf);
+        }
+
+        $regulasi->delete();
+
+        return redirect()->route('admin.regulasi.index')->with('success', 'Draf Regulasi berhasil dihapus oleh Admin.');
+    }
 }

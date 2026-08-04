@@ -15,48 +15,96 @@
     <!-- Tabel -->
     <div>
         <div class="bg-white rounded-card shadow-sm border border-border overflow-hidden transition-shadow duration-300 hover:shadow-md">
-            <table class="w-full text-left border-collapse">
-                <thead>
-                    <tr class="bg-slate-50 border-b border-border">
-                        <th class="py-3 px-4 text-xs font-bold text-muted uppercase tracking-wider">No Registrasi</th>
-                        <th class="py-3 px-4 text-xs font-bold text-muted uppercase tracking-wider">Jenis Ajuan</th>
-                        <th class="py-3 px-4 text-xs font-bold text-muted uppercase tracking-wider">Metode</th>
-                        <th class="py-3 px-4 text-xs font-bold text-muted uppercase tracking-wider">Tgl Diajukan</th>
-                        <th class="py-3 px-4 text-xs font-bold text-muted uppercase tracking-wider">Status</th>
-                        <th class="py-3 px-4 text-xs font-bold text-muted uppercase tracking-wider text-right">Aksi</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-border">
-                    @forelse ($ajuans as $ajuan)
-                        <tr class="hover:bg-slate-50 transition-colors group">
-                            <td class="py-3 px-4">
-                                <span class="font-bold text-ink">{{ $ajuan->no_registrasi }}</span>
-                            </td>
-                            <td class="py-3 px-4 text-sm">
-                                <span class="uppercase font-bold">{{ str_replace('_', ' ', $ajuan->jenis_ajuan) }}</span>
-                            </td>
-                            <td class="py-3 px-4 text-sm">
-                                {{ ucfirst($ajuan->metode) }}
-                            </td>
-                            <td class="py-3 px-4 text-sm">
-                                {{ $ajuan->tgl_diajukan ? \Carbon\Carbon::parse($ajuan->tgl_diajukan)->translatedFormat('d M Y') : '-' }}
-                            </td>
-                            <td class="py-3 px-4">
-                                <span class="px-2 py-1 bg-slate-100 text-slate-700 text-xs font-bold rounded">
-                                    {{ strtoupper($ajuan->status) }}
-                                </span>
-                            </td>
-                            <td class="py-3 px-4 text-right">
-                                <a href="{{ route('desa.ajuan-bpd.show', $ajuan) }}" class="text-sm font-bold text-primary hover:underline transition-all inline-block group-hover:translate-x-1">Detail</a>
-                            </td>
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-border">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">No. Registrasi / Tanggal</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Jenis Ajuan</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Anggota BPD</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Kelengkapan Dokumen</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Aksi</th>
                         </tr>
-                    @empty
-                        <tr>
-                            <td colspan="6" class="py-8 text-center text-muted">Belum ada ajuan BPD.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-border">
+                        @forelse ($ajuans as $ajuan)
+                            @php
+                                $totalChecklist = $ajuan->checklists->count();
+                                $uploadedChecklist = $ajuan->checklists->whereNotNull('file_path')->count();
+                                $approvedChecklist = $ajuan->checklists->where('status', 'terverifikasi')->count();
+                                $percent = $totalChecklist > 0 ? round(($uploadedChecklist / $totalChecklist) * 100) : 0;
+                            @endphp
+                            <tr class="hover:bg-gray-50 transition-colors group">
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="font-mono text-sm font-semibold text-ink">{{ $ajuan->no_registrasi }}</div>
+                                    <div class="text-xs text-muted mt-0.5">{{ $ajuan->tgl_diajukan ? \Carbon\Carbon::parse($ajuan->tgl_diajukan)->translatedFormat('d M Y') : ($ajuan->created_at ? $ajuan->created_at->translatedFormat('d M Y') : '-') }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @php
+                                        $badgeColor = match($ajuan->jenis_ajuan) {
+                                            'pemberhentian' => 'bg-red-100 text-danger',
+                                            'peresmian' => 'bg-primary-soft text-primary',
+                                            default => 'bg-gray-100 text-muted'
+                                        };
+                                    @endphp
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold {{ $badgeColor }}">
+                                        {{ str_replace('_', ' ', $ajuan->jenis_ajuan) }}
+                                    </span>
+                                    <div class="text-xs text-muted mt-1 uppercase font-bold">{{ $ajuan->metode }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="text-sm font-semibold text-ink font-display">
+                                        {{ $ajuan->pesertas->first() ? $ajuan->pesertas->first()->bpd->nama : '-' }}
+                                        @if($ajuan->pesertas->count() > 1) 
+                                            <span class="text-primary font-bold ml-1">(+{{ $ajuan->pesertas->count() - 1 }})</span>
+                                        @endif
+                                    </div>
+                                    <div class="text-xs text-muted mt-0.5">{{ $ajuan->pesertas->first() ? $ajuan->pesertas->first()->bpd->jabatan : '-' }}</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-24 bg-gray-200 rounded-full h-2 overflow-hidden">
+                                            <div class="bg-primary h-2 rounded-full" style="width: {{ $percent }}%"></div>
+                                        </div>
+                                        <span class="text-xs font-bold text-ink">{{ $uploadedChecklist }}/{{ $totalChecklist }}</span>
+                                    </div>
+                                    <div class="text-xs text-muted mt-1">{{ $approvedChecklist }} disetujui</div>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    @php
+                                        $statusLabel = ['menunggu_verifikasi' => 'Menunggu Verifikasi', 'revisi' => 'Perlu Perbaikan', 'diproses' => 'Sedang Diproses', 'selesai' => 'Selesai', 'draft' => 'Draft'];
+                                        $statusWarna = ['menunggu_verifikasi' => 'bg-blue-100 text-blue-700', 'revisi' => 'bg-red-100 text-danger', 'diproses' => 'bg-yellow-100 text-warning', 'selesai' => 'bg-green-100 text-success', 'draft' => 'bg-gray-100 text-muted'];
+                                    @endphp
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-medium {{ $statusWarna[$ajuan->status] ?? 'bg-gray-100 text-muted' }}">
+                                        {{ $statusLabel[$ajuan->status] ?? $ajuan->status }}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-center">
+                                    <div class="flex items-center justify-center gap-2">
+                                        <a href="{{ route('desa.ajuan-bpd.show', $ajuan) }}" class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded bg-primary text-white hover:bg-primary-light transition-all hover:scale-105 shadow-sm">
+                                            Lihat & Unggah
+                                        </a>
+                                        <form action="{{ route('desa.ajuan-bpd.destroy', $ajuan->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus ajuan ini secara permanen? Semua berkas terkait akan ikut terhapus.');" class="inline">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="inline-flex items-center px-2 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 text-xs font-medium rounded border border-red-200 transition-all hover:scale-105" title="Hapus">
+                                                <span class="material-symbols-outlined text-[16px]">delete</span>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="6" class="px-6 py-8 text-center text-sm text-muted">
+                                    Belum ada ajuan BPD. Klik tombol <strong>+ Buat Ajuan Baru</strong> di atas untuk membuat.
+                                </td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
         </div>
         @if($ajuans->hasPages())
             <div class="mt-6">{{ $ajuans->links() }}</div>

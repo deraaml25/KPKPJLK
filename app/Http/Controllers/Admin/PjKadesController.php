@@ -40,7 +40,7 @@ class PjKadesController extends Controller
         $checklist = ChecklistPjKades::where('pj_kades_id', $pjkades->id)->findOrFail($checklistId);
 
         $request->validate([
-            'status_verifikasi' => ['required', 'in:valid,tidak_sesuai'],
+            'status_verifikasi' => ['required', 'in:valid,tidak_sesuai,menunggu'],
         ]);
 
         $checklist->update([
@@ -220,5 +220,19 @@ class PjKadesController extends Controller
             ->findOrFail($id);
 
         return view('admin.pjkades.print-syarat', compact('pjkades'));
+    }
+
+    public function destroy($id)
+    {
+        $pjkades = PjKades::withoutGlobalScopes()->findOrFail($id);
+
+        if ($pjkades->folder_path && Storage::disk('public')->exists($pjkades->folder_path)) {
+            Storage::disk('public')->deleteDirectory($pjkades->folder_path);
+        }
+
+        $pjkades->checklists()->delete();
+        $pjkades->delete();
+
+        return redirect()->route('admin.pjkades.index')->with('success', 'Data usulan SK Kades berhasil dihapus oleh Admin.');
     }
 }

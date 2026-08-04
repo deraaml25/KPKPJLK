@@ -134,9 +134,7 @@
                 <td class="col-no">{{ $item->templateChecklist->urutan }}</td>
                 <td>
                     {{ $item->templateChecklist->nama_dokumen }}
-                    @if($item->templateChecklist->wajib)
-                        <strong>(Wajib)</strong>
-                    @endif
+
                 </td>
                 <td class="col-ket">
                     @if($item->status == 'terverifikasi')

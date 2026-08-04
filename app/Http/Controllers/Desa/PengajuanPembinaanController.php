@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\PengajuanPembinaan;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class PengajuanPembinaanController extends Controller
 {
@@ -68,5 +69,29 @@ class PengajuanPembinaanController extends Controller
         }
 
         return view('desa.pengajuan-pembinaan.show', compact('pengajuanPembinaan'));
+    }
+
+    public function destroy(PengajuanPembinaan $pengajuanPembinaan)
+    {
+        if ($pengajuanPembinaan->desa_id !== Auth::user()->desa_id) {
+            abort(403);
+        }
+
+        if ($pengajuanPembinaan->file_surat_permohonan && Storage::disk('public')->exists($pengajuanPembinaan->file_surat_permohonan)) {
+            Storage::disk('public')->delete($pengajuanPembinaan->file_surat_permohonan);
+        }
+        
+        if ($pengajuanPembinaan->file_undangan && Storage::disk('public')->exists($pengajuanPembinaan->file_undangan)) {
+            Storage::disk('public')->delete($pengajuanPembinaan->file_undangan);
+        }
+        
+        if ($pengajuanPembinaan->file_balasan && Storage::disk('public')->exists($pengajuanPembinaan->file_balasan)) {
+            Storage::disk('public')->delete($pengajuanPembinaan->file_balasan);
+        }
+
+        $pengajuanPembinaan->delete();
+
+        return redirect()->route('desa.pengajuan-pembinaan.index')
+            ->with('success', 'Data pengajuan pembinaan berhasil dihapus.');
     }
 }

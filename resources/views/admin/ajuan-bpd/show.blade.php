@@ -36,7 +36,29 @@
                     <p class="text-sm font-medium text-ink">Berkas Keseluruhan Persyaratan</p>
                     <p class="text-xs text-muted">Ajuan BPD ({{ ucfirst($ajuanBpd->jenis_ajuan) }}) — {{ $ajuanBpd->desa->nama_desa }}</p>
                 </div>
-                <span id="preview-title" class="text-xs text-muted hidden"></span>
+                @if($ajuanBpd->berkas_zip)
+                    <div class="flex gap-2">
+                        @if(preg_match('/\.(pdf|jpe?g|png)$/i', $ajuanBpd->berkas_zip))
+                            <button type="button" onclick="previewFile('{{ Storage::disk('public')->url($ajuanBpd->berkas_zip) }}', 'Berkas Keseluruhan (ZIP/PDF)')"
+                                class="inline-flex items-center px-3 py-1.5 bg-blue-100 text-blue-700 text-xs font-medium rounded hover:bg-blue-200 transition-colors flex-shrink-0">
+                                <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                                </svg>
+                                Lihat
+                            </button>
+                        @endif
+                        <a href="{{ Storage::disk('public')->url($ajuanBpd->berkas_zip) }}" target="_blank"
+                            class="inline-flex items-center px-3 py-1.5 bg-primary text-white text-xs font-medium rounded hover:bg-primary-light transition-colors flex-shrink-0">
+                            <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                            </svg>
+                            Unduh
+                        </a>
+                    </div>
+                @else
+                    <span id="preview-title" class="text-xs text-muted hidden"></span>
+                @endif
             </div>
             <div class="flex-1 bg-gray-200 relative p-2" id="pdf-container">
                 <!-- PDF Viewer / Empty State -->
@@ -45,7 +67,13 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
                             d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
-                    <p class="font-medium">Klik tombol "Lihat PDF" pada tabel di kanan</p>
+                    @if($ajuanBpd->berkas_zip && preg_match('/\.zip|\.rar$/i', $ajuanBpd->berkas_zip))
+                        <p class="font-medium text-center px-4">Berkas persyaratan berupa file arsip (ZIP/RAR).<br>Silakan klik tombol "Unduh" di sudut kanan atas untuk melihat isinya.</p>
+                    @elseif($ajuanBpd->berkas_zip && preg_match('/\.(pdf|jpe?g|png)$/i', $ajuanBpd->berkas_zip))
+                        <p class="font-medium text-center px-4">Berkas persyaratan berupa file PDF/Gambar.<br>Silakan klik tombol "Lihat" di sudut kanan atas.</p>
+                    @else
+                        <p class="font-medium text-center px-4">Pilih dokumen pada tabel di kanan untuk memuat pratinjau</p>
+                    @endif
                 </div>
                 <iframe id="pdf-iframe" src="" class="w-full h-full rounded shadow-sm border border-gray-300 hidden" frameborder="0"></iframe>
                 <img id="img-preview" src="" class="w-full h-full object-contain rounded shadow-sm border border-gray-300 hidden">
@@ -101,7 +129,6 @@
                                             {{ $item->templateChecklist->nama_dokumen }}
                                         </p>
 
-
                                         @if($item->file_path)
                                             <button
                                                 onclick="previewFile('{{ Storage::disk('public')->url($item->file_path) }}', '{{ addslashes($item->templateChecklist->nama_dokumen) }}')"
@@ -112,18 +139,21 @@
                                                 </svg>
                                                 Lihat Berkas
                                             </button>
-                                        @else
+                                        @elseif(!$ajuanBpd->berkas_zip)
                                             <span class="ml-2 inline-block px-2 py-1 bg-gray-100 text-gray-500 text-xs font-medium rounded border border-gray-200">Belum Terunggah</span>
                                         @endif
                                     </div>
 
-                                    <form action="{{ route('admin.ajuan-bpd.verify-checklist', [$ajuanBpd->id, $item->id]) }}" method="POST" class="verify-form flex-shrink-0 ml-auto sm:ml-4" data-url="{{ route('admin.ajuan-bpd.verify-checklist', [$ajuanBpd->id, $item->id]) }}">
-                                        @csrf
-                                        <input type="checkbox" name="status" value="terverifikasi" 
-                                               class="w-7 h-7 text-primary focus:ring-primary border-gray-300 rounded shadow-sm cursor-pointer transition-colors verify-checkbox" 
-                                               {{ $item->status === 'terverifikasi' ? 'checked' : '' }}
-                                               title="Tandai Sesuai">
-                                    </form>
+                                    <div class="flex items-center gap-2 flex-shrink-0 ml-auto sm:ml-4">
+                                        <span class="verify-saved-indicator text-xs text-green-600 font-medium hidden">✓ Tersimpan</span>
+                                        <form action="{{ route('admin.ajuan-bpd.verify-checklist', [$ajuanBpd->id, $item->id]) }}" method="POST" class="verify-form flex-shrink-0" data-url="{{ route('admin.ajuan-bpd.verify-checklist', [$ajuanBpd->id, $item->id]) }}">
+                                            @csrf
+                                            <input type="checkbox" name="status" value="terverifikasi" 
+                                                   class="w-7 h-7 text-primary focus:ring-primary border-gray-300 rounded shadow-sm cursor-pointer transition-colors verify-checkbox" 
+                                                   {{ $item->status === 'terverifikasi' ? 'checked' : '' }}
+                                                   title="Tandai Sesuai">
+                                        </form>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -159,11 +189,19 @@
                         <select name="tahapan"
                             class="w-full text-sm border-gray-300 rounded-md focus:border-primary focus:ring focus:ring-primary/20" required>
                             <option value="">-- Pilih --</option>
-                            <option value="Diterima oleh Front Office">Diterima oleh Front Office</option>
-                            <option value="Diteruskan ke Kepala Bidang">Diteruskan ke Kepala Bidang</option>
-                            <option value="Diteruskan ke Kepala Dinas">Diteruskan ke Kepala Dinas</option>
-                            <option value="SK Terbit">SK Terbit</option>
-                            <option value="Selesai (Ditutup)">Selesai (Ditutup)</option>
+                            <option value="Berkas Diterima">Berkas Diterima</option>
+                            <option value="Verifikasi & Validasi Petugas">Verifikasi & Validasi Petugas</option>
+                            <option value="Penyusunan Draft Rekomendasi">Penyusunan Draft Rekomendasi</option>
+                            <option value="Verifikasi & Validasi Kabid PDPD">Verifikasi & Validasi Kabid PDPD</option>
+                            <option value="Verifikasi & Validasi Sekretaris Dinas">Verifikasi & Validasi Sekretaris Dinas</option>
+                            <option value="Verifikasi & Validasi Kepala Dinas">Verifikasi & Validasi Kepala Dinas</option>
+                            <option value="Verifikasi & Validasi Kepala Bagian Hukum">Verifikasi & Validasi Kepala Bagian Hukum</option>
+                            <option value="Verifikasi & Validasi Asisten Pemerintahan & Kesra">Verifikasi & Validasi Asisten Pemerintahan & Kesra</option>
+                            <option value="Verifikasi & Validasi Sekda">Verifikasi & Validasi Sekda</option>
+                            <option value="Tanda Tangan Bupati">Tanda Tangan Bupati</option>
+                            <option value="Penomoran TU Umum Setda">Penomoran TU Umum Setda</option>
+                            <option value="Sudah di Dinpermasdes">Sudah di Dinpermasdes</option>
+                            <option value="Sudah di Desa (Nama Penerima)">Sudah di Desa (Nama Penerima)</option>
                         </select>
                     </div>
 
@@ -184,19 +222,12 @@
                 </form>
             </div>
 
-            {{-- MILESTONE TRACKER --}}
+            {{-- TRACKER VISUAL --}}
             <div class="bg-surface rounded-card border border-border shadow-sm p-5 mb-10">
-                <h3 class="text-base font-display font-semibold text-ink mb-1">History Tracking Status</h3>
-                <div class="relative border-l-2 border-slate-200 ml-3 mt-4 space-y-6">
-                    @foreach($ajuanBpd->milestones as $ms)
-                        <div class="relative pl-6">
-                            <span class="absolute -left-[9px] top-1 w-4 h-4 rounded-full {{ $loop->last ? 'bg-primary ring-4 ring-white' : 'bg-gray-400 ring-4 ring-white' }}"></span>
-                            <p class="font-bold text-sm {{ $loop->last ? 'text-primary' : 'text-ink' }}">{{ $ms->tahapan }}</p>
-                            <p class="text-xs text-muted">{{ $ms->tgl_selesai ? \Carbon\Carbon::parse($ms->tgl_selesai)->translatedFormat('d M Y H:i') : '-' }}</p>
-
-                        </div>
-                    @endforeach
-                </div>
+                <h3 class="text-base font-display font-semibold text-ink mb-1">Status Proses</h3>
+                <p class="text-xs text-muted mb-4 pb-4 border-b border-border">Pantau tahapan perjalanan ajuan secara real-time.</p>
+                
+                <x-pjkades-tracker :posisiAktif="$ajuanBpd->posisi_surat ?? 'Berkas Diterima'" :status="$ajuanBpd->status" :pjkades="$ajuanBpd" />
             </div>
 
         </div>
@@ -227,6 +258,8 @@
                 document.querySelectorAll('.verify-checkbox').forEach(checkbox => {
                     checkbox.addEventListener('change', function() {
                         const form = this.closest('form');
+                        const wrapper = form.closest('.flex.items-center.gap-2');
+                        const indicator = wrapper ? wrapper.querySelector('.verify-saved-indicator') : null;
                         const url = form.getAttribute('data-url');
                         const token = form.querySelector('input[name="_token"]').value;
                         const status = this.checked ? 'terverifikasi' : 'menunggu_verifikasi';
@@ -248,6 +281,11 @@
                                 'Accept': 'application/json'
                             },
                             body: JSON.stringify({ status: status })
+                        }).then(response => {
+                            if (indicator) {
+                                indicator.classList.remove('hidden');
+                                setTimeout(() => indicator.classList.add('hidden'), 2000);
+                            }
                         }).catch(err => {
                             console.error('Network error during verification update', err);
                             this.checked = !this.checked;

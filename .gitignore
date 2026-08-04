@@ -20,7 +20,10 @@
 /public/storage
 /storage/*.key
 /storage/pail
+/storage/framework/views/*.php
 /vendor
+/regenerate_checklists.php
+/update_alasan.php
 _ide_helper.php
 Homestead.json
 Homestead.yaml

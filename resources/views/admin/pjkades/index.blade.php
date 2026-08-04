@@ -56,7 +56,7 @@
                                     </span>
                                 @else
                                     <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-bold bg-indigo-100 text-indigo-800">
-                                        Pemberhentian Definitif
+                                        Pemberhentian
                                     </span>
                                 @endif
                                 <div class="text-xs text-ink mt-1 font-medium">Alasan: <strong>{{ $pj->alasan_nama ?? ($pj->alasanPemberhentian->nama ?? '-') }}</strong></div>
@@ -99,12 +99,20 @@
                                     </span>
                                 @endif
                             </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium flex justify-center gap-2">
-                                <a href="{{ route('admin.pjkades.show', $pj->id) }}"
-                                    class="inline-flex items-center px-3 py-1.5 bg-primary text-white text-xs font-medium rounded-btn hover:bg-primary-light transition-colors">
-                                    Verifikasi & SK
-                                </a>
-
+                            <td class="px-6 py-4 whitespace-nowrap text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <a href="{{ route('admin.pjkades.show', $pj->id) }}"
+                                        class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded bg-primary text-white hover:bg-primary-light transition-all hover:scale-105 shadow-sm">
+                                        Verifikasi & SK
+                                    </a>
+                                    <form action="{{ route('admin.pjkades.destroy', $pj->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus usulan SK Kades ini secara permanen? Semua berkas terkait akan ikut terhapus.');" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="inline-flex items-center px-2 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 text-xs font-medium rounded border border-red-200 transition-all hover:scale-105" title="Hapus">
+                                            <span class="material-symbols-outlined text-[16px]">delete</span>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty

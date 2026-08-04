@@ -33,7 +33,7 @@
                         <th class="px-5 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Tanggal Diajukan</th>
                         <th class="px-5 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Dokumen</th>
                         <th class="px-5 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Status</th>
-                        <th class="px-5 py-3 text-left text-xs font-medium text-muted uppercase tracking-wider">Aksi</th>
+                        <th class="px-5 py-3 text-center text-xs font-medium text-muted uppercase tracking-wider">Aksi</th>
                     </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-border">
@@ -69,11 +69,20 @@
                                     {{ $p->status_label }}
                                 </span>
                             </td>
-                            <td class="px-5 py-4 whitespace-nowrap">
-                                <a href="{{ route('admin.pengajuan-pembinaan.show', $p) }}"
-                                    class="text-primary text-sm hover:underline font-medium">
-                                    Detail & Balas →
-                                </a>
+                            <td class="px-5 py-4 whitespace-nowrap text-center">
+                                <div class="flex items-center justify-center gap-2">
+                                    <a href="{{ route('admin.pengajuan-pembinaan.show', $p) }}"
+                                        class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold rounded bg-primary text-white hover:bg-primary-light transition-all hover:scale-105 shadow-sm">
+                                        Detail & Balas
+                                    </a>
+                                    <form action="{{ route('admin.pengajuan-pembinaan.destroy', $p->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus data pengajuan pembinaan ini secara permanen?');" class="inline">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="inline-flex items-center px-2 py-1.5 bg-red-50 text-red-600 hover:bg-red-100 hover:text-red-700 text-xs font-medium rounded border border-red-200 transition-all hover:scale-105" title="Hapus">
+                                            <span class="material-symbols-outlined text-[16px]">delete</span>
+                                        </button>
+                                    </form>
+                                </div>
                             </td>
                         </tr>
                     @empty

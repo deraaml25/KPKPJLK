@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Regulasi;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class RegulasiController extends Controller
 {
@@ -143,6 +144,27 @@ class RegulasiController extends Controller
             'file_pdf' => $request->file('file_final')->store('regulasi/pdf_final', 'public'),
         ]);
 
-        return back()->with('success', 'Aturan Resmi Disahkan dengan Nomor Lembaran: '.$regulasi->no_regulasi);
+        return back()->with('success', 'Peraturan Desa resmi disahkan & diundangkan.');
+    }
+
+    public function destroy(Regulasi $regulasi)
+    {
+        if ($regulasi->desa_id !== Auth::user()->desa_id) {
+            abort(403);
+        }
+
+        if ($regulasi->file_path && Storage::disk('public')->exists($regulasi->file_path)) {
+            Storage::disk('public')->delete($regulasi->file_path);
+        }
+        if ($regulasi->file_revisi && Storage::disk('public')->exists($regulasi->file_revisi)) {
+            Storage::disk('public')->delete($regulasi->file_revisi);
+        }
+        if ($regulasi->file_pdf && Storage::disk('public')->exists($regulasi->file_pdf)) {
+            Storage::disk('public')->delete($regulasi->file_pdf);
+        }
+
+        $regulasi->delete();
+
+        return redirect()->route('desa.regulasi.index')->with('success', 'Draf regulasi berhasil dihapus.');
     }
 }
