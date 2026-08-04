@@ -13,6 +13,7 @@ class IzinCalonController extends Controller
     {
         $desaId = Auth::user()->desa_id;
         $izins = IzinCalon::withoutGlobalScopes()->where('desa_id', $desaId)->latest()->get();
+
         return view('desa.izincalon.index', compact('izins'));
     }
 

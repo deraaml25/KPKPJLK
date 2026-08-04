@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Models\Scopes\TenantDesaScope;
 use Illuminate\Database\Eloquent\Model;
 
 class PerangkatDesa extends Model
@@ -19,7 +20,7 @@ class PerangkatDesa extends Model
 
     protected static function booted()
     {
-        static::addGlobalScope(new \App\Models\Scopes\TenantDesaScope);
+        static::addGlobalScope(new TenantDesaScope);
     }
 
     protected $casts = [

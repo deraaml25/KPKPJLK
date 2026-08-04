@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class LogKekurangan extends Model
 {
     protected $fillable = [
-        'checklist_ajuan_id', 'status_lama', 'status_baru', 'catatan', 'tgl'
+        'checklist_ajuan_id', 'status_lama', 'status_baru', 'catatan', 'tgl',
     ];
 
     protected $casts = [

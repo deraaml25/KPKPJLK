@@ -13,13 +13,14 @@ class AjuanBpdController extends Controller
     public function index()
     {
         $ajuans = AjuanBpd::with('desa')->latest()->paginate(10);
+
         return view('admin.ajuan-bpd.index', compact('ajuans'));
     }
 
     public function show(AjuanBpd $ajuanBpd)
     {
         $ajuanBpd->load(['desa', 'pesertas.bpd', 'checklists.templateChecklist', 'milestones']);
-        
+
         return view('admin.ajuan-bpd.show', compact('ajuanBpd'));
     }
 
@@ -30,13 +31,13 @@ class AjuanBpdController extends Controller
 
         $request->validate([
             'status' => 'required|in:terverifikasi,ditolak,menunggu_verifikasi',
-            'catatan' => 'nullable|string'
+            'catatan' => 'nullable|string',
         ]);
 
         $checklist->update([
             'status' => $request->status,
             'catatan' => $request->catatan,
-            'updated_by' => auth()->id()
+            'updated_by' => auth()->id(),
         ]);
 
         $statusText = $request->status === 'terverifikasi' ? 'Disetujui' : 'Ditolak';
@@ -62,7 +63,7 @@ class AjuanBpdController extends Controller
             'tahapan' => 'Catatan Revisi Diberikan Admin',
             'status' => 'selesai',
             'tgl_selesai' => now(),
-            'catatan' => $request->catatan_admin
+            'catatan' => $request->catatan_admin,
         ]);
 
         return back()->with('success', 'Catatan evaluasi kelengkapan berhasil disimpan.');
@@ -82,7 +83,7 @@ class AjuanBpdController extends Controller
             'tahapan' => $request->tahapan,
             'status' => 'selesai',
             'tgl_selesai' => now(),
-            'catatan' => $request->catatan
+            'catatan' => $request->catatan,
         ]);
 
         // If it's the final stage (e.g. SK Terbit)
@@ -102,7 +103,7 @@ class AjuanBpdController extends Controller
     {
         $ajuanBpd = AjuanBpd::findOrFail($id);
         $ajuanBpd->load(['desa', 'pesertas.bpd', 'checklists.templateChecklist', 'milestones']);
-        
+
         return view('admin.ajuan-bpd.print-syarat', compact('ajuanBpd'));
     }
 }

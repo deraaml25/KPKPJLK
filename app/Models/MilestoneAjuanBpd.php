@@ -8,4 +8,3 @@ class MilestoneAjuanBpd extends Model
 {
     protected $guarded = [];
 }
-

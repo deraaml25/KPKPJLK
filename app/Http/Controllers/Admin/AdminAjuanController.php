@@ -7,6 +7,7 @@ use App\Models\Ajuan;
 use App\Models\ChecklistAjuan;
 use App\Models\MilestoneTracking;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class AdminAjuanController extends Controller
 {
@@ -73,10 +74,10 @@ class AdminAjuanController extends Controller
     {
         $request->validate([
             'status' => 'required|in:menunggu,valid,kurang,tidak_sesuai',
-            'catatan' => 'nullable|string'
+            'catatan' => 'nullable|string',
         ]);
 
-        \Illuminate\Support\Facades\Log::info("verifyDokumen received for ajuan {$ajuan->id}, checklist {$checklistAjuan->id} with status: " . $request->status);
+        Log::info("verifyDokumen received for ajuan {$ajuan->id}, checklist {$checklistAjuan->id} with status: ".$request->status);
 
         $checklistAjuan->update([
             'status' => $request->status,
@@ -92,7 +93,7 @@ class AdminAjuanController extends Controller
             return response()->json([
                 'success' => true,
                 'status' => $checklistAjuan->status,
-                'message' => 'Status dokumen berhasil diperbarui!'
+                'message' => 'Status dokumen berhasil diperbarui!',
             ]);
         }
 
@@ -127,7 +128,7 @@ class AdminAjuanController extends Controller
         $request->validate([
             'posisi_baru' => 'required|string',
             'status_ajuan_baru' => 'nullable|in:submitted,direvisi,diproses,selesai,ditolak',
-            'catatan_milestone' => 'nullable|string'
+            'catatan_milestone' => 'nullable|string',
         ]);
 
         $tahapLama = match ($ajuan->posisi_surat) {
@@ -155,7 +156,7 @@ class AdminAjuanController extends Controller
 
         $ajuan->update([
             'posisi_surat' => $request->posisi_baru,
-            'status' => $request->status_ajuan_baru ?? $ajuan->status
+            'status' => $request->status_ajuan_baru ?? $ajuan->status,
         ]);
 
         $tahapBaru = match ($request->posisi_baru) {
@@ -181,7 +182,7 @@ class AdminAjuanController extends Controller
             'updated_by' => auth()->id(),
         ]);
 
-        return back()->with('success', 'Sistem berhasil mendisposisikan ajuan ke ' . $request->posisi_baru);
+        return back()->with('success', 'Sistem berhasil mendisposisikan ajuan ke '.$request->posisi_baru);
     }
 
     /**
@@ -190,11 +191,11 @@ class AdminAjuanController extends Controller
     public function updateCatatanAdmin(Request $request, Ajuan $ajuan)
     {
         $request->validate([
-            'catatan_admin' => 'nullable|string'
+            'catatan_admin' => 'nullable|string',
         ]);
 
         $ajuan->update([
-            'catatan_admin' => $request->catatan_admin
+            'catatan_admin' => $request->catatan_admin,
         ]);
 
         return back()->with('success', 'Catatan admin berhasil disimpan!');
@@ -207,7 +208,7 @@ class AdminAjuanController extends Controller
     {
         $ajuan->load(['desa', 'jenisLayanan', 'pesertas.perangkatDesa', 'checklistAjuans.templateChecklist']);
         $dokumenList = $ajuan->checklistAjuans->sortBy('templateChecklist.urutan');
-        
+
         return view('admin.ajuan.print-syarat', compact('ajuan', 'dokumenList'));
     }
 }

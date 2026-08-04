@@ -12,12 +12,14 @@ class IzinCalonController extends Controller
     public function index()
     {
         $izins = IzinCalon::withoutGlobalScopes()->with('desa')->latest()->paginate(15);
+
         return view('admin.izincalon.index', compact('izins'));
     }
 
     public function show($id)
     {
         $izincalon = IzinCalon::withoutGlobalScopes()->with('desa', 'verifikator')->findOrFail($id);
+
         return view('admin.izincalon.show', compact('izincalon'));
     }
 

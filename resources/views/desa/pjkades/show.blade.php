@@ -1,7 +1,7 @@
 <x-app-layout>
     @section('title', 'Detail Usulan SK Kades')
 
-    <div class="max-w-5xl mx-auto mb-8">
+    <div class="max-w-6xl mx-auto mb-8">
         {{-- Header Card --}}
         <div class="bg-white rounded-card p-6 shadow-sm border border-border mb-6">
             <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
@@ -59,9 +59,12 @@
             </div>
         @endif
 
-        {{-- Info Card --}}
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-            <div class="bg-white p-5 rounded-card border border-border shadow-sm">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {{-- ===== KIRI: Detail & File ===== --}}
+            <div class="lg:col-span-2 space-y-6">
+                {{-- Info Card --}}
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white p-5 rounded-card border border-border shadow-sm">
                 <div class="text-xs text-muted font-medium uppercase tracking-wider mb-1">Status Usulan</div>
                 @if($pjkades->status === 'approved')
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">
@@ -110,8 +113,6 @@
             <div class="lg:col-span-2 space-y-6">
                 {{-- Checklist Table & Upload Form --}}
                 <div class="bg-surface rounded-card shadow-sm border border-border overflow-hidden" x-data="{ isSubmitting: false }">
-                    <form method="POST" action="{{ route('desa.pjkades.bulkUpload', $pjkades->id) }}" enctype="multipart/form-data" @submit="isSubmitting = true">
-                        @csrf
                         <div class="p-6 border-b border-border bg-gray-50 flex items-center justify-between">
                             <div>
                                 <h3 class="text-base font-display font-semibold text-ink">Daftar Dokumen Persyaratan & Checklist</h3>
@@ -128,6 +129,27 @@
                                     </div>
 
                                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 lg:gap-4 flex-shrink-0">
+                                        @if($pjkades->metode === 'online')
+                                            @if($item->file_path)
+                                                <a href="{{ Storage::disk('public')->url($item->file_path) }}" target="_blank" class="flex items-center text-xs font-medium text-primary hover:text-primary-light transition-colors bg-primary-soft/10 px-3 py-1.5 rounded-full">
+                                                    <svg class="w-4 h-4 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                                                    Lihat File
+                                                </a>
+                                            @endif
+                                            
+                                            @if(in_array($pjkades->status, ['draft', 'rejected']))
+                                                <form action="{{ route('desa.pjkades.upload', [$pjkades->id, $item->id]) }}" method="POST" enctype="multipart/form-data" class="flex items-center gap-2">
+                                                    @csrf
+                                                    <input type="file" name="file_dokumen" accept=".pdf,.jpg,.jpeg,.png" class="text-[10px] w-48" required>
+                                                    <button type="submit" class="px-2 py-1 bg-primary text-white text-[10px] font-medium rounded hover:bg-primary-light whitespace-nowrap">
+                                                        {{ $item->file_path ? 'Ganti File' : 'Unggah' }}
+                                                    </button>
+                                                </form>
+                                            @elseif(!$item->file_path)
+                                                <span class="inline-block px-2 py-1 bg-gray-100 text-gray-500 text-xs font-medium rounded border border-gray-200">Belum Terunggah</span>
+                                            @endif
+                                        @endif
+
                                         @if($item->status_verifikasi === 'valid')
                                             <div class="flex items-center text-success text-sm font-medium whitespace-nowrap">
                                                 <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
@@ -148,6 +170,8 @@
                             @endforelse
                         </div>
 
+                    <form method="POST" action="{{ route('desa.pjkades.bulkUpload', $pjkades->id) }}" enctype="multipart/form-data" @submit="isSubmitting = true">
+                        @csrf
                         @if($pjkades->metode === 'online' && in_array($pjkades->status, ['draft', 'rejected']))
                         <div class="px-6 py-6 bg-white border-t border-border">
                             <label class="block text-sm font-medium text-ink mb-2">Unggah Keseluruhan Persyaratan (.ZIP / .RAR / .PDF)</label>

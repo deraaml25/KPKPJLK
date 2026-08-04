@@ -40,7 +40,7 @@ class PjKadesChecklistSeeder extends Seeder
         // ==========================================
         // DOKUMEN PENGUSULAN SK PEMBERHENTIAN KADES
         // ==========================================
-        
+
         // --- 1. Karena Meninggal Dunia ---
         $docsMeninggal = [
             'Surat pengantar dr kec kepada bupati',
@@ -102,7 +102,7 @@ class PjKadesChecklistSeeder extends Seeder
         // ==========================================
         // DOKUMEN PENGUSULAN SK PEMBERHENTIAN KADES SEMENTARA & PLT
         // ==========================================
-        
+
         // --- 5. Pemberhentian Kades Sementara ---
         $docsSementara = [
             'Surat pengantar dr kec kepada bupati',
@@ -152,4 +152,3 @@ class PjKadesChecklistSeeder extends Seeder
         }
     }
 }
-

@@ -8,6 +8,7 @@ use App\Models\Kecamatan;
 use App\Models\TemplateChecklist;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\View\View;
 
 uses(RefreshDatabase::class);
 
@@ -57,7 +58,7 @@ test('desa ajuan show auto-populates missing checklist rows from templates', fun
 
     $response = app(AjuanController::class)->show($ajuan);
 
-    expect($response)->toBeInstanceOf(\Illuminate\View\View::class);
+    expect($response)->toBeInstanceOf(View::class);
     expect($ajuan->fresh()->checklistAjuans()->count())->toBe(1);
     expect($ajuan->fresh()->checklistAjuans()->first()->templateChecklist->nama_dokumen)->toBe('Surat Pengantar');
 });

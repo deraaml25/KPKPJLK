@@ -12,6 +12,7 @@ class PenataanController extends Controller
     public function index()
     {
         $penataan = PenataanDesa::where('desa_id', Auth::user()->desa_id)->latest()->first();
+
         return view('desa.penataan.index', compact('penataan'));
     }
 
@@ -41,7 +42,7 @@ class PenataanController extends Controller
             'jumlah_kk' => $request->jumlah_kk,
             'luas_wilayah_km2' => $request->luas_wilayah_km2,
             'peta_geospasial_path' => $petaPath,
-            'status' => 'diajukan'
+            'status' => 'diajukan',
         ]);
 
         return redirect()->route('desa.penataan.index')

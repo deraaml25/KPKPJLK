@@ -44,7 +44,7 @@ class Pilkades extends Model
 
     public function pengesah()
     {
-        return $this->belongsTo(\App\Models\User::class, 'disahkan_oleh');
+        return $this->belongsTo(User::class, 'disahkan_oleh');
     }
 
     // ── Quick Count Helpers ──────────────────────────────────────────────────
@@ -80,8 +80,9 @@ class Pilkades extends Model
      */
     public function getPemenangAttribute(): ?string
     {
-        if ($this->suaras->isEmpty())
+        if ($this->suaras->isEmpty()) {
             return null;
+        }
 
         $calons = [
             $this->calon_1_nama => $this->total_suara_calon_1,
@@ -90,11 +91,13 @@ class Pilkades extends Model
         ];
 
         // Hanya hitung calon yang ada namanya
-        $calons = array_filter($calons, fn($name) => !empty($name));
-        if (empty($calons))
+        $calons = array_filter($calons, fn ($name) => ! empty($name));
+        if (empty($calons)) {
             return null;
+        }
 
         arsort($calons);
+
         return array_key_first($calons);
     }
 

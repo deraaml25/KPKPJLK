@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Desa;
 use App\Models\Pilkades;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -12,13 +13,15 @@ class PilkadesController extends Controller
     public function index()
     {
         $pilkades = Pilkades::withoutGlobalScopes()->with('desa', 'pengesah')->latest()->paginate(15);
-        $desas = \App\Models\Desa::orderBy('nama_desa')->get(); // Untuk dropdown buat pilkades baru
+        $desas = Desa::orderBy('nama_desa')->get(); // Untuk dropdown buat pilkades baru
+
         return view('admin.pilkades.index', compact('pilkades', 'desas'));
     }
 
     public function show($id)
     {
         $pilkades = Pilkades::withoutGlobalScopes()->with(['desa', 'suaras', 'pengesah'])->findOrFail($id);
+
         return view('admin.pilkades.show', compact('pilkades'));
     }
 
@@ -45,7 +48,7 @@ class PilkadesController extends Controller
             'calon_1_nama' => $request->calon_1_nama,
             'calon_2_nama' => $request->calon_2_nama,
             'calon_3_nama' => $request->calon_3_nama,
-            'status' => 'persiapan'
+            'status' => 'persiapan',
         ]);
 
         return redirect()->route('admin.pilkades.index')
@@ -66,7 +69,7 @@ class PilkadesController extends Controller
         // Hitung pemenang dari model quick count
         $pemenang = $pilkades->pemenang;
 
-        if (!$pemenang) {
+        if (! $pemenang) {
             return redirect()->back()->with('error', 'Gagal memproses SK: Belum ada data perolehan suara yang masuk dari desa.');
         }
 

@@ -83,17 +83,17 @@ class RencanaP3dController extends Controller
 
         $rencanas = $query->latest()->get();
 
-        $fileName = 'rencana_p3d_' . date('Y_m_d_H_i_s') . '.xls';
+        $fileName = 'rencana_p3d_'.date('Y_m_d_H_i_s').'.xls';
 
         $headers = [
-            "Content-type"        => "application/vnd.ms-excel",
-            "Content-Disposition" => "attachment; filename=$fileName",
-            "Pragma"              => "no-cache",
-            "Cache-Control"       => "must-revalidate, post-check=0, pre-check=0",
-            "Expires"             => "0"
+            'Content-type' => 'application/vnd.ms-excel',
+            'Content-Disposition' => "attachment; filename=$fileName",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
         ];
 
-        $callback = function() use($rencanas) {
+        $callback = function () use ($rencanas) {
             echo '<table border="1" style="border-collapse: collapse; text-align: left;">';
             echo '<thead>';
             echo '<tr style="background-color: #f3f4f6;">';
@@ -113,17 +113,17 @@ class RencanaP3dController extends Controller
             echo '<tbody>';
             foreach ($rencanas as $index => $item) {
                 echo '<tr>';
-                echo '<td style="padding: 8px; border: 1px solid #000;">' . ($index + 1) . '</td>';
-                echo '<td style="padding: 8px; border: 1px solid #000;">' . ($item->kecamatan->nama_kecamatan ?? '-') . '</td>';
-                echo '<td style="padding: 8px; border: 1px solid #000;">' . ($item->desa->nama_desa ?? '-') . '</td>';
-                echo '<td style="padding: 8px; border: 1px solid #000;">' . ($item->tahun ?? '-') . '</td>';
-                echo '<td style="padding: 8px; border: 1px solid #000; text-align: center;">' . $item->jumlah_formasi_kosong . '</td>';
-                echo '<td style="padding: 8px; border: 1px solid #000;">' . $item->jabatan_kosong . '</td>';
-                echo '<td style="padding: 8px; border: 1px solid #000;">' . ($item->rencana_pelaksanaan ? $item->rencana_pelaksanaan->format('d/m/Y') : '-') . '</td>';
-                echo '<td style="padding: 8px; border: 1px solid #000;">Rp ' . number_format($item->rencana_anggaran, 0, ',', '.') . '</td>';
-                echo '<td style="padding: 8px; border: 1px solid #000;">' . $item->keterangan . '</td>';
-                echo '<td style="padding: 8px; border: 1px solid #000;">' . ucfirst($item->status) . '</td>';
-                echo '<td style="padding: 8px; border: 1px solid #000;">' . $item->created_at->format('d/m/Y H:i') . '</td>';
+                echo '<td style="padding: 8px; border: 1px solid #000;">'.($index + 1).'</td>';
+                echo '<td style="padding: 8px; border: 1px solid #000;">'.($item->kecamatan->nama_kecamatan ?? '-').'</td>';
+                echo '<td style="padding: 8px; border: 1px solid #000;">'.($item->desa->nama_desa ?? '-').'</td>';
+                echo '<td style="padding: 8px; border: 1px solid #000;">'.($item->tahun ?? '-').'</td>';
+                echo '<td style="padding: 8px; border: 1px solid #000; text-align: center;">'.$item->jumlah_formasi_kosong.'</td>';
+                echo '<td style="padding: 8px; border: 1px solid #000;">'.$item->jabatan_kosong.'</td>';
+                echo '<td style="padding: 8px; border: 1px solid #000;">'.($item->rencana_pelaksanaan ? $item->rencana_pelaksanaan->format('d/m/Y') : '-').'</td>';
+                echo '<td style="padding: 8px; border: 1px solid #000;">Rp '.number_format($item->rencana_anggaran, 0, ',', '.').'</td>';
+                echo '<td style="padding: 8px; border: 1px solid #000;">'.$item->keterangan.'</td>';
+                echo '<td style="padding: 8px; border: 1px solid #000;">'.ucfirst($item->status).'</td>';
+                echo '<td style="padding: 8px; border: 1px solid #000;">'.$item->created_at->format('d/m/Y H:i').'</td>';
                 echo '</tr>';
             }
             echo '</tbody>';

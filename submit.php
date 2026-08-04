@@ -1,1 +1,0 @@
-<?php require 'vendor/autoload.php'; require 'bootstrap/app.php'; $app = app(); $app->make('Illuminate\Contracts\Console\Kernel')->bootstrap(); $a = \App\Models\Ajuan::find(14); $a->status = 'submitted'; $a->save(); echo 'Submitted 14';

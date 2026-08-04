@@ -60,6 +60,7 @@ class BimtekController extends Controller
     public function show(Bimtek $bimtek)
     {
         $bimtek->load(['pendaftarans.desa', 'pendaftarans.perangkatDesa']);
+
         return view('admin.bimtek.show', compact('bimtek'));
     }
 
@@ -76,7 +77,7 @@ class BimtekController extends Controller
             'status_presensi' => $request->status_presensi,
         ]);
 
-        return back()->with('success', 'Status kehadiran peserta dari Desa ' . $pendaftaran->desa->nama_desa . ' berhasil diupdate.');
+        return back()->with('success', 'Status kehadiran peserta dari Desa '.$pendaftaran->desa->nama_desa.' berhasil diupdate.');
     }
 
     /**
@@ -98,7 +99,7 @@ class BimtekController extends Controller
             $data['file_sertifikat'] = $request->file('file_sertifikat')->store('bimtek/sertifikat', 'public');
         }
 
-        if (!empty($data)) {
+        if (! empty($data)) {
             $bimtek->update($data);
         }
 
@@ -124,7 +125,7 @@ class BimtekController extends Controller
         $pendaftaran->update($data);
 
         $msg = $request->status_rtl === 'selesai'
-            ? 'RTL desa ' . $pendaftaran->desa->nama_desa . ' dinyatakan TUNTAS.'
+            ? 'RTL desa '.$pendaftaran->desa->nama_desa.' dinyatakan TUNTAS.'
             : 'RTL dikembalikan ke desa untuk revisi.';
 
         return back()->with('success', $msg);

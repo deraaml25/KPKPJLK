@@ -4,21 +4,23 @@ namespace App\Http\Controllers\Desa;
 
 use App\Http\Controllers\Controller;
 use App\Models\RencanaP3d;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
 
 class RencanaP3dController extends Controller
 {
     public function index()
     {
         $rencana = RencanaP3d::latest()->paginate(15);
+
         return view('desa.rencana_p3d.index', compact('rencana'));
     }
 
     public function create()
     {
         $desa = Auth::user()->desa;
+
         return view('desa.rencana_p3d.create', compact('desa'));
     }
 
@@ -58,9 +60,10 @@ class RencanaP3dController extends Controller
         }
 
         $desa = Auth::user()->desa;
+
         return view('desa.rencana_p3d.edit', [
             'rencana' => $rencanaP3d,
-            'desa' => $desa
+            'desa' => $desa,
         ]);
     }
 

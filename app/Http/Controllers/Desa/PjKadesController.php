@@ -44,10 +44,13 @@ class PjKadesController extends Controller
             'Pengangkatan Pj Kades',
         ])->get();
 
-        // Alasan Plt Kades (Sementara / Cuti)
-        $alasanPlt = AlasanPemberhentian::whereIn('nama', [
+        // Alasan Plt Kades (Sementara)
+        $alasanSementara = AlasanPemberhentian::whereIn('nama', [
             'Pemberhentian Kades Sementara',
-            'Pengangkatan Plt Kades',
+        ])->get();
+
+        // Alasan Plt Kades (Cuti)
+        $alasanCuti = AlasanPemberhentian::whereIn('nama', [
             'Cuti Sakit',
             'Cuti Umroh / Haji',
             'Cuti Tahunan',
@@ -65,7 +68,8 @@ class PjKadesController extends Controller
             'layananPj',
             'layananPlt',
             'alasanPj',
-            'alasanPlt',
+            'alasanSementara',
+            'alasanCuti',
             'sekdes'
         ));
     }
@@ -74,7 +78,7 @@ class PjKadesController extends Controller
     {
         $request->validate([
             'metode' => ['required', 'in:online,offline'],
-            'kategori' => ['required', 'in:pj_kades,plt_kades'],
+            'kategori' => ['required', 'in:pj_kades,plt_sementara,plt_cuti'],
             'alasan_pemberhentian_id' => ['required', 'exists:alasan_pemberhentians,id'],
             'keterangan_cuti' => ['nullable', 'string', 'max:255'],
 
@@ -84,7 +88,7 @@ class PjKadesController extends Controller
             'pangkat' => ['required_if:kategori,pj_kades', 'nullable', 'string', 'max:100'],
 
             // Plt Kades Validation
-            'nama_plt' => ['required_if:kategori,plt_kades', 'nullable', 'string', 'max:255'],
+            'nama_plt' => ['required_unless:kategori,pj_kades', 'nullable', 'string', 'max:255'],
             'nip_plt' => ['nullable', 'string', 'max:30'],
             'pangkat_plt' => ['nullable', 'string', 'max:100'],
         ]);
@@ -92,35 +96,37 @@ class PjKadesController extends Controller
         $desa = Auth::user()->desa;
         $alasan = AlasanPemberhentian::findOrFail($request->alasan_pemberhentian_id);
         $kategori = $request->kategori;
+        $isPlt = in_array($kategori, ['plt_sementara', 'plt_cuti']);
+        $dbKategori = $isPlt ? 'plt_kades' : 'pj_kades';
 
         // Tentukan Jenis Layanan
-        $jenisLayananNama = $kategori === 'pj_kades'
+        $jenisLayananNama = ! $isPlt
             ? 'Pj Kades (Pemberhentian Definitif & Penunjukan Pj)'
             : 'Plt Kades (Pemberhentian Sementara / Cuti & Penunjukan Plt)';
 
         $jenisLayanan = JenisLayanan::where('nama', $jenisLayananNama)->first();
 
         // No Registrasi SK Kades
-        $prefix = $kategori === 'pj_kades' ? 'PJK' : 'PLT';
+        $prefix = ! $isPlt ? 'PJK' : 'PLT';
         $noRegistrasi = $prefix.'/'.now()->format('Y').'/'.now()->format('m').'/'.str_pad(PjKades::count() + 1, 4, '0', STR_PAD_LEFT);
 
         $kecamatanSlug = Str::slug($desa->kecamatan->nama_kecamatan ?? 'kecamatan');
         $desaSlug = Str::slug($desa->nama_desa);
-        $folderPath = "dokumen/{$kecamatanSlug}/{$desaSlug}/sk-kades-{$kategori}";
+        $folderPath = "dokumen/{$kecamatanSlug}/{$desaSlug}/sk-kades-{$dbKategori}";
 
         $pjKades = PjKades::create([
             'desa_id' => $desa->id,
-            'kategori' => $kategori,
+            'kategori' => $dbKategori,
             'alasan_pemberhentian_id' => $alasan->id,
             'alasan_nama' => $alasan->nama,
-            'keterangan_cuti' => $kategori === 'plt_kades' && $alasan->nama === 'Cuti Alasan Penting' ? $request->keterangan_cuti : null,
+            'keterangan_cuti' => $kategori === 'plt_cuti' && $alasan->nama === 'Cuti Alasan Penting' ? $request->keterangan_cuti : null,
             'no_registrasi' => $noRegistrasi,
-            'nama_pns' => $kategori === 'pj_kades' ? $request->nama_pns : null,
-            'nip' => $kategori === 'pj_kades' ? $request->nip : null,
-            'pangkat' => $kategori === 'pj_kades' ? $request->pangkat : null,
-            'nama_plt' => $kategori === 'plt_kades' ? $request->nama_plt : null,
-            'nip_plt' => $kategori === 'plt_kades' ? $request->nip_plt : null,
-            'pangkat_plt' => $kategori === 'plt_kades' ? $request->pangkat_plt : null,
+            'nama_pns' => ! $isPlt ? $request->nama_pns : null,
+            'nip' => ! $isPlt ? $request->nip : null,
+            'pangkat' => ! $isPlt ? $request->pangkat : null,
+            'nama_plt' => $isPlt ? $request->nama_plt : null,
+            'nip_plt' => $isPlt ? $request->nip_plt : null,
+            'pangkat_plt' => $isPlt ? $request->pangkat_plt : null,
             'folder_path' => $folderPath,
             'tgl_diajukan' => now()->toDateString(),
             'status_bebas_hukdis' => 'pending',
@@ -130,14 +136,14 @@ class PjKadesController extends Controller
 
         // Ambil ID Alasan Pemberhentian dan ID Pengangkatan yang bersesuaian
         $alasanIds = [$alasan->id];
-        
-        if ($kategori === 'pj_kades') {
-            $alasanPengangkatan = \App\Models\AlasanPemberhentian::where('nama', 'Pengangkatan Pj Kades')->first();
+
+        if (! $isPlt) {
+            $alasanPengangkatan = AlasanPemberhentian::where('nama', 'Pengangkatan Pj Kades')->first();
             if ($alasanPengangkatan) {
                 $alasanIds[] = $alasanPengangkatan->id;
             }
-        } elseif ($kategori === 'plt_kades') {
-            $alasanPengangkatan = \App\Models\AlasanPemberhentian::where('nama', 'Pengangkatan Plt Kades')->first();
+        } else {
+            $alasanPengangkatan = AlasanPemberhentian::where('nama', 'Pengangkatan Plt Kades')->first();
             if ($alasanPengangkatan) {
                 $alasanIds[] = $alasanPengangkatan->id;
             }
@@ -174,7 +180,24 @@ class PjKadesController extends Controller
             ->where('desa_id', $desaId)
             ->findOrFail($id);
 
-        return view('desa.pjkades.show', compact('pjkades'));
+        $tahapAktif = match ($pjkades->posisi_surat) {
+            'Front Office (FO)' => 2,
+            'Kabid PDPD' => 4,
+            'Sekretaris Dinas' => 5,
+            'Kepala Dinas' => 6,
+            'Asisten Setda / Sekda' => 8,
+            'Bupati' => 9,
+            'TU Umum Setda' => 10,
+            'Dinpermasdes' => 11,
+            'Selesai (Surat Terbit)' => 12,
+            default => 1,
+        };
+
+        if ($pjkades->status === 'draft' || $pjkades->status === 'rejected') {
+            $tahapAktif = 0;
+        }
+
+        return view('desa.pjkades.show', compact('pjkades', 'tahapAktif'));
     }
 
     public function uploadChecklist(Request $request, $id, $checklistId)

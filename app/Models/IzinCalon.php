@@ -46,7 +46,7 @@ class IzinCalon extends Model
 
     public function verifikator()
     {
-        return $this->belongsTo(\App\Models\User::class, 'verified_by');
+        return $this->belongsTo(User::class, 'verified_by');
     }
 
     // ── Business Logic ──────────────────────────────────────────────────────

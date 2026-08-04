@@ -29,7 +29,7 @@ class BimtekInformasiController extends Controller
         $path = $request->file('file')->store('bimtek/informasi/images', 'public');
 
         return response()->json([
-            'location' => asset('storage/' . $path)
+            'location' => asset('storage/'.$path),
         ]);
     }
 

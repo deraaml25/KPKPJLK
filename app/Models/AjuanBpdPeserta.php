@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 class AjuanBpdPeserta extends Model
 {
     use HasFactory;
+
     protected $guarded = [];
 
     public function bpd()

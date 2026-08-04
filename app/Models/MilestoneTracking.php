@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class MilestoneTracking extends Model
 {
     protected $fillable = [
-        'ajuan_id', 'tahap', 'tgl_mulai', 'tgl_selesai', 'catatan', 'updated_by'
+        'ajuan_id', 'tahap', 'tgl_mulai', 'tgl_selesai', 'catatan', 'updated_by',
     ];
 
     protected $casts = [

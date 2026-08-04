@@ -5,7 +5,8 @@
         kategori: 'pj_kades',
         metode: 'online',
         alasanPjId: '{{ $alasanPj->first()->id ?? '' }}',
-        alasanPltId: '{{ $alasanPlt->first()->id ?? '' }}'
+        alasanSementaraId: '{{ $alasanSementara->first()->id ?? '' }}',
+        alasanCutiId: '{{ $alasanCuti->first()->id ?? '' }}'
     }">
         <div class="mb-6 border-b border-border pb-4">
             <h2 class="text-xl font-display font-bold text-ink">Buat Usulan Pemberhentian & SK Kades</h2>
@@ -52,42 +53,53 @@
             <div class="mb-6">
                 <label class="block text-sm font-bold text-ink mb-2">1. Pilih Jenis Pemberhentian Kepala Desa <span class="text-red-500">*</span></label>
                 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {{-- Opsi A: Pemberhentian Definitif (Pj Kades) --}}
-                    <label class="relative flex flex-col p-5 rounded-xl border-2 cursor-pointer transition-all"
+                    <label class="relative flex flex-col p-4 rounded-xl border-2 cursor-pointer transition-all"
                         :class="kategori === 'pj_kades' ? 'border-primary bg-primary/5 shadow-sm' : 'border-border hover:border-gray-300'">
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-sm font-bold text-ink flex items-center gap-2">
-                                <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path>
-                                </svg>
-                                Pemberhentian Kades (Definitif)
+                                Pemberhentian Kades
                             </span>
                             <input type="radio" name="kategori" value="pj_kades" x-model="kategori" class="text-primary focus:ring-primary">
                         </div>
 
                         <div class="mt-auto pt-2 border-t border-gray-200/60">
-                            <span class="text-[11px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded">
-                                Pengganti: Penjabat (Pj) Kades — Unsur ASN
+                            <span class="text-[11px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded leading-tight inline-block">
+                                Pengganti: Penjabat (Pj) Kades — ASN
                             </span>
                         </div>
                     </label>
 
-                    {{-- Opsi B: Pemberhentian Sementara / Cuti (Plt Kades) --}}
-                    <label class="relative flex flex-col p-5 rounded-xl border-2 cursor-pointer transition-all"
-                        :class="kategori === 'plt_kades' ? 'border-amber-500 bg-amber-50/50 shadow-sm' : 'border-border hover:border-gray-300'">
+                    {{-- Opsi B: Pemberhentian Sementara --}}
+                    <label class="relative flex flex-col p-4 rounded-xl border-2 cursor-pointer transition-all"
+                        :class="kategori === 'plt_sementara' ? 'border-amber-500 bg-amber-50/50 shadow-sm' : 'border-border hover:border-gray-300'">
                         <div class="flex items-center justify-between mb-2">
                             <span class="text-sm font-bold text-ink flex items-center gap-2">
-                                <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                </svg>
-                                Pemberhentian Sementara / Cuti Kades
+                                Pemberhentian Sementara
                             </span>
-                            <input type="radio" name="kategori" value="plt_kades" x-model="kategori" class="text-amber-600 focus:ring-amber-500">
+                            <input type="radio" name="kategori" value="plt_sementara" x-model="kategori" class="text-amber-600 focus:ring-amber-500">
                         </div>
 
                         <div class="mt-auto pt-2 border-t border-gray-200/60">
-                            <span class="text-[11px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded">
+                            <span class="text-[11px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded leading-tight inline-block">
+                                Pengganti: Pelaksana Tugas (Plt) Kades — Sekdes
+                            </span>
+                        </div>
+                    </label>
+                    
+                    {{-- Opsi C: Cuti --}}
+                    <label class="relative flex flex-col p-4 rounded-xl border-2 cursor-pointer transition-all"
+                        :class="kategori === 'plt_cuti' ? 'border-green-500 bg-green-50/50 shadow-sm' : 'border-border hover:border-gray-300'">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-sm font-bold text-ink flex items-center gap-2">
+                                Cuti
+                            </span>
+                            <input type="radio" name="kategori" value="plt_cuti" x-model="kategori" class="text-green-600 focus:ring-green-500">
+                        </div>
+
+                        <div class="mt-auto pt-2 border-t border-gray-200/60">
+                            <span class="text-[11px] font-bold text-green-800 bg-green-100 px-2 py-0.5 rounded leading-tight inline-block">
                                 Pengganti: Pelaksana Tugas (Plt) Kades — Sekdes
                             </span>
                         </div>
@@ -111,24 +123,36 @@
                     </div>
                 </template>
 
-                {{-- Alasan untuk Pemberhentian Sementara / Cuti (Plt Kades) --}}
-                <template x-if="kategori === 'plt_kades'">
+                {{-- Alasan untuk Pemberhentian Sementara --}}
+                <template x-if="kategori === 'plt_sementara'">
                     <div>
-                        @php
-                            $idAlasanPenting = $alasanPlt->where('nama', 'Cuti Alasan Penting')->first()->id ?? null;
-                        @endphp
-                        <select name="alasan_pemberhentian_id" x-model="alasanPltId" class="w-full text-sm rounded-md border-border text-ink bg-white focus:border-amber-500 focus:ring-amber-500 shadow-sm" required>
-                            @foreach ($alasanPlt as $alasan)
+                        <select name="alasan_pemberhentian_id" x-model="alasanSementaraId" class="w-full text-sm rounded-md border-border text-ink bg-white focus:border-amber-500 focus:ring-amber-500 shadow-sm" required>
+                            @foreach ($alasanSementara as $alasan)
                                 <option value="{{ $alasan->id }}">{{ $alasan->nama }}</option>
                             @endforeach
                         </select>
-                        <p class="text-xs text-muted mt-2">Daftar checklist berkas otomatis mencakup: <strong>Dokumen Khusus Alasan Cuti/Sementara + 6 Dokumen Pendukung Plt Sekdes</strong>.</p>
+                        <p class="text-xs text-muted mt-2">Daftar checklist berkas otomatis mencakup: <strong>Dokumen Pemberhentian Sementara + 6 Dokumen Pendukung Plt Sekdes</strong>.</p>
+                    </div>
+                </template>
+                
+                {{-- Alasan untuk Cuti --}}
+                <template x-if="kategori === 'plt_cuti'">
+                    <div>
+                        @php
+                            $idAlasanPenting = $alasanCuti->where('nama', 'Cuti Alasan Penting')->first()->id ?? null;
+                        @endphp
+                        <select name="alasan_pemberhentian_id" x-model="alasanCutiId" class="w-full text-sm rounded-md border-border text-ink bg-white focus:border-green-500 focus:ring-green-500 shadow-sm" required>
+                            @foreach ($alasanCuti as $alasan)
+                                <option value="{{ $alasan->id }}">{{ $alasan->nama }}</option>
+                            @endforeach
+                        </select>
+                        <p class="text-xs text-muted mt-2">Daftar checklist berkas otomatis mencakup: <strong>Dokumen Cuti (seperti surat keterangan) + 6 Dokumen Pendukung Plt Sekdes</strong>.</p>
                         
-                        <template x-if="alasanPltId == '{{ $idAlasanPenting }}'">
+                        <template x-if="alasanCutiId == '{{ $idAlasanPenting }}'">
                             <div class="mt-4">
                                 <label for="keterangan_cuti" class="block text-sm font-bold text-ink mb-1">Keterangan Alasan Penting <span class="text-red-500">*</span></label>
                                 <input type="text" name="keterangan_cuti" id="keterangan_cuti" required
-                                    class="w-full text-sm rounded-md border-border text-ink bg-white focus:border-amber-500 focus:ring-amber-500 shadow-sm"
+                                    class="w-full text-sm rounded-md border-border text-ink bg-white focus:border-green-500 focus:ring-green-500 shadow-sm"
                                     placeholder="Contoh: Ada keluarga meninggal, berangkat Umroh/Haji, dll.">
                             </div>
                         </template>
@@ -170,7 +194,7 @@
                 </template>
 
                 {{-- Data Plt Kades (Sekdes) --}}
-                <template x-if="kategori === 'plt_kades'">
+                <template x-if="['plt_sementara', 'plt_cuti'].includes(kategori)">
                     <div class="space-y-4">
                         <div>
                             <label for="nama_plt" class="block text-sm font-bold text-ink mb-1">Nama Sekretaris Desa (Calon Plt Kades) <span class="text-red-500">*</span></label>

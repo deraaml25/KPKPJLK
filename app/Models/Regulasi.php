@@ -18,7 +18,7 @@ class Regulasi extends Model
         'desa_id',
         'catatan_revisi',
         'tgl_diajukan',
-        'tgl_disahkan'
+        'tgl_disahkan',
     ];
 
     protected $casts = [

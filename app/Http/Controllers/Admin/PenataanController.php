@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\PenataanDesa;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -12,6 +13,7 @@ class PenataanController extends Controller
     public function index()
     {
         $penataan = PenataanDesa::withoutGlobalScopes()->with('desa')->latest()->paginate(15);
+
         return view('admin.penataan.index', compact('penataan'));
     }
 
@@ -34,8 +36,8 @@ class PenataanController extends Controller
 
         // 1. Otoritas Mesin: Apabila gagal syarat UU, sistem menolak tombol Approve (bypass protection)
         $hasilHitung = $penataan->runKalkulatorUU();
-        if (!$hasilHitung['is_valid']) {
-            $alasanGagal = implode(" ", $hasilHitung['messages']);
+        if (! $hasilHitung['is_valid']) {
+            $alasanGagal = implode(' ', $hasilHitung['messages']);
             $penataan->update([
                 'status' => 'ditolak',
                 'alasan_penolakan' => "Ditolak otomatis oleh sistem (Kalkulator UU Desa): {$alasanGagal}",
@@ -57,7 +59,7 @@ class PenataanController extends Controller
         $perbupPath = $request->file('perbup_persiapan')->store('penataan/perbup', 'public');
 
         // Set timeline persiapan
-        $mulai = \Carbon\Carbon::parse($request->tgl_mulai_persiapan);
+        $mulai = Carbon::parse($request->tgl_mulai_persiapan);
         $batas = $mulai->copy()->addYears($request->lama_uji_coba_tahun);
 
         $penataan->update([

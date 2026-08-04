@@ -185,12 +185,35 @@
                 </div>
             </div>
 
-            <!-- Widget 2: Sistem Update -->
-            <div class="bg-[#7895CB] rounded-2xl p-6 text-white shadow-sm flex-1 flex flex-col justify-center">
-                <h3 class="text-lg font-bold mb-2 text-slate-900">Sistem Update Berkala</h3>
-                <p class="text-slate-800 text-sm opacity-90 leading-relaxed">
-                    Pemeliharaan server akan dilakukan pada 15 Oktober pukul 23:00 WIB.
-                </p>
+            <!-- Widget 2: Berita & Informasi -->
+            <div class="bg-[#7895CB] rounded-2xl p-5 text-white shadow-sm flex-1 flex flex-col {{ (isset($berita) && $berita->count() > 0) ? 'justify-start' : 'justify-center' }}">
+                <h3 class="text-lg font-bold mb-3 text-white flex items-center justify-between leading-tight">
+                    <span class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-[20px]">campaign</span>
+                        Informasi Pembinaan
+                    </span>
+                    <a href="{{ route('admin.bimtek-informasi.index') }}" class="text-[10px] font-medium bg-white/20 hover:bg-white/30 px-2 py-1 rounded transition-colors">Lihat Semua</a>
+                </h3>
+                @if(isset($berita) && $berita->count() > 0)
+                    <div class="space-y-2 overflow-y-auto max-h-[110px] scrollbar-none pr-1">
+                        @foreach($berita as $item)
+                            <a href="{{ route('admin.bimtek-informasi.show', $item->id) }}" class="block bg-white/10 hover:bg-white/20 transition-colors border border-white/10 rounded-lg p-2.5">
+                                <div class="flex justify-between items-start mb-0.5">
+                                    <span class="text-sm font-bold text-white leading-tight line-clamp-1">{{ $item->judul }}</span>
+                                </div>
+                                <div class="flex justify-between items-center mt-1">
+                                    <span class="text-[10px] text-white/80 bg-black/20 px-1.5 py-0.5 rounded">{{ Str::title(str_replace('_', ' ', $item->kategori)) }}</span>
+                                    <span class="text-[10px] text-white/70">{{ $item->created_at->diffForHumans() }}</span>
+                                </div>
+                            </a>
+                        @endforeach
+                    </div>
+                @else
+                    <div class="flex flex-col items-center justify-center text-center opacity-80 mt-1">
+                        <span class="material-symbols-outlined text-3xl mb-1 text-white">article</span>
+                        <p class="text-xs text-white">Belum ada berita atau informasi pembinaan terbaru.</p>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

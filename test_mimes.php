@@ -1,1 +1,0 @@
-<?php require 'vendor/autoload.php'; require 'bootstrap/app.php'; $app = app(); $app->make('Illuminate\Contracts\Console\Kernel')->bootstrap(); $v = \Illuminate\Support\Facades\Validator::make(['file' => \Illuminate\Http\UploadedFile::fake()->create('test.docx', 100, 'application/zip')], ['file' => 'mimes:doc,docx']); echo $v->fails() ? 'Fails' : 'Passes';

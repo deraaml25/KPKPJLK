@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ChecklistAjuan extends Model
 {
     protected $fillable = [
-        'ajuan_id', 'template_checklist_id', 'file_path', 'status', 'catatan', 'versi', 'updated_by'
+        'ajuan_id', 'template_checklist_id', 'file_path', 'status', 'catatan', 'versi', 'updated_by',
     ];
 
     public function ajuan()

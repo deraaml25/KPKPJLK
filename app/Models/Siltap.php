@@ -65,13 +65,13 @@ class Siltap extends Model
             ->where('tahun', $prevTahun)
             ->first();
 
-        if (!$prevSiltap) {
+        if (! $prevSiltap) {
             // Tidak ada pengajuan bulan lalu, mungkin belum pernah submit sama sekali — izinkan
             return ['allowed' => true, 'reason' => ''];
         }
 
         if ($prevSiltap->status === 'ditolak') {
-            return ['allowed' => false, 'reason' => 'Pencairan bulan sebelumnya (' . $prevBulan . '/' . $prevTahun . ') berstatus DITOLAK. Perbaiki terlebih dahulu.'];
+            return ['allowed' => false, 'reason' => 'Pencairan bulan sebelumnya ('.$prevBulan.'/'.$prevTahun.') berstatus DITOLAK. Perbaiki terlebih dahulu.'];
         }
 
         return ['allowed' => true, 'reason' => ''];
@@ -83,6 +83,7 @@ class Siltap extends Model
     public function getNamaBulanAttribute(): string
     {
         $bulanNames = [1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April', 5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus', 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'];
+
         return $bulanNames[$this->bulan] ?? '-';
     }
 }

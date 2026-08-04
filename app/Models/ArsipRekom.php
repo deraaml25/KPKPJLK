@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ArsipRekom extends Model
 {
     protected $fillable = [
-        'ajuan_id', 'no_surat_rekom', 'file_path', 'tgl_upload', 'uploaded_by'
+        'ajuan_id', 'no_surat_rekom', 'file_path', 'tgl_upload', 'uploaded_by',
     ];
 
     protected $casts = [

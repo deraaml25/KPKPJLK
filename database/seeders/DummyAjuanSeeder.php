@@ -2,13 +2,13 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Ajuan;
 use App\Models\ChecklistAjuan;
 use App\Models\Desa;
 use App\Models\JenisLayanan;
 use App\Models\PerangkatDesa;
 use App\Models\TemplateChecklist;
+use Illuminate\Database\Seeder;
 
 class DummyAjuanSeeder extends Seeder
 {
@@ -18,12 +18,12 @@ class DummyAjuanSeeder extends Seeder
         $layanan = JenisLayanan::where('nama', 'Pengangkatan')->first();
         $perangkat = PerangkatDesa::where('desa_id', $desa->id)->first();
 
-        if (!$perangkat) {
+        if (! $perangkat) {
             $perangkat = PerangkatDesa::create([
                 'desa_id' => $desa->id,
                 'nama' => 'Dummy Perangkat',
                 'jabatan' => 'Kasi Pelayanan',
-                'status_aktif' => true
+                'status_aktif' => true,
             ]);
         }
 
@@ -46,7 +46,7 @@ class DummyAjuanSeeder extends Seeder
                 'template_checklist_id' => $t->id,
                 // Simulasi file terunggah di beberapa checklist awal
                 'file_path' => $idx < 3 ? 'arsip/dummy.pdf' : null,
-                'status' => 'menunggu'
+                'status' => 'menunggu',
             ]);
         }
     }

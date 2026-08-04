@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\TemplateChecklistBpd;
 use Illuminate\Database\Seeder;
 
 class TemplateChecklistBpdSeeder extends Seeder
@@ -26,10 +26,10 @@ class TemplateChecklistBpdSeeder extends Seeder
         ];
 
         foreach ($documents as $index => $doc) {
-            \App\Models\TemplateChecklistBpd::create([
+            TemplateChecklistBpd::create([
                 'nama_dokumen' => $doc,
                 'wajib' => true,
-                'urutan' => $index + 1
+                'urutan' => $index + 1,
             ]);
         }
     }

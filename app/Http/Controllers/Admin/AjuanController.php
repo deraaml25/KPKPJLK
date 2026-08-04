@@ -8,6 +8,7 @@ use App\Models\ChecklistAjuan;
 use App\Models\JenisLayanan;
 use App\Models\LogKekurangan;
 use App\Models\MilestoneTracking;
+use App\Models\TemplateChecklist;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -47,7 +48,7 @@ class AjuanController extends Controller
             'arsipRekom',
         ]);
 
-        $templates = \App\Models\TemplateChecklist::where('jenis_layanan_id', $ajuan->jenis_layanan_id)
+        $templates = TemplateChecklist::where('jenis_layanan_id', $ajuan->jenis_layanan_id)
             ->where(function ($query) use ($ajuan) {
                 $query->whereNull('alasan_pemberhentian_id')
                     ->orWhere('alasan_pemberhentian_id', $ajuan->alasan_pemberhentian_id);
@@ -58,7 +59,7 @@ class AjuanController extends Controller
         $existingTemplateIds = $ajuan->checklistAjuans->pluck('template_checklist_id')->filter()->all();
 
         foreach ($templates as $template) {
-            if (!in_array($template->id, $existingTemplateIds, true)) {
+            if (! in_array($template->id, $existingTemplateIds, true)) {
                 $ajuan->checklistAjuans()->create([
                     'template_checklist_id' => $template->id,
                     'status' => 'pending',
@@ -145,7 +146,7 @@ class AjuanController extends Controller
             $ajuan->update(['status' => 'selesai']);
         }
 
-        return back()->with('success', 'Milestone Tahap ' . $request->tahap . ' berhasil diselesaikan!');
+        return back()->with('success', 'Milestone Tahap '.$request->tahap.' berhasil diselesaikan!');
     }
 
     private function hitungTahapAktif($milestoneTrackings): int

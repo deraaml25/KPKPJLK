@@ -2,13 +2,14 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Models\Kecamatan;
+use App\Models\Bpd;
 use App\Models\Desa;
+use App\Models\Kecamatan;
 use App\Models\PerangkatDesa;
 use App\Models\User;
-use Illuminate\Support\Facades\File;
+use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
 
 class ImportPerangkatDesa extends Command
@@ -34,15 +35,17 @@ class ImportPerangkatDesa extends Command
     {
         $jsonFile = base_path('data_desa.json');
 
-        if (!File::exists($jsonFile)) {
+        if (! File::exists($jsonFile)) {
             $this->error("File $jsonFile tidak ditemukan!");
+
             return;
         }
 
         $jsonData = json_decode(File::get($jsonFile), true);
 
-        if (!$jsonData) {
-            $this->error("Gagal membaca atau mem-parse JSON.");
+        if (! $jsonData) {
+            $this->error('Gagal membaca atau mem-parse JSON.');
+
             return;
         }
 
@@ -57,7 +60,8 @@ class ImportPerangkatDesa extends Command
                 $desaName = trim($row['C'] ?? '');
 
                 if (empty($kecamatanName) || empty($desaName)) {
-                    $this->warn("Baris " . ($index + 2) . " diskip karena Kecamatan atau Desa kosong.");
+                    $this->warn('Baris '.($index + 2).' diskip karena Kecamatan atau Desa kosong.');
+
                     continue;
                 }
 
@@ -70,7 +74,7 @@ class ImportPerangkatDesa extends Command
                     ->where('kecamatan_id', $kecamatan->id)
                     ->first();
 
-                if (!$desa) {
+                if (! $desa) {
                     $desa = Desa::create([
                         'nama_desa' => $desaName,
                         'kecamatan_id' => $kecamatan->id,
@@ -83,7 +87,7 @@ class ImportPerangkatDesa extends Command
                 $counter = 1;
 
                 while (User::where('username', $username)->exists()) {
-                    $username = $baseUsername . '_' . $counter;
+                    $username = $baseUsername.'_'.$counter;
                     $counter++;
                 }
 
@@ -130,60 +134,60 @@ class ImportPerangkatDesa extends Command
                 ];
 
                 // Kadus IV (only add if there is a name present, regardless of the status comment)
-                if (!empty(trim($row['P'] ?? '')) && trim($row['P']) !== '-') {
+                if (! empty(trim($row['P'] ?? '')) && trim($row['P']) !== '-') {
                     $perangkatList[] = [
                         'jabatan' => 'Kadus IV',
-                        'nama' => trim($row['P'])
+                        'nama' => trim($row['P']),
                     ];
                 }
 
                 // Kadus V (only add if there is a name present, regardless of the status comment)
-                if (!empty(trim($row['R'] ?? '')) && trim($row['R']) !== '-') {
+                if (! empty(trim($row['R'] ?? '')) && trim($row['R']) !== '-') {
                     $perangkatList[] = [
                         'jabatan' => 'Kadus V',
-                        'nama' => trim($row['R'])
+                        'nama' => trim($row['R']),
                     ];
                 }
 
                 // Staf Perangkat Desa (Row U = Nama, Row V = Jabatan)
-                if (!empty(trim($row['U'] ?? '')) && trim($row['U']) !== '-') {
+                if (! empty(trim($row['U'] ?? '')) && trim($row['U']) !== '-') {
                     $perangkatList[] = [
                         'jabatan' => trim($row['V'] ?? 'Staf Perangkat Desa'),
-                        'nama' => trim($row['U'])
+                        'nama' => trim($row['U']),
                     ];
                 }
 
                 // Staf Non Perangkat Desa 1 (Row Y = Nama, Row Z = Jabatan)
-                if (!empty(trim($row['Y'] ?? '')) && trim($row['Y']) !== '-') {
+                if (! empty(trim($row['Y'] ?? '')) && trim($row['Y']) !== '-') {
                     $perangkatList[] = [
                         'jabatan' => trim($row['Z'] ?? 'Staf Non Perangkat Desa 1'),
-                        'nama' => trim($row['Y'])
+                        'nama' => trim($row['Y']),
                     ];
                 }
 
                 // Staf Non Perangkat Desa 2 (Row AA = Nama, Row AB = Jabatan)
-                if (!empty(trim($row['AA'] ?? '')) && trim($row['AA']) !== '-') {
+                if (! empty(trim($row['AA'] ?? '')) && trim($row['AA']) !== '-') {
                     $perangkatList[] = [
                         'jabatan' => trim($row['AB'] ?? 'Staf Non Perangkat Desa 2'),
-                        'nama' => trim($row['AA'])
+                        'nama' => trim($row['AA']),
                     ];
                 }
 
                 // Staf Non Perangkat Desa 3 (Row AC = Nama, Row AD = Jabatan)
-                if (!empty(trim($row['AC'] ?? '')) && trim($row['AC']) !== '-') {
+                if (! empty(trim($row['AC'] ?? '')) && trim($row['AC']) !== '-') {
                     $perangkatList[] = [
                         'jabatan' => trim($row['AD'] ?? 'Staf Non Perangkat Desa 3'),
-                        'nama' => trim($row['AC'])
+                        'nama' => trim($row['AC']),
                     ];
                 }
 
                 // Insert into PerangkatDesa
                 foreach ($perangkatList as $p) {
-                    if (!empty($p['nama']) && $p['nama'] !== '-') {
+                    if (! empty($p['nama']) && $p['nama'] !== '-') {
                         PerangkatDesa::updateOrCreate(
                             [
                                 'desa_id' => $desa->id,
-                                'jabatan' => $p['jabatan']
+                                'jabatan' => $p['jabatan'],
                             ],
                             [
                                 'nama' => $p['nama'],
@@ -220,11 +224,11 @@ class ImportPerangkatDesa extends Command
                 ];
 
                 foreach ($bpdList as $b) {
-                    if (!empty($b['nama']) && $b['nama'] !== '-' && !empty($b['status'])) {
-                        \App\Models\Bpd::updateOrCreate(
+                    if (! empty($b['nama']) && $b['nama'] !== '-' && ! empty($b['status'])) {
+                        Bpd::updateOrCreate(
                             [
                                 'desa_id' => $desa->id,
-                                'jabatan' => $b['jabatan']
+                                'jabatan' => $b['jabatan'],
                             ],
                             [
                                 'nama' => $b['nama'],

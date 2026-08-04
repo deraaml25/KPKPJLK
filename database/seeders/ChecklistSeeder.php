@@ -1,11 +1,13 @@
 <?php
+
 namespace Database\Seeders;
 
+use App\Models\Ajuan;
+use App\Models\AlasanPemberhentian;
+use App\Models\JenisLayanan;
+use App\Models\TemplateChecklist;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use App\Models\JenisLayanan;
-use App\Models\AlasanPemberhentian;
-use App\Models\TemplateChecklist;
 
 class ChecklistSeeder extends Seeder
 {
@@ -78,7 +80,7 @@ class ChecklistSeeder extends Seeder
             ];
 
             $permintaanSendiriItems = array_merge($purnaTugasItems, [
-                'Fc. Surat Pernyataan Pengunduran diri dari Perangkat Desa yang ditujukan kepada Kepala Desa'
+                'Fc. Surat Pernyataan Pengunduran diri dari Perangkat Desa yang ditujukan kepada Kepala Desa',
             ]);
 
             $diberhentikanItems = [
@@ -123,7 +125,7 @@ class ChecklistSeeder extends Seeder
             $createTemplates($diberhentikanItems, $pemberhentian->id, $alasanDiberhentikan->id);
 
             // Delete all draft ajuans so UI refreshes without errors from missing Template relationships
-            \App\Models\Ajuan::query()->delete();
+            Ajuan::query()->delete();
         });
     }
 }

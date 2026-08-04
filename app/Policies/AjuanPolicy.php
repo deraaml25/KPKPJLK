@@ -4,7 +4,6 @@ namespace App\Policies;
 
 use App\Models\Ajuan;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class AjuanPolicy
 {
@@ -21,8 +20,10 @@ class AjuanPolicy
      */
     public function view(User $user, Ajuan $ajuan): bool
     {
-        if ($user->role === 'super_admin')
+        if ($user->role === 'super_admin') {
             return true;
+        }
+
         return $user->desa_id === $ajuan->desa_id;
     }
 

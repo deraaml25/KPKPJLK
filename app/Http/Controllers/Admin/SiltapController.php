@@ -52,8 +52,8 @@ class SiltapController extends Controller
         $siltap->update($data);
 
         $msg = $request->keputusan === 'disetujui'
-            ? 'Pencairan Siltap Desa ' . $siltap->desa->nama_desa . ' DISETUJUI.'
-            : 'Pencairan Siltap Desa ' . $siltap->desa->nama_desa . ' DITOLAK.';
+            ? 'Pencairan Siltap Desa '.$siltap->desa->nama_desa.' DISETUJUI.'
+            : 'Pencairan Siltap Desa '.$siltap->desa->nama_desa.' DITOLAK.';
 
         return back()->with('success', $msg);
     }
@@ -71,6 +71,6 @@ class SiltapController extends Controller
             'status' => 'dikirim_bkad',
         ]);
 
-        return back()->with('success', 'Status pencairan Desa ' . $siltap->desa->nama_desa . ' telah diperbarui: Dikirim ke BKAD/Bank.');
+        return back()->with('success', 'Status pencairan Desa '.$siltap->desa->nama_desa.' telah diperbarui: Dikirim ke BKAD/Bank.');
     }
 }

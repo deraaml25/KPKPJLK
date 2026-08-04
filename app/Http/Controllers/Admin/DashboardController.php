@@ -3,14 +3,15 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\PjKades;
 use App\Models\Ajuan;
-use App\Models\Regulasi;
-use App\Models\PengajuanPembinaan;
-use App\Models\RencanaP3d;
-use App\Models\PerangkatDesa;
-use App\Models\Bpd;
 use App\Models\AjuanBpd;
+use App\Models\BimtekInformasi;
+use App\Models\Bpd;
+use App\Models\PengajuanPembinaan;
+use App\Models\PerangkatDesa;
+use App\Models\PjKades;
+use App\Models\Regulasi;
+use App\Models\RencanaP3d;
 
 class DashboardController extends Controller
 {
@@ -29,34 +30,34 @@ class DashboardController extends Controller
 
         // Aktivitas Terkini (gabungan dari beberapa model yang sering diupdate)
         $aktivitas = collect();
-        
-        $recentPjkades = PjKades::withoutGlobalScopes()->latest('updated_at')->take(3)->get()->map(function($item) {
+
+        $recentPjkades = PjKades::withoutGlobalScopes()->latest('updated_at')->take(3)->get()->map(function ($item) {
             return (object) [
                 'icon' => 'person',
                 'title' => 'Usulan SK Kades',
                 'status' => $item->status,
                 'admin' => $item->desa->nama_desa ?? 'Admin',
-                'date' => $item->updated_at
+                'date' => $item->updated_at,
             ];
         });
-        
-        $recentAjuan = Ajuan::latest('updated_at')->take(3)->get()->map(function($item) {
+
+        $recentAjuan = Ajuan::latest('updated_at')->take(3)->get()->map(function ($item) {
             return (object) [
                 'icon' => 'approval',
                 'title' => 'e-Rekomendasi',
                 'status' => $item->status,
                 'admin' => $item->desa->nama_desa ?? 'Admin',
-                'date' => $item->updated_at
+                'date' => $item->updated_at,
             ];
         });
 
-        $recentRegulasi = Regulasi::latest('updated_at')->take(3)->get()->map(function($item) {
+        $recentRegulasi = Regulasi::latest('updated_at')->take(3)->get()->map(function ($item) {
             return (object) [
                 'icon' => 'gavel',
                 'title' => 'Draft Regulasi',
                 'status' => $item->status ?? 'draft',
                 'admin' => $item->desa->nama_desa ?? 'Admin',
-                'date' => $item->updated_at
+                'date' => $item->updated_at,
             ];
         });
 
@@ -64,13 +65,8 @@ class DashboardController extends Controller
             ->sortByDesc('date')
             ->take(5);
 
-        // Peringatan dini: Pj Kades yang masa jabatannya hampir habis (≤30 hari)
-        $pjKadesAlert = PjKades::withoutGlobalScopes()
-            ->where('status', 'approved')
-            ->whereNotNull('tgl_selesai')
-            ->get()
-            ->filter(fn($pj) => $pj->hampir_berakhir || $pj->sudah_berakhir);
+        $berita = BimtekInformasi::latest('created_at')->take(4)->get();
 
-        return view('admin.dashboard', compact('pjKadesAlert', 'counts', 'aktivitas'));
+        return view('admin.dashboard', compact('berita', 'counts', 'aktivitas'));
     }
 }

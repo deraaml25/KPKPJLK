@@ -63,7 +63,7 @@ class PilkadesController extends Controller
         $totalHadir = $request->suara_sah + $request->suara_tidak_sah;
         if ($totalHadir !== (int) $request->total_pemilih_hadir) {
             return redirect()->back()->withInput()->withErrors([
-                'total_pemilih_hadir' => 'Integritas Gagal: Total suara sah + tidak sah (' . $totalHadir . ') TIDAK SAMA dengan total pemilih hadir yang diinputkan (' . $request->total_pemilih_hadir . ').'
+                'total_pemilih_hadir' => 'Integritas Gagal: Total suara sah + tidak sah ('.$totalHadir.') TIDAK SAMA dengan total pemilih hadir yang diinputkan ('.$request->total_pemilih_hadir.').',
             ]);
         }
 
@@ -71,7 +71,7 @@ class PilkadesController extends Controller
         $totalSuaraCalon = $request->suara_calon_1 + $request->suara_calon_2 + $request->suara_calon_3;
         if ($totalSuaraCalon !== (int) $request->suara_sah) {
             return redirect()->back()->withInput()->withErrors([
-                'suara_sah' => 'Integritas Gagal: Akumulasi suara seluruh calon (' . $totalSuaraCalon . ') TIDAK SAMA dengan jumlah suara sah TPS (' . $request->suara_sah . ').'
+                'suara_sah' => 'Integritas Gagal: Akumulasi suara seluruh calon ('.$totalSuaraCalon.') TIDAK SAMA dengan jumlah suara sah TPS ('.$request->suara_sah.').',
             ]);
         }
 

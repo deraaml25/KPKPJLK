@@ -54,7 +54,7 @@ class PjKadesController extends Controller
             return response()->json([
                 'success' => true,
                 'status' => $checklist->status_verifikasi,
-                'message' => "Dokumen {$checklist->nama_dokumen} ditandai sebagai {$statusText}."
+                'message' => "Dokumen {$checklist->nama_dokumen} ditandai sebagai {$statusText}.",
             ]);
         }
 
@@ -111,7 +111,7 @@ class PjKadesController extends Controller
 
         $request->validate([
             'posisi_surat' => 'required|string',
-            'status_baru' => 'nullable|string'
+            'status_baru' => 'nullable|string',
         ]);
 
         $updateData = [

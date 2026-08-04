@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Desa;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Desa\PerangkatRequest;
 use App\Models\PerangkatDesa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -27,8 +28,8 @@ class PerangkatController extends Controller
             ->orderBy('nama');
 
         if ($request->has('search') && $request->search != '') {
-            $query->where('nama', 'like', '%' . $request->search . '%')
-                ->orWhere('jabatan', 'like', '%' . $request->search . '%');
+            $query->where('nama', 'like', '%'.$request->search.'%')
+                ->orWhere('jabatan', 'like', '%'.$request->search.'%');
         }
 
         $perangkat = $query->paginate(15);
@@ -42,7 +43,7 @@ class PerangkatController extends Controller
         return view('desa.perangkat.create');
     }
 
-    public function store(\App\Http\Requests\Desa\PerangkatRequest $request)
+    public function store(PerangkatRequest $request)
     {
         $validated = $request->validated();
 
@@ -59,12 +60,12 @@ class PerangkatController extends Controller
 
     public function edit(PerangkatDesa $perangkat)
     {
-        // $perangkat ini sudah ter-filter secara otomatis oleh TenantDesaScope 
+        // $perangkat ini sudah ter-filter secara otomatis oleh TenantDesaScope
         // sehingga mereka tidak akan pernah bisa mengedit perangkat desa lain
         return view('desa.perangkat.edit', compact('perangkat'));
     }
 
-    public function update(\App\Http\Requests\Desa\PerangkatRequest $request, PerangkatDesa $perangkat)
+    public function update(PerangkatRequest $request, PerangkatDesa $perangkat)
     {
         $validated = $request->validated();
 
@@ -77,7 +78,7 @@ class PerangkatController extends Controller
                 'jabatan' => $validated['jabatan'],
                 'no_sk_terakhir' => $validated['no_sk_terakhir'],
                 'tgl_mulai_jabatan' => $validated['tgl_mulai_jabatan'],
-            ]
+            ],
         ]);
 
         return redirect()->route('desa.perangkat.index')
@@ -89,7 +90,7 @@ class PerangkatController extends Controller
         // Alih-alih hard delete, kita lakukan soft delete flag.
         // Ini menjaga integritas data riwayat jika digunakan untuk pendaftaran dsb.
         $perangkat->update([
-            'status_verifikasi' => 'pending_nonaktif'
+            'status_verifikasi' => 'pending_nonaktif',
         ]);
 
         return redirect()->route('desa.perangkat.index')
@@ -99,7 +100,7 @@ class PerangkatController extends Controller
     public function activate(PerangkatDesa $perangkat)
     {
         $perangkat->update([
-            'status_verifikasi' => 'pending_aktif'
+            'status_verifikasi' => 'pending_aktif',
         ]);
 
         return redirect()->route('desa.perangkat.index')

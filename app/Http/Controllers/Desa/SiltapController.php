@@ -31,7 +31,7 @@ class SiltapController extends Controller
 
         $canSubmitCheck = Siltap::canSubmit($desaId, $bulanIni, $tahunIni);
 
-        if (!$canSubmitCheck['allowed']) {
+        if (! $canSubmitCheck['allowed']) {
             return redirect()->route('desa.siltap.index')->with('error', $canSubmitCheck['reason']);
         }
 
@@ -54,7 +54,7 @@ class SiltapController extends Controller
 
         // Auto-lock enforcement di backend
         $canSubmitCheck = Siltap::canSubmit($desaId, $request->bulan, $request->tahun);
-        if (!$canSubmitCheck['allowed']) {
+        if (! $canSubmitCheck['allowed']) {
             return back()->withErrors(['lock' => $canSubmitCheck['reason']]);
         }
 
@@ -72,7 +72,7 @@ class SiltapController extends Controller
             'status' => 'menunggu_verifikasi',
         ]);
 
-        return redirect()->route('desa.siltap.index')->with('success', 'Usulan pencairan Siltap bulan ' . $request->bulan . '/' . $request->tahun . ' berhasil dikirim ke Dinpermasdes.');
+        return redirect()->route('desa.siltap.index')->with('success', 'Usulan pencairan Siltap bulan '.$request->bulan.'/'.$request->tahun.' berhasil dikirim ke Dinpermasdes.');
     }
 
     public function show(Siltap $siltap)
@@ -80,6 +80,7 @@ class SiltapController extends Controller
         if ($siltap->desa_id !== Auth::user()->desa_id) {
             abort(403);
         }
+
         return view('desa.siltap.show', compact('siltap'));
     }
 }

@@ -13,6 +13,7 @@ class RegulasiController extends Controller
     {
         $desaId = Auth::user()->desa_id;
         $regulasis = Regulasi::where('desa_id', $desaId)->latest()->paginate(15);
+
         return view('desa.regulasi.index', compact('regulasis'));
     }
 
@@ -28,10 +29,10 @@ class RegulasiController extends Controller
             'tipe' => 'required|in:perdes,perkades,sk_kades',
         ]);
 
-        if (!$request->hasFile('file') || !$request->file('file')) {
+        if (! $request->hasFile('file') || ! $request->file('file')) {
             // Try getting it from allFiles directly
             $files = $request->allFiles();
-            if (!isset($files['file'])) {
+            if (! isset($files['file'])) {
                 return back()->withErrors(['file' => 'File dokumen wajib diunggah.'])->withInput();
             }
         }
@@ -41,7 +42,7 @@ class RegulasiController extends Controller
 
         \Log::info('REGULASI FILE EXT', ['ext' => $ext, 'original_name' => $uploadedFile->getClientOriginalName(), 'error' => $uploadedFile->getError()]);
 
-        if (!in_array($ext, ['doc', 'docx'])) {
+        if (! in_array($ext, ['doc', 'docx'])) {
             return back()->withErrors(['file' => 'File harus berupa dokumen Word (.doc atau .docx). Format lain tidak diterima.'])->withInput();
         }
 
@@ -51,7 +52,7 @@ class RegulasiController extends Controller
         \Log::info('REGULASI FILE STORED', ['path' => $path]);
 
         // Auto-generate no_regulasi
-        $prefix = match($request->tipe) {
+        $prefix = match ($request->tipe) {
             'perdes' => 'PRD',
             'perkades' => 'PKD',
             'sk_kades' => 'SKK',
@@ -92,6 +93,7 @@ class RegulasiController extends Controller
         if ($regulasi->desa_id !== Auth::user()->desa_id) {
             abort(403);
         }
+
         return view('desa.regulasi.show', compact('regulasi'));
     }
 
@@ -107,13 +109,13 @@ class RegulasiController extends Controller
         ]);
 
         $extRevisi = strtolower($request->file('file_revisi')->getClientOriginalExtension());
-        if (!in_array($extRevisi, ['doc', 'docx'])) {
+        if (! in_array($extRevisi, ['doc', 'docx'])) {
             return back()->withErrors(['file_revisi' => 'File harus berupa dokumen Word (.doc atau .docx).']);
         }
 
         $updateData = [
             'file_path' => $request->file('file_revisi')->store('regulasi/draft_desa', 'public'),
-            'status' => 'evaluasi_lanjutan'
+            'status' => 'evaluasi_lanjutan',
         ];
 
         if ($request->hasFile('file_pdf_sah')) {
@@ -138,9 +140,9 @@ class RegulasiController extends Controller
         $regulasi->update([
             'status' => 'disahkan',
             'tgl_disahkan' => now(),
-            'file_pdf' => $request->file('file_final')->store('regulasi/pdf_final', 'public')
+            'file_pdf' => $request->file('file_final')->store('regulasi/pdf_final', 'public'),
         ]);
 
-        return back()->with('success', 'Aturan Resmi Disahkan dengan Nomor Lembaran: ' . $regulasi->no_regulasi);
+        return back()->with('success', 'Aturan Resmi Disahkan dengan Nomor Lembaran: '.$regulasi->no_regulasi);
     }
 }

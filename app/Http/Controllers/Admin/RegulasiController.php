@@ -11,12 +11,14 @@ class RegulasiController extends Controller
     public function index()
     {
         $regulasis = Regulasi::with('desa')->latest()->paginate(15);
+
         return view('admin.regulasi.index', compact('regulasis'));
     }
 
     public function show(Regulasi $regulasi)
     {
         $regulasi->load('desa');
+
         return view('admin.regulasi.show', compact('regulasi'));
     }
 
@@ -29,7 +31,7 @@ class RegulasiController extends Controller
 
         if ($request->hasFile('file_catatan_dinas')) {
             $ext = strtolower($request->file('file_catatan_dinas')->getClientOriginalExtension());
-            if (!in_array($ext, ['doc', 'docx', 'pdf'])) {
+            if (! in_array($ext, ['doc', 'docx', 'pdf'])) {
                 return back()->withErrors(['file_catatan_dinas' => 'File harus berupa dokumen Word atau PDF.']);
             }
         }

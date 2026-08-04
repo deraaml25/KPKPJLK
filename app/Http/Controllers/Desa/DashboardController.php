@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Desa;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\Ajuan;
 
 class DashboardController extends Controller
 {
@@ -11,16 +11,16 @@ class DashboardController extends Controller
     {
         $desaId = auth()->user()->desa_id;
 
-        $totalAjuan = \App\Models\Ajuan::where('desa_id', $desaId)->count();
-        $sedangDiproses = \App\Models\Ajuan::where('desa_id', $desaId)
+        $totalAjuan = Ajuan::where('desa_id', $desaId)->count();
+        $sedangDiproses = Ajuan::where('desa_id', $desaId)
             ->whereNotIn('status', ['draft', 'selesai', 'ditolak'])
             ->count();
-        $perluTindakan = \App\Models\Ajuan::where('desa_id', $desaId)
+        $perluTindakan = Ajuan::where('desa_id', $desaId)
             ->whereIn('status', ['draft', 'revisi'])
             ->count();
 
         // Ambil 5 ajuan terbaru yang aktif
-        $ajuans = \App\Models\Ajuan::with(['jenisLayanan', 'pesertas.perangkatDesa', 'milestoneTrackings'])
+        $ajuans = Ajuan::with(['jenisLayanan', 'pesertas.perangkatDesa', 'milestoneTrackings'])
             ->where('desa_id', $desaId)
             ->latest()
             ->take(5)

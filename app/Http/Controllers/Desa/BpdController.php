@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Desa;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Desa\BpdRequest;
 use App\Models\Bpd;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
 class BpdController extends Controller
 {
@@ -21,8 +21,8 @@ class BpdController extends Controller
             ->orderBy('nama');
 
         if ($request->has('search') && $request->search != '') {
-            $query->where('nama', 'like', '%' . $request->search . '%')
-                ->orWhere('jabatan', 'like', '%' . $request->search . '%');
+            $query->where('nama', 'like', '%'.$request->search.'%')
+                ->orWhere('jabatan', 'like', '%'.$request->search.'%');
         }
 
         $bpd = $query->paginate(15);
@@ -36,7 +36,7 @@ class BpdController extends Controller
         return view('desa.bpd.create');
     }
 
-    public function store(\App\Http\Requests\Desa\BpdRequest $request)
+    public function store(BpdRequest $request)
     {
         $validated = $request->validated();
         $validated['desa_id'] = auth()->user()->desa_id;
@@ -54,7 +54,7 @@ class BpdController extends Controller
         return view('desa.bpd.edit', compact('bpd'));
     }
 
-    public function update(\App\Http\Requests\Desa\BpdRequest $request, Bpd $bpd)
+    public function update(BpdRequest $request, Bpd $bpd)
     {
         $validated = $request->validated();
         $bpd->update([
@@ -64,7 +64,7 @@ class BpdController extends Controller
                 'jabatan' => $validated['jabatan'],
                 'no_sk_terakhir' => $validated['no_sk_terakhir'],
                 'tgl_mulai_jabatan' => $validated['tgl_mulai_jabatan'],
-            ]
+            ],
         ]);
 
         return redirect()->route('desa.bpd.index')
@@ -74,8 +74,9 @@ class BpdController extends Controller
     public function destroy(Bpd $bpd)
     {
         $bpd->update([
-            'status_verifikasi' => 'pending_nonaktif'
+            'status_verifikasi' => 'pending_nonaktif',
         ]);
+
         return redirect()->route('desa.bpd.index')
             ->with('success', 'Usulan penonaktifan BPD berhasil dikirim dan menunggu verifikasi admin.');
     }
@@ -83,7 +84,7 @@ class BpdController extends Controller
     public function activate(Bpd $bpd)
     {
         $bpd->update([
-            'status_verifikasi' => 'pending_aktif'
+            'status_verifikasi' => 'pending_aktif',
         ]);
 
         return redirect()->route('desa.bpd.index')

@@ -33,7 +33,7 @@ class PilkadesSuara extends Model
 
     public function inputter()
     {
-        return $this->belongsTo(\App\Models\User::class, 'input_by');
+        return $this->belongsTo(User::class, 'input_by');
     }
 
     /**

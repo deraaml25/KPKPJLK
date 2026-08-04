@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
-use App\Models\JenisLayanan;
 use App\Models\AlasanPemberhentian;
+use App\Models\JenisLayanan;
 use App\Models\TemplateChecklist;
+use Illuminate\Database\Seeder;
 
 class DocumentChecklistSeeder extends Seeder
 {
@@ -19,9 +19,9 @@ class DocumentChecklistSeeder extends Seeder
         // Get or Create Alasan Pemberhentian
         $alasan = [
             'Purna Tugas', 'Mengundurkan Diri', 'Meninggal Dunia',
-            'Berhalangan Tetap', 'Tindak Pidana', 'Pelanggaran Disiplin'
+            'Berhalangan Tetap', 'Tindak Pidana', 'Pelanggaran Disiplin',
         ];
-        
+
         $alasanModels = [];
         foreach ($alasan as $a) {
             $alasanModels[$a] = AlasanPemberhentian::firstOrCreate(['nama' => $a]);
@@ -54,7 +54,7 @@ class DocumentChecklistSeeder extends Seeder
             'Fc. Persyaratan administrasi calon yang lolos pada seleksi pengangkatan perangkat desa',
             'Fc. Rencana Anggaran Biaya (RAB)',
             'Fc. Laporan pertanggungjawaban penggunaan anggaran',
-            'Dokumentasi setiap tahapan penjaringan Perangkat Desa'
+            'Dokumentasi setiap tahapan penjaringan Perangkat Desa',
         ];
 
         foreach ($dokumenPengangkatan as $index => $dokumen) {
@@ -80,7 +80,7 @@ class DocumentChecklistSeeder extends Seeder
             'Fc. Sk Pengangkatan Pertama Perangkat Desa yang akan di Rotasi',
             'Fc. Ijasah atau Surat Tanda Tamat Belajar ( STTB )',
             'Fc. Daftar Hadir Perangkat Desa yang akan dirotasi selama 6 (enam) bulan sebelum pelaksaaan Rotasi',
-            'Fc. Peraturan Kepala Desa tentang Tata Tertib Rotasi'
+            'Fc. Peraturan Kepala Desa tentang Tata Tertib Rotasi',
         ];
 
         foreach ($dokumenRotasi as $index => $dokumen) {
@@ -101,7 +101,7 @@ class DocumentChecklistSeeder extends Seeder
             'Fc. Rekomendasi Camat atas proses pemberhentian Perangkat Desa',
             'Fc. SK Pengangkatan Perangkat Desa',
             'Fc. Kartu Keluarga',
-            'Fc. KTP atau Akta Kelahiran'
+            'Fc. KTP atau Akta Kelahiran',
         ];
 
         foreach ($dokumenPurnaTugas as $index => $dokumen) {
@@ -124,7 +124,7 @@ class DocumentChecklistSeeder extends Seeder
             'Fc. SK Pengangkatan Perangkat Desa',
             'Fc. Kartu Keluarga',
             'Fc. Surat Pernyataan Pengunduran diri dari Perangkat Desa yang ditujukan kepada Kepala Desa',
-            'Fc. KTP atau Akta Kelahiran'
+            'Fc. KTP atau Akta Kelahiran',
         ];
 
         foreach ($dokumenPermintaanSendiri as $index => $dokumen) {
@@ -146,18 +146,18 @@ class DocumentChecklistSeeder extends Seeder
             'Surat Pernyataan kebenaran dokumen dari Kepala Desa (bermaterai)',
             'Fc. Rekomendasi Camat atas proses pemberhentian Perangkat Desa',
             'Fc. SK Pengangkatan Perangkat Desa',
-            'Fc. Kartu Keluarga'
+            'Fc. Kartu Keluarga',
         ];
 
         $reasonsDiberhentikan = [
             'Meninggal Dunia' => [
-                'Fc. Surat keterangan Kematian (apabila meninggal)'
+                'Fc. Surat keterangan Kematian (apabila meninggal)',
             ],
             'Berhalangan Tetap' => [
-                'Fc. Surat Keterangan dari Rumah Sakit yang menerangkan bahwa yang bersangkutan tidak dapat melaksanakan tugas dan kewajiban secara berturut-turut selama 6 (enam) bulan (apabila berhalangan tetap)'
+                'Fc. Surat Keterangan dari Rumah Sakit yang menerangkan bahwa yang bersangkutan tidak dapat melaksanakan tugas dan kewajiban secara berturut-turut selama 6 (enam) bulan (apabila berhalangan tetap)',
             ],
             'Tindak Pidana' => [
-                'Fc. Putusan dari pengadilan yang memiliki kekuatan hukum tetap (apabila melakukan Tindak Pidana)'
+                'Fc. Putusan dari pengadilan yang memiliki kekuatan hukum tetap (apabila melakukan Tindak Pidana)',
             ],
             'Pelanggaran Disiplin' => [
                 'Fc. Bukti teguran lisan tercatat pertama, Teguran tertulis pertama, Teguran tertulis kedua, Teguran tertulis ketiga;',
@@ -168,14 +168,14 @@ class DocumentChecklistSeeder extends Seeder
                 'Fc. Surat Pemberitahuan Penjatuhan Disiplin dari Kepala Desa kepada Bupati lewat Camat;',
                 'Fc. Surat Keputusan Penjatuhan Hukuman Disiplin dari Kepala Desa',
                 'Fc. SK penguatan Hukuman Disiplin dari Kepala Desa (apabila menolak keberatan yang diajukan Perangkat desa yang bersangkutan);',
-                'Fc. Kartu Hukuman Disiplin'
-            ]
+                'Fc. Kartu Hukuman Disiplin',
+            ],
         ];
 
         foreach ($reasonsDiberhentikan as $reasonName => $extraDocs) {
             $reasonId = $alasanModels[$reasonName]->id;
             $combinedDocs = array_merge($diberhentikanBase, $extraDocs);
-            
+
             foreach ($combinedDocs as $index => $dokumen) {
                 TemplateChecklist::create([
                     'jenis_layanan_id' => $pemberhentian->id,

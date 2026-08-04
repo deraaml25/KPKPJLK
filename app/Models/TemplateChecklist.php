@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class TemplateChecklist extends Model
 {
     protected $fillable = [
-        'jenis_layanan_id', 'alasan_pemberhentian_id', 'nama_dokumen', 'wajib', 'urutan'
+        'jenis_layanan_id', 'alasan_pemberhentian_id', 'nama_dokumen', 'wajib', 'urutan',
     ];
 
     protected $casts = [

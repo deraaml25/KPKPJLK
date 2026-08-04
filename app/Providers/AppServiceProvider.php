@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -19,11 +20,11 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        \Illuminate\Support\Facades\Gate::define('desa-only', function ($user) {
+        Gate::define('desa-only', function ($user) {
             return $user->role === 'desa';
         });
 
-        \Illuminate\Support\Facades\Gate::define('admin-only', function ($user) {
+        Gate::define('admin-only', function ($user) {
             return $user->role === 'super_admin';
         });
     }
