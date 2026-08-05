@@ -288,6 +288,19 @@ Route::get('/fix-storage', function () {
         @unlink($storageHtaccess);
     }
     
+    // Hapus symlink/folder public/storage yang nyangkut di hosting
+    $publicStorage = public_path('storage');
+    if (file_exists($publicStorage) || is_link($publicStorage)) {
+        if (is_link($publicStorage)) {
+            @unlink($publicStorage);
+        } else {
+            // Hapus isi folder jika berupa folder (recursively deleted not fully needed, just use rmdir if empty, but usually it's just an empty folder or symlink)
+            if (is_dir($publicStorage)) {
+                @rmdir($publicStorage);
+            }
+        }
+    }
+    
     $logsHtaccess = base_path('storage/logs/.htaccess');
     if (!file_exists($logsHtaccess)) {
         @file_put_contents($logsHtaccess, "Order deny,allow\nDeny from all\n");
