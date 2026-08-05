@@ -154,7 +154,7 @@
                                 </div>
                             </td>
                             <td class="px-6 py-4 text-center">
-                                <span class="bg-slate-100 text-slate-800 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                                <span class="whitespace-nowrap bg-slate-100 text-slate-800 text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
                                     {{ str_replace('_', ' ', $act->status) }}
                                 </span>
                             </td>
@@ -186,32 +186,34 @@
             </div>
 
             <!-- Widget 2: Berita & Informasi -->
-            <div class="bg-[#7895CB] rounded-2xl p-5 text-white shadow-sm flex-1 flex flex-col {{ (isset($berita) && $berita->count() > 0) ? 'justify-start' : 'justify-center' }}">
-                <h3 class="text-lg font-bold mb-3 text-white flex items-center justify-between leading-tight">
+            <div class="rounded-2xl p-5 text-white shadow-md flex-1 flex flex-col relative overflow-hidden {{ (isset($berita) && $berita->count() > 0) ? 'justify-start' : 'justify-center' }}" style="background-color: #0A1A3A;">
+                
+                <h3 class="text-lg font-bold mb-4 text-white flex items-center justify-between leading-tight relative z-10">
                     <span class="flex items-center gap-2">
                         <span class="material-symbols-outlined text-[20px]">campaign</span>
                         Informasi Pembinaan
                     </span>
-                    <a href="{{ route('admin.bimtek-informasi.index') }}" class="text-[10px] font-medium bg-white/20 hover:bg-white/30 px-2 py-1 rounded transition-colors">Lihat Semua</a>
+                    <a href="{{ route('admin.bimtek-informasi.index') }}" class="text-[10px] font-medium bg-white/10 hover:bg-white/20 px-2.5 py-1 rounded-md transition-colors border border-white/10">Lihat Semua</a>
                 </h3>
                 @if(isset($berita) && $berita->count() > 0)
-                    <div class="space-y-2 overflow-y-auto max-h-[110px] scrollbar-none pr-1">
+                    <div class="space-y-3 overflow-y-auto max-h-[110px] scrollbar-none pr-1 relative z-10">
                         @foreach($berita as $item)
-                            <a href="{{ route('admin.bimtek-informasi.show', $item->id) }}" class="block bg-white/10 hover:bg-white/20 transition-colors border border-white/10 rounded-lg p-2.5">
-                                <div class="flex justify-between items-start mb-0.5">
-                                    <span class="text-sm font-bold text-white leading-tight line-clamp-1">{{ $item->judul }}</span>
-                                </div>
-                                <div class="flex justify-between items-center mt-1">
-                                    <span class="text-[10px] text-white/80 bg-black/20 px-1.5 py-0.5 rounded">{{ Str::title(str_replace('_', ' ', $item->kategori)) }}</span>
-                                    <span class="text-[10px] text-white/70">{{ $item->created_at->diffForHumans() }}</span>
+                            <a href="{{ route('admin.bimtek-informasi.show', $item->id) }}" class="block bg-white/5 hover:bg-white/10 transition-colors rounded-xl p-3" style="border: 1px solid rgba(255, 255, 255, 0.25);">
+                                <h4 class="font-bold text-[13px] text-white/90 leading-tight mb-2 line-clamp-2">{{ $item->title }}</h4>
+                                <div class="flex items-center justify-between mt-2">
+                                    <span class="text-[9px] font-bold px-2 py-0.5 rounded text-white/80 uppercase tracking-wider" style="background-color: rgba(255,255,255,0.1);">{{ $item->kategori }}</span>
+                                    <span class="text-[10px] text-white/50 font-medium flex items-center gap-1">
+                                        <span class="material-symbols-outlined text-[12px]">schedule</span>
+                                        {{ \Carbon\Carbon::parse($item->created_at)->diffForHumans() }}
+                                    </span>
                                 </div>
                             </a>
                         @endforeach
                     </div>
                 @else
-                    <div class="flex flex-col items-center justify-center text-center opacity-80 mt-1">
-                        <span class="material-symbols-outlined text-3xl mb-1 text-white">article</span>
-                        <p class="text-xs text-white">Belum ada berita atau informasi pembinaan terbaru.</p>
+                    <div class="flex flex-col items-center justify-center text-center opacity-50 relative z-10">
+                        <span class="material-symbols-outlined text-3xl mb-1">inbox</span>
+                        <p class="text-xs">Belum ada informasi pembinaan.</p>
                     </div>
                 @endif
             </div>

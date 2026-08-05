@@ -193,7 +193,7 @@
             <div class="lg:col-span-1">
                 <div class="bg-white rounded-card shadow-sm border border-border p-6 sticky top-4">
                     <h3 class="text-md font-display font-bold text-ink mb-4 pb-2 border-b border-border">
-                        💬 Berikan Balasan
+                        Berikan Balasan
                     </h3>
 
                     <form action="{{ route('admin.pengajuan-pembinaan.balas', $pengajuanPembinaan) }}" method="POST" class="space-y-4">
@@ -203,9 +203,9 @@
                             <label for="status" class="block text-sm font-medium text-ink mb-1">Status Keputusan <span class="text-red-500">*</span></label>
                             <select name="status" id="status" required
                                 class="w-full rounded-md border-border text-ink bg-white focus:border-primary focus:ring-primary shadow-sm text-sm">
-                                <option value="disetujui" {{ $pengajuanPembinaan->status === 'disetujui' ? 'selected' : '' }}>✅ Disetujui</option>
-                                <option value="ditolak" {{ $pengajuanPembinaan->status === 'ditolak' ? 'selected' : '' }}>❌ Ditolak</option>
-                                <option value="selesai" {{ $pengajuanPembinaan->status === 'selesai' ? 'selected' : '' }}>🎉 Selesai</option>
+                                <option value="disetujui" {{ $pengajuanPembinaan->status === 'disetujui' ? 'selected' : '' }}>Disetujui</option>
+                                <option value="ditolak" {{ $pengajuanPembinaan->status === 'ditolak' ? 'selected' : '' }}>Ditolak</option>
+                                <option value="selesai" {{ $pengajuanPembinaan->status === 'selesai' ? 'selected' : '' }}>Selesai</option>
                             </select>
                         </div>
 

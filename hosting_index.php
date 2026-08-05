@@ -1,25 +1,28 @@
 <?php
 
 /**
- * Laravel entry point for shared hosting (InfinityFree)
- * Upload file ini ke root htdocs/
- * Laravel project di-upload ke htdocs/ juga
+ * =============================================
+ * SIDMINI - Entry Point untuk InfinityFree
+ * =============================================
+ * File ini menggantikan public/index.php
+ * Upload ke: htdocs/index.php
+ * =============================================
  */
 
-// Arahkan semua request ke public/index.php
 define('LARAVEL_START', microtime(true));
 
-// Load autoloader
+// Path ke folder laravel (relatif dari htdocs/)
+// Semua file Laravel ada di htdocs/ juga, jadi __DIR__ = root project
 require __DIR__.'/vendor/autoload.php';
 
-// Bootstrap application
 $app = require_once __DIR__.'/bootstrap/app.php';
 
-// Run HTTP kernel
+// Override APP_PUBLIC_PATH ke htdocs/ bukan public/
+// supaya assets bisa diakses langsung
 $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
 
-$response = $kernel->handle(
+$response = tap($kernel->handle(
     $request = Illuminate\Http\Request::capture()
-)->send();
+))->send();
 
 $kernel->terminate($request, $response);

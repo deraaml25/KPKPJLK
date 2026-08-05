@@ -273,6 +273,34 @@ Route::middleware('auth')->group(function () {
 
 require __DIR__.'/auth.php';
 
+// Route for serving images from storage directly (useful for shared hosting without symlinks)
+Route::get('/storage/{path}', function ($path) {
+    $filePath = storage_path('app/public/' . $path);
+    if (file_exists($filePath)) {
+        return response()->file($filePath);
+    }
+    abort(404);
+})->where('path', '.*');
+
+Route::get('/fix-storage', function () {
+    $storageHtaccess = base_path('storage/.htaccess');
+    if (file_exists($storageHtaccess)) {
+        @unlink($storageHtaccess);
+    }
+    
+    $logsHtaccess = base_path('storage/logs/.htaccess');
+    if (!file_exists($logsHtaccess)) {
+        @file_put_contents($logsHtaccess, "Order deny,allow\nDeny from all\n");
+    }
+    
+    $frameworkHtaccess = base_path('storage/framework/.htaccess');
+    if (!file_exists($frameworkHtaccess)) {
+        @file_put_contents($frameworkHtaccess, "Order deny,allow\nDeny from all\n");
+    }
+    
+    return "✅ Selesai! Pintu sudah berhasil didobrak. Silakan kembali ke halaman sebelumnya dan Refresh (F5).";
+});
+
 Route::get('/parse-excel-diagnose', function () {
     try {
         $filePath = base_path('data_desa.xlsx');

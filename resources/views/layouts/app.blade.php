@@ -99,7 +99,7 @@
                                 <span class="material-symbols-outlined text-[14px]">manage_accounts</span>
                                 Profil Saya
                             </a>
-                            <form method="POST" action="{{ route('logout') }}" class="w-full">
+                            <form method="POST" action="{{ route('logout') }}" class="w-full" data-turbo="false">
                                 @csrf
                                 <button type="submit" class="flex items-center gap-2 text-slate-400 hover:text-white transition-colors text-[11px] font-semibold w-full">
                                     <span class="material-symbols-outlined text-[14px]">logout</span>

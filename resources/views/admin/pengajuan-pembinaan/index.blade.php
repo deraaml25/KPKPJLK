@@ -53,11 +53,11 @@
                                 <div class="flex flex-col gap-1">
                                     @if($p->file_surat_permohonan)
                                         <a href="{{ asset('storage/' . $p->file_surat_permohonan) }}" target="_blank"
-                                            class="text-primary text-xs hover:underline">📄 Surat Permohonan</a>
+                                            class="text-primary text-xs hover:underline">Surat Permohonan</a>
                                     @endif
                                     @if($p->file_undangan)
                                         <a href="{{ asset('storage/' . $p->file_undangan) }}" target="_blank"
-                                            class="text-primary text-xs hover:underline">📄 Surat Undangan</a>
+                                            class="text-primary text-xs hover:underline">Surat Undangan</a>
                                     @endif
                                     @if(!$p->file_surat_permohonan && !$p->file_undangan)
                                         <span class="text-xs text-muted italic">Tidak ada dokumen</span>

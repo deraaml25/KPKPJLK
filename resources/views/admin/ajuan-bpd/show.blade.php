@@ -176,58 +176,70 @@
                 </form>
             </div>
 
-            {{-- PANEL UPDATE DISPOSISI SURAT --}}
-            <div class="bg-surface rounded-card border border-border shadow-sm mb-10">
-                <div class="px-5 py-4 border-b border-border bg-primary-soft/10">
-                    <h3 class="font-display font-semibold text-primary">Update Disposisi & Status Proses</h3>
+            {{-- Kolom Kanan: Disposisi & Penerbitan SK --}}
+            <div class="bg-surface rounded-card shadow-sm border border-border flex flex-col mb-10">
+                <div class="p-5">
+                    <h3 class="text-base font-display font-semibold text-ink mb-1">Status Proses</h3>
+                    <p class="text-xs text-muted mb-4 pb-4 border-b border-border">Pantau tahapan perjalanan ajuan secara real-time.</p>
+                    
+                    <x-pjkades-tracker :posisiAktif="$ajuanBpd->posisi_surat ?? 'Berkas Diterima'" :status="$ajuanBpd->status" :pjkades="$ajuanBpd" />
                 </div>
-                <form action="{{ route('admin.ajuan-bpd.disposisi', $ajuanBpd->id) }}" method="POST"
-                    class="p-5 flex flex-col gap-4">
-                    @csrf
-                    <div>
-                        <label class="block text-sm font-medium text-ink mb-1">Pilih Status / Disposisi Terbaru</label>
-                        <select name="tahapan"
-                            class="w-full text-sm border-gray-300 rounded-md focus:border-primary focus:ring focus:ring-primary/20" required>
-                            <option value="">-- Pilih --</option>
-                            <option value="Berkas Diterima">Berkas Diterima</option>
-                            <option value="Verifikasi & Validasi Petugas">Verifikasi & Validasi Petugas</option>
-                            <option value="Penyusunan Draft Rekomendasi">Penyusunan Draft Rekomendasi</option>
-                            <option value="Verifikasi & Validasi Kabid PDPD">Verifikasi & Validasi Kabid PDPD</option>
-                            <option value="Verifikasi & Validasi Sekretaris Dinas">Verifikasi & Validasi Sekretaris Dinas</option>
-                            <option value="Verifikasi & Validasi Kepala Dinas">Verifikasi & Validasi Kepala Dinas</option>
-                            <option value="Verifikasi & Validasi Kepala Bagian Hukum">Verifikasi & Validasi Kepala Bagian Hukum</option>
-                            <option value="Verifikasi & Validasi Asisten Pemerintahan & Kesra">Verifikasi & Validasi Asisten Pemerintahan & Kesra</option>
-                            <option value="Verifikasi & Validasi Sekda">Verifikasi & Validasi Sekda</option>
-                            <option value="Tanda Tangan Bupati">Tanda Tangan Bupati</option>
-                            <option value="Penomoran TU Umum Setda">Penomoran TU Umum Setda</option>
-                            <option value="Sudah di Dinpermasdes">Sudah di Dinpermasdes</option>
-                            <option value="Sudah di Desa (Nama Penerima)">Sudah di Desa (Nama Penerima)</option>
-                        </select>
+
+                <div class="px-5 py-4 bg-gray-50 border-t border-border mt-auto rounded-b-card">
+                    <h3 class="text-xs font-semibold text-muted mb-2">Tindak Lanjut Cepat</h3>
+                    <div class="flex flex-col gap-2">
+                        @php
+                            $posisiOptions = [
+                                'Berkas Diterima',
+                                'Verifikasi & Validasi Petugas',
+                                'Penyusunan Draft Rekomendasi',
+                                'Verifikasi & Validasi Kabid PDPD',
+                                'Verifikasi & Validasi Sekretaris Dinas',
+                                'Verifikasi & Validasi Kepala Dinas',
+                                'Verifikasi & Validasi Kepala Bagian Hukum',
+                                'Verifikasi & Validasi Asisten Pemerintahan & Kesra',
+                                'Verifikasi & Validasi Sekda',
+                                'Tanda Tangan Bupati',
+                                'Penomoran TU Umum Setda',
+                                'Sudah di Dinpermasdes',
+                                'Sudah di Desa (Nama Penerima)'
+                            ];
+                            $currentIndex = array_search($ajuanBpd->posisi_surat ?? 'Berkas Diterima', $posisiOptions);
+                            if ($currentIndex === false) $currentIndex = 0;
+                            $nextPosisi = isset($posisiOptions[$currentIndex + 1]) ? $posisiOptions[$currentIndex + 1] : null;
+                        @endphp
+
+                        @if($nextPosisi === 'Sudah di Desa (Nama Penerima)')
+                        <form action="{{ route('admin.ajuan-bpd.disposisi', $ajuanBpd->id) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="tahapan" value="{{ $nextPosisi }}">
+                            <button type="submit"
+                                onclick="return confirm('Selesaikan dan setujui usulan ini?')"
+                                class="w-full py-2 px-3 bg-green-600 rounded text-white text-xs font-medium hover:bg-green-700 transition-colors flex items-center justify-center shadow-sm">
+                                Selesai & Setujui Usulan
+                            </button>
+                        </form>
+                        @elseif($nextPosisi)
+                        <form action="{{ route('admin.ajuan-bpd.disposisi', $ajuanBpd->id) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="tahapan" value="{{ $nextPosisi }}">
+                            <button type="submit"
+                                class="w-full py-2 px-3 bg-primary rounded text-white text-xs font-medium hover:bg-primary-light transition-colors flex items-center justify-center shadow-sm">
+                                Lanjutkan ke : {{ $nextPosisi }}
+                            </button>
+                        </form>
+                        @endif
+
+                        <form action="{{ route('admin.ajuan-bpd.disposisi', $ajuanBpd->id) }}" method="POST">
+                            @csrf
+                            <input type="hidden" name="tahapan" value="revisi">
+                            <button type="button" onclick="const note = prompt('Masukkan catatan revisi:'); if(note) { this.form.insertAdjacentHTML('beforeend', '<input type=\'hidden\' name=\'catatan\' value=\''+note+'\'>'); this.form.submit(); }"
+                                class="w-full py-2 px-3 bg-white border border-red-200 text-red-600 rounded text-xs font-medium hover:bg-red-50 transition-colors flex items-center justify-center shadow-sm">
+                                Revisi
+                            </button>
+                        </form>
                     </div>
-
-                    <div>
-                        <label class="block text-sm font-medium text-ink mb-1">Catatan Disposisi (Opsional)</label>
-                        <textarea name="catatan" rows="2" class="w-full text-sm border-gray-300 rounded-md"
-                            placeholder="Contoh: Berkas sudah lengkap, mohon arahan Bapak Kadis."></textarea>
-                    </div>
-
-                    <button type="submit"
-                        class="w-full py-2.5 bg-primary rounded-btn text-white text-sm font-medium hover:bg-primary-light transition-colors flex items-center justify-center shadow-sm">
-                        <svg class="w-4 h-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M13 5l7 7-7 7M5 5l7 7-7 7" />
-                        </svg>
-                        Simpan Disposisi
-                    </button>
-                </form>
-            </div>
-
-            {{-- TRACKER VISUAL --}}
-            <div class="bg-surface rounded-card border border-border shadow-sm p-5 mb-10">
-                <h3 class="text-base font-display font-semibold text-ink mb-1">Status Proses</h3>
-                <p class="text-xs text-muted mb-4 pb-4 border-b border-border">Pantau tahapan perjalanan ajuan secara real-time.</p>
-                
-                <x-pjkades-tracker :posisiAktif="$ajuanBpd->posisi_surat ?? 'Berkas Diterima'" :status="$ajuanBpd->status" :pjkades="$ajuanBpd" />
+                </div>
             </div>
 
         </div>

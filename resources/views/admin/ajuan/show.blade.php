@@ -174,18 +174,7 @@
             <div class="bg-surface rounded-card border border-border shadow-sm flex flex-col mb-2">
                 <div class="px-5 py-4 border-b border-border bg-gray-50 flex justify-between items-center">
                     <h3 class="font-display font-semibold text-ink">Keseluruhan Persyaratan & Catatan</h3>
-                    @if($ajuan->metode === 'offline')
-                        <span class="text-xs font-semibold px-2 py-1 bg-gray-200 text-gray-700 rounded">Metode: Offline</span>
-                    @elseif($ajuan->metode === 'online')
-                        @if(!$ajuan->berkas_zip)
-                            <span class="text-xs font-semibold px-2 py-1 bg-red-100 text-red-700 rounded">Berkas ZIP/PDF belum diunggah</span>
-                        @else
-                            <a href="{{ Storage::disk('public')->url($ajuan->berkas_zip) }}" target="_blank" class="inline-flex items-center text-xs font-semibold px-3 py-1 bg-primary text-white rounded hover:bg-primary-light transition-colors">
-                                <svg class="w-3.5 h-3.5 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
-                                Lihat ZIP/PDF Upload
-                            </a>
-                        @endif
-                    @endif
+
                 </div>
                 <form action="{{ route('admin.ajuan.update-catatan', $ajuan) }}" method="POST" class="p-5">
                     @csrf

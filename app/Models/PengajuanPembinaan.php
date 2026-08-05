@@ -42,10 +42,10 @@ class PengajuanPembinaan extends Model
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
-            'menunggu' => '⏳ Menunggu',
-            'disetujui' => '✅ Disetujui',
-            'ditolak' => '❌ Ditolak',
-            'selesai' => '🎉 Selesai',
+            'menunggu' => 'Menunggu',
+            'disetujui' => 'Disetujui',
+            'ditolak' => 'Ditolak',
+            'selesai' => 'Selesai',
             default => $this->status,
         };
     }
